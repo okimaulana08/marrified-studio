@@ -1,58 +1,66 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Marrified Studio
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+**Architecture spike PoC** for a wedding-invitation engine built around 4 pillars:
 
-## About Laravel
+1. **Section as first-class entity** — each invitation is a list of section instances (cover, quotes, couple, event, gallery, gift, rsvp, guestbook), each pointing to a layout variant.
+2. **Theme = Asset Pack + Manifest** — themes live under `resources/themes/{slug}/` as a `manifest.json` plus an `assets/` folder; **no Blade per theme**.
+3. **Per-section decoration slot system** — `frame`, `tossed`, `scene`, `icon` are slots on every section; the manifest binds asset files to slots.
+4. **Guest tokenization** — `/{slug}/{token?}` is the canonical URL; tokens resolve to per-guest greeting + pre-filled RSVP/guestbook + opens tracking.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+The PoC ships **one flagship theme (`watercolor-lush`)** that visually matches sage-watercolor satumomen 70-80%, rendered end-to-end from seed data through the engine.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Quick start
 
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```powershell
+composer install
+npm install
+copy .env.example .env
+php artisan key:generate
+php artisan migrate --seed
+php artisan themes:publish-assets watercolor-lush
+npm run build
+php artisan serve
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Then open:
 
-## Contributing
+- `http://localhost:8000/raka-dewi` — generic invitation cover (no greeting).
+- `http://localhost:8000/raka-dewi/{token}` — personal greeting + pre-filled forms. Find a valid token via `php artisan tinker` → `App\Models\Guest::first()->token`.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## Architecture in one paragraph
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+`PublishedInvitationController` resolves an `Invitation` by slug, loads its `Section` rows + relations, fetches the `Theme` from `ThemeRegistry::find()` (filesystem-backed, reads `manifest.json`), and renders `layouts/render.blade.php`. That layout iterates the invitation's sections and dispatches each through `<x-render-section>`, which resolves the section's `type` + `variant` to a Blade file at `resources/views/sections/{type}/{variant}.blade.php`. Each section blade pulls its decorations from `<x-theme.section-decorations>` (frame/tossed/scene) and `<x-theme.section-icon>` (SVG inline / `<img>` fallback), themed via CSS variables set from the manifest's `default_palette`.
 
-## Security Vulnerabilities
+## Tests
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```powershell
+vendor\bin\pest --parallel
+vendor\bin\pint --test
+php -d memory_limit=512M vendor\bin\phpstan analyse
+```
 
-## License
+## Adding a new theme
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+1. Create folder `resources/themes/{slug}/` with `manifest.json` + `assets/`.
+2. Drop WebP / SVG / Lottie files into `assets/`.
+3. Reference them by filename in `manifest.json` under `decorations.sections.*.{frame|tossed|scene|icon}`.
+4. Run `php artisan themes:publish-assets {slug}`.
+5. Set the invitation's `theme_slug` to your new slug.
+
+No Blade authoring needed. The same 8 section variants render any theme.
+
+## What's NOT in this PoC (intentional)
+
+- Auth / admin / wizard UI — data is seeded via `DemoInvitationSeeder`.
+- Subscription / payment — out of scope for architecture validation.
+- Live preview iframe + postMessage — defer.
+- Tabbed layout mode + FAB stack — defer.
+- Multi-theme — only `watercolor-lush` ships.
+
+## Stack
+
+Laravel 13.7 · Livewire 4.3 · Tailwind v4 · Pest 4 · Pint (Laravel preset, strict_types) · Larastan level 8 · MySQL or SQLite.
