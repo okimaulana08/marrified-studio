@@ -4,21 +4,18 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Services\Themes\ThemeRegistry;
 use Illuminate\Support\ServiceProvider;
 
-class AppServiceProvider extends ServiceProvider
+final class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
-        //
+        $this->app->singleton(ThemeRegistry::class, fn () => new ThemeRegistry(
+            themesPath: resource_path('themes'),
+        ));
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
         //
