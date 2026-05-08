@@ -1,0 +1,41 @@
+/* Section decoration slot positioning + animations. */
+.theme-section-decorations { position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.theme-section-frame { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+.theme-section-tossed {
+    position: absolute;
+    width: var(--tossed-size, 100%);
+    height: auto;
+    opacity: var(--tossed-opacity, 1);
+}
+.theme-section-tossed--top    { top: 0;    left: 50%; transform: translateX(-50%); }
+.theme-section-tossed--bottom { bottom: 0; left: 50%; transform: translateX(-50%); }
+.theme-section-tossed--tl     { top: 0;    left: 0; }
+.theme-section-tossed--tr     { top: 0;    right: 0; }
+.theme-section-tossed--bl     { bottom: 0; left: 0; }
+.theme-section-tossed--br     { bottom: 0; right: 0; }
+
+.theme-section-scene {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    opacity: var(--scene-opacity, 1);
+}
+
+.theme-section-icon {
+    display: inline-block;
+    color: var(--p);
+    margin: 0 auto;
+    vertical-align: middle;
+}
+.theme-section-icon svg { width: 100%; height: 100%; fill: currentColor; }
+
+@media (prefers-reduced-motion: reduce) {
+    .theme-section-decorations img,
+    .theme-section-decorations * {
+        animation: none !important;
+        transition: none !important;
+    }
+}

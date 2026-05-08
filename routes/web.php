@@ -2,8 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\PublishedInvitationController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', fn () => view('welcome'));
+
+Route::get('/{slug}/{token?}', PublishedInvitationController::class)
+    ->where(['token' => '[A-Za-z0-9]{8,16}'])
+    ->name('public.invitation');

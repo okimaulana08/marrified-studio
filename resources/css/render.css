@@ -1,0 +1,16 @@
+/* Phase 4 minimal render styles. Full styling in Phase 5+6. */
+.render-body {
+    font-family: var(--fb);
+    color: var(--ink);
+    background: var(--bg);
+    margin: 0;
+    overflow-x: hidden;
+}
+.invitation-main { max-width: 480px; margin: 0 auto; padding-bottom: 4rem; position: relative; z-index: 2; }
+.section { position: relative; padding: 3rem 1.25rem; overflow: hidden; }
+.section-inner { position: relative; z-index: 2; }
+.section-inner--centered { text-align: center; }
+.section-title { font-family: var(--fd); font-size: 1.25rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); margin: 0.5rem 0; text-align: center; }
+.section-lede { color: var(--muted); font-size: 0.875rem; line-height: 1.7; text-align: center; padding: 0 1rem; }
+.theme-page-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; background-size: cover; background-position: center; mix-blend-mode: soft-light; }
+[x-cloak] { display: none !important; }
