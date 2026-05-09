@@ -160,6 +160,39 @@
 .is-entered .layout-bg { animation: lay-bg-reveal 0.45s ease-out backwards; }
 @keyframes lay-bg-reveal { from { opacity: 0.6; } to { opacity: 1; } }
 
+/* =====================================================================
+ * LOOPING IDLE ANIMATIONS — applied to the inner <img> of a slot so they
+ * don't fight the slot's anim_in (which lives on the outer div). The
+ * loop only ticks while the parent slide has .is-entered, saving CPU
+ * on offscreen slides. Picked via manifest: `"anim_loop": "sway"`.
+ * ===================================================================== */
+.is-entered [data-anim-loop="sway"]    { animation: lay-loop-sway    6s ease-in-out infinite; transform-origin: center top; }
+.is-entered [data-anim-loop="float"]   { animation: lay-loop-float   5s ease-in-out infinite; }
+.is-entered [data-anim-loop="pulse"]   { animation: lay-loop-pulse   4s ease-in-out infinite; }
+.is-entered [data-anim-loop="drift"]   { animation: lay-loop-drift   8s ease-in-out infinite; }
+
+@keyframes lay-loop-sway {
+    0%, 100% { transform: rotate(-1.4deg); }
+    50%      { transform: rotate(1.4deg); }
+}
+@keyframes lay-loop-float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-6px); }
+}
+@keyframes lay-loop-pulse {
+    0%, 100% { transform: scale(1);    opacity: 1;   }
+    50%      { transform: scale(1.04); opacity: 0.92;}
+}
+@keyframes lay-loop-drift {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    50%      { transform: translate(3px, -4px) rotate(0.8deg); }
+}
+
+/* Pause loops when reduced-motion is requested. */
+@media (prefers-reduced-motion: reduce) {
+    .is-entered [data-anim-loop] { animation: none !important; }
+}
+
 /* --------------------- Keyframes --------------------- */
 @keyframes lay-fade-in    { from { opacity: 0; }                                              to { opacity: 1; } }
 @keyframes lay-fade-down  { from { opacity: 0; transform: translateY(-30px); }                to { opacity: 1; transform: translateY(0); } }

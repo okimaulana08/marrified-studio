@@ -237,6 +237,39 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // ============================================================
+    // Countdown timers — every node with [data-countdown-target] gets a
+    // 1Hz tick that fills [data-countdown-days/hours/minutes/seconds]
+    // children. Multiple countdowns on the same page work; we share one
+    // setInterval so the page only ticks once per second.
+    // ============================================================
+    const countdownNodes = document.querySelectorAll('[data-countdown-target]');
+    if (countdownNodes.length > 0) {
+        const pad = (n) => String(n).padStart(2, '0');
+        const tickCountdowns = () => {
+            const now = Date.now();
+            countdownNodes.forEach((node) => {
+                const target = Date.parse(node.dataset.countdownTarget);
+                if (Number.isNaN(target)) return;
+                let diff = Math.max(0, target - now);
+                const days = Math.floor(diff / 86400000); diff -= days * 86400000;
+                const hours = Math.floor(diff / 3600000);  diff -= hours * 3600000;
+                const minutes = Math.floor(diff / 60000);  diff -= minutes * 60000;
+                const seconds = Math.floor(diff / 1000);
+                const setVal = (sel, val) => {
+                    const el = node.querySelector(`[${sel}]`);
+                    if (el) el.textContent = val;
+                };
+                setVal('data-countdown-days', pad(days));
+                setVal('data-countdown-hours', pad(hours));
+                setVal('data-countdown-minutes', pad(minutes));
+                setVal('data-countdown-seconds', pad(seconds));
+            });
+        };
+        tickCountdowns();
+        setInterval(tickCountdowns, 1000);
+    }
+
     // Expose for debugging.
     window._deck = swiper;
     window._lottiePlayers = lottiePlayers;

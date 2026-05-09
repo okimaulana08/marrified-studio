@@ -75,6 +75,7 @@
                     'couple'    => ['label' => 'Couple',   'enabled' => ! $isNew],
                     'stories'   => ['label' => 'Cerita',   'enabled' => ! $isNew],
                     'events'    => ['label' => 'Events',   'enabled' => ! $isNew],
+                    'countdown' => ['label' => 'Countdown','enabled' => ! $isNew],
                     'religious' => ['label' => 'Religi',   'enabled' => ! $isNew],
                     'sections'  => ['label' => 'Section',  'enabled' => ! $isNew],
                     'gallery'   => ['label' => 'Gallery',  'enabled' => ! $isNew],
@@ -126,6 +127,9 @@
                     </div>
                     <div x-show="tab === 'events'" x-cloak class="fade-up">
                         @include('livewire.invitations.partials.tab-events')
+                    </div>
+                    <div x-show="tab === 'countdown'" x-cloak class="fade-up">
+                        @include('livewire.invitations.partials.tab-countdown')
                     </div>
                     <div x-show="tab === 'religious'" x-cloak class="fade-up">
                         @include('livewire.invitations.partials.tab-religious')

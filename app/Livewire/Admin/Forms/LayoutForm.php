@@ -10,7 +10,7 @@ use Livewire\Form;
 final class LayoutForm extends Form
 {
     /** Section types eligible for per-page slot overrides (matches sections we render). */
-    public const SECTION_TYPES = ['cover', 'quotes', 'couple', 'story', 'event', 'gallery', 'gift', 'rsvp', 'guestbook', 'thanks'];
+    public const SECTION_TYPES = ['cover', 'quotes', 'couple', 'story', 'event', 'countdown', 'gallery', 'gift', 'rsvp', 'guestbook', 'thanks'];
 
     /* ---------- Default page: Background ---------- */
     public string $bgFile = '';
@@ -80,7 +80,7 @@ final class LayoutForm extends Form
     {
         $map = [];
         foreach (ThemeRegistry::SLOT_KEYS as $key) {
-            $map[$key] = ['file' => '', 'anim_in' => '', 'duration_ms' => 0, 'delay_ms' => 0];
+            $map[$key] = ['file' => '', 'anim_in' => '', 'anim_loop' => '', 'duration_ms' => 0, 'delay_ms' => 0];
         }
 
         return $map;
@@ -133,6 +133,7 @@ final class LayoutForm extends Form
             $target[$name] = [
                 'file' => (string) ($entry['file'] ?? ''),
                 'anim_in' => (string) ($entry['anim_in'] ?? ''),
+                'anim_loop' => (string) ($entry['anim_loop'] ?? ''),
                 'duration_ms' => (int) ($entry['duration_ms'] ?? 0),
                 'delay_ms' => (int) ($entry['delay_ms'] ?? 0),
             ];
@@ -204,6 +205,11 @@ final class LayoutForm extends Form
                 $slotEntry['anim_in'] = $anim;
             }
 
+            $loop = (string) ($entry['anim_loop'] ?? '');
+            if ($loop !== '') {
+                $slotEntry['anim_loop'] = $loop;
+            }
+
             $duration = (int) ($entry['duration_ms'] ?? 0);
             if ($duration > 0) {
                 $slotEntry['duration_ms'] = $duration;
@@ -230,6 +236,12 @@ final class LayoutForm extends Form
     public static function animOptions(): array
     {
         return ThemeRegistry::ANIM_PRESETS;
+    }
+
+    /** @return list<string> */
+    public static function animLoopOptions(): array
+    {
+        return ThemeRegistry::ANIM_LOOP_PRESETS;
     }
 
     /** @return list<string> */

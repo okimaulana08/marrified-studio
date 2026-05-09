@@ -20,11 +20,14 @@
         "cover": "minimal",
         "quotes": "default",
         "couple": "side-by-side",
+        "story": "timeline-vertical",
         "event": "card",
+        "countdown": "digital",
         "gallery": "grid",
         "gift": "cashless-modal",
         "rsvp": "default",
-        "guestbook": "default"
+        "guestbook": "default",
+        "thanks": "with-photo"
     },
     "layout": {
         "default": {
@@ -37,12 +40,14 @@
                 "corner-tl": {
                     "file": "tl-2.webp",
                     "anim_in": "fade-right",
-                    "duration_ms": 3000,
-                    "delay_ms": 900
+                    "anim_loop": "pulse",
+                    "duration_ms": 900,
+                    "delay_ms": 150
                 },
                 "corner-br": {
                     "file": "br-2.webp",
                     "anim_in": "fade-left",
+                    "anim_loop": "drift",
                     "duration_ms": 900,
                     "delay_ms": 200
                 }

@@ -25,6 +25,9 @@ final class ThemeRegistry
         'slide-down', 'slide-up', 'scale-in', 'rotate-in', 'blur-in',
     ];
 
+    /** Idle loop animations applied to slot inner img while slide is active. */
+    public const ANIM_LOOP_PRESETS = ['sway', 'float', 'pulse', 'drift'];
+
     public const BG_FITS = ['cover', 'contain', 'fill', 'tile'];
 
     public const LOTTIE_PLACEMENTS = ['top', 'bottom', 'left', 'right', 'center'];

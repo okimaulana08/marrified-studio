@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire\Invitations;
 
 use App\Enums\ReligionType;
+use App\Livewire\Invitations\Forms\CountdownForm;
 use App\Livewire\Invitations\Forms\CoupleForm;
 use App\Livewire\Invitations\Forms\EventsForm;
 use App\Livewire\Invitations\Forms\GalleryForm;
@@ -79,6 +80,8 @@ final class InvitationEditor extends Component
 
     public ThanksForm $thanks;
 
+    public CountdownForm $countdown;
+
     /** Pending file pick for thanks photo. Cleared after saveThanks. */
     #[Validate('nullable|image|max:5120')]
     public $thanksPhoto = null;
@@ -134,6 +137,9 @@ final class InvitationEditor extends Component
 
         $thanksSection = $invitation->sections->firstWhere('type', 'thanks');
         $this->thanks->fillFromSection($thanksSection);
+
+        $countdownSection = $invitation->sections->firstWhere('type', 'countdown');
+        $this->countdown->fillFromSection($countdownSection);
     }
 
     public function save(): void
@@ -485,6 +491,18 @@ final class InvitationEditor extends Component
         }
     }
 
+    public function saveCountdown(): void
+    {
+        try {
+            $invitation = $this->resolveInvitation();
+            $this->countdown->validate();
+            $this->countdown->persist($invitation);
+            $this->flashSaved();
+        } catch (RuntimeException $e) {
+            $this->flash($e->getMessage(), 'error');
+        }
+    }
+
     public function saveMusic(): void
     {
         try {
@@ -574,6 +592,9 @@ final class InvitationEditor extends Component
             'music' => $this->music->fillFromModel($invitation),
             'thanks' => $this->thanks->fillFromSection(
                 Section::query()->where('invitation_id', $invitation->id)->where('type', 'thanks')->first()
+            ),
+            'countdown' => $this->countdown->fillFromSection(
+                Section::query()->where('invitation_id', $invitation->id)->where('type', 'countdown')->first()
             ),
             default => null,
         };

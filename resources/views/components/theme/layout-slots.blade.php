@@ -33,11 +33,15 @@
                     $animStyles[] = "animation-delay: {$delay}ms";
                 }
             @endphp
+            @php
+                $loop = (string) ($config['anim_loop'] ?? '');
+            @endphp
             <div class="layout-slot layout-slot--{{ $slotName }} {{ $animClass }}"
                  data-slot="{{ $slotName }}"
                  @if ($anim !== '') data-anim="{{ $anim }}" @endif
                  @style($animStyles)>
-                <img src="{{ $url }}" alt="" loading="lazy" decoding="async">
+                <img src="{{ $url }}" alt="" loading="lazy" decoding="async"
+                     @if ($loop !== '') data-anim-loop="{{ $loop }}" @endif>
             </div>
         @endforeach
 

@@ -315,6 +315,21 @@
         /* Override Chrome/Safari autofill yellow + white-bg styling so it
          * stays consistent with the dark glass form. The 9999s transition
          * is a hack to keep the fake bg from animating back to default. */
+        /* Hide native password reveal/clear glyphs (Edge ms-reveal, Edge ms-clear,
+         * and Chrome/Safari built-in caps-lock warning). Our custom eye toggle
+         * is the only reveal control. */
+        .auth-input::-ms-reveal,
+        .auth-input::-ms-clear { display: none; }
+        .auth-input::-webkit-credentials-auto-fill-button,
+        .auth-input::-webkit-strong-password-auto-fill-button {
+            visibility: hidden !important;
+            display: none !important;
+            pointer-events: none;
+            position: absolute;
+            right: 0;
+        }
+        .auth-input::-webkit-caps-lock-indicator { display: none; }
+
         .auth-input:-webkit-autofill,
         .auth-input:-webkit-autofill:hover,
         .auth-input:-webkit-autofill:focus,

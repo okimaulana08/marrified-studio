@@ -41,7 +41,7 @@ beforeEach(function () {
             'variant' => match ($type) {
                 'cover' => 'arch', 'quotes' => 'default', 'couple' => 'side-by-side',
                 'story' => 'timeline-vertical',
-                'event' => 'card', 'gallery' => 'grid', 'gift' => 'cashless-modal',
+                'event' => 'card', 'countdown' => 'digital', 'gallery' => 'grid', 'gift' => 'cashless-modal',
                 'rsvp' => 'default', 'guestbook' => 'default',
                 'thanks' => 'with-photo',
             },

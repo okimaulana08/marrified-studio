@@ -246,6 +246,7 @@ final class ThemeEditor extends Component
             'slotGroups' => LayoutForm::slotGroups(),
             'slotLabels' => LayoutForm::slotLabels(),
             'animOptions' => LayoutForm::animOptions(),
+            'animLoopOptions' => LayoutForm::animLoopOptions(),
             'bgFitOptions' => LayoutForm::bgFitOptions(),
             'lottiePlacementOptions' => LayoutForm::lottiePlacementOptions(),
             'lottieSizeOptions' => LayoutForm::lottieSizeOptions(),

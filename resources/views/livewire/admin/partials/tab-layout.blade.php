@@ -347,6 +347,43 @@
                                             @endforeach
                                         </div>
 
+                                        {{-- Anim Loop picker (idle animation while slide is active) --}}
+                                        @php
+                                            $currentLoop = (string) ($currentSlots[$slotKey]['anim_loop'] ?? '');
+                                        @endphp
+                                        <div class="mt-2.5">
+                                            <p class="text-[10px] text-white/35 mb-1.5 uppercase tracking-wider flex items-center gap-1.5">
+                                                Anim Loop
+                                                @if ($currentLoop)
+                                                    <span class="text-emerald-400/80 font-mono normal-case tracking-normal">{{ $currentLoop }}</span>
+                                                @else
+                                                    <span class="text-white/30 normal-case">tidak ada</span>
+                                                @endif
+                                            </p>
+                                            <div class="flex flex-wrap gap-1">
+                                                <button type="button"
+                                                        wire:click="$set('{{ $modelPrefix }}.slots.{{ $slotKey }}.anim_loop', '')"
+                                                        @class([
+                                                            'px-2.5 py-1 text-[10px] font-semibold rounded-lg border transition-all',
+                                                            'bg-emerald-500/25 text-emerald-200 border-emerald-400/40' => $currentLoop === '',
+                                                            'glass-sm text-white/55 hover:text-white border-transparent' => $currentLoop !== '',
+                                                        ])>
+                                                    Tidak ada
+                                                </button>
+                                                @foreach ($animLoopOptions as $loopOpt)
+                                                    <button type="button"
+                                                            wire:click="$set('{{ $modelPrefix }}.slots.{{ $slotKey }}.anim_loop', '{{ $loopOpt }}')"
+                                                            @class([
+                                                                'px-2.5 py-1 text-[10px] font-semibold rounded-lg border transition-all capitalize',
+                                                                'bg-emerald-500/25 text-emerald-200 border-emerald-400/40' => $currentLoop === $loopOpt,
+                                                                'glass-sm text-white/55 hover:text-white border-transparent' => $currentLoop !== $loopOpt,
+                                                            ])>
+                                                        {{ $loopOpt }}
+                                                    </button>
+                                                @endforeach
+                                            </div>
+                                        </div>
+
                                         @if ($currentAnim !== '')
                                             @php
                                                 $duration = (int) ($currentSlots[$slotKey]['duration_ms'] ?? 0);

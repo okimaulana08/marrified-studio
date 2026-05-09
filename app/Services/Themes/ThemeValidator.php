@@ -135,6 +135,15 @@ final class ThemeValidator
                 }
             }
 
+            if (($slotEntry['anim_loop'] ?? '') !== '') {
+                $loop = (string) $slotEntry['anim_loop'];
+                if (! in_array($loop, ThemeRegistry::ANIM_LOOP_PRESETS, true)) {
+                    throw new RuntimeException(
+                        "Invalid anim_loop '{$loop}' at {$context}.slots.{$slotName}. Allowed: ".implode(', ', ThemeRegistry::ANIM_LOOP_PRESETS)
+                    );
+                }
+            }
+
             if (isset($slotEntry['duration_ms'])) {
                 $d = (int) $slotEntry['duration_ms'];
                 if ($d < ThemeRegistry::DURATION_MIN_MS || $d > ThemeRegistry::DURATION_MAX_MS) {
