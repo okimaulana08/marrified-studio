@@ -327,6 +327,157 @@ html, body { height: 100%; }
     margin: 0.5rem 0;
 }
 
+/* ─── STORY / TIMELINE ─── */
+.section--story { text-align: center; }
+.section--story .section-title { margin-bottom: 1.5rem; }
+.story-empty {
+    color: var(--muted);
+    font-style: italic;
+    font-size: 0.85rem;
+}
+
+/* Vertical timeline with center spine + alternating side cards */
+.story-timeline {
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+    position: relative;
+}
+.story-timeline::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--a) 35%, transparent), transparent);
+    transform: translateX(-50%);
+}
+.story-entry {
+    position: relative;
+    padding: 0.75rem 0;
+    margin-bottom: 1rem;
+    width: 100%;
+}
+.story-entry-dot {
+    position: absolute;
+    left: 50%;
+    top: 1.25rem;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--a);
+    transform: translateX(-50%);
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.4), 0 0 14px rgba(0, 0, 0, 0.06);
+    z-index: 2;
+}
+.story-entry-card {
+    width: calc(50% - 1.25rem);
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    text-align: left;
+    box-shadow: 0 4px 16px -8px rgba(0, 0, 0, 0.18);
+}
+.story-entry--left .story-entry-card { margin-right: auto; }
+.story-entry--right .story-entry-card { margin-left: auto; }
+.story-entry-year {
+    display: inline-block;
+    font-family: var(--fd);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--p);
+    background: color-mix(in srgb, var(--p) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--p) 25%, transparent);
+    border-radius: 999px;
+    padding: 0.18rem 0.65rem;
+    margin-bottom: 0.4rem;
+}
+.story-entry-title {
+    font-family: var(--fd);
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--ink);
+    margin: 0.15rem 0 0.45rem;
+    line-height: 1.35;
+}
+.story-entry-photo {
+    margin: 0.45rem 0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+.story-entry-photo img {
+    width: 100%;
+    height: auto;
+    display: block;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+}
+.story-entry-text {
+    color: var(--muted);
+    font-size: 0.82rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Stack vertically on narrow screens — center spine becomes left rail */
+@media (max-width: 480px) {
+    .story-timeline::before { left: 14px; }
+    .story-entry-dot { left: 14px; }
+    .story-entry-card { width: calc(100% - 32px); margin-left: 32px !important; margin-right: 0 !important; }
+}
+
+/* Cards variant: simple stack with left accent border */
+.story-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    margin-top: 1.5rem;
+}
+.story-card {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-left: 4px solid var(--a);
+    border-radius: 10px;
+    overflow: hidden;
+    text-align: left;
+}
+.story-card-photo img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    display: block;
+}
+.story-card-body {
+    padding: 0.85rem 1rem 1rem;
+}
+.story-card-year {
+    display: inline-block;
+    font-family: var(--fd);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--p);
+    margin-bottom: 0.35rem;
+}
+.story-card-title {
+    font-family: var(--fd);
+    font-size: 1.05rem;
+    color: var(--ink);
+    margin: 0.15rem 0 0.45rem;
+}
+.story-card-text {
+    color: var(--muted);
+    font-size: 0.85rem;
+    line-height: 1.65;
+    margin: 0;
+}
+
 /* ─── COUPLE ─── */
 .couple-grid {
     display: grid;
@@ -706,6 +857,35 @@ html, body { height: 100%; }
     font-style: italic;
     text-align: center;
     font-size: 0.85rem;
+}
+
+/* ============== BGM TOGGLE (background music mute button) ============== */
+.bgm-toggle {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 30;
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px) saturate(140%);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+    color: var(--ink);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px -4px rgba(0, 0, 0, 0.18);
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.bgm-toggle:hover { transform: scale(1.08); }
+.bgm-toggle:active { transform: scale(0.95); }
+.bgm-toggle[hidden] { display: none; }
+
+@media (hover: none) and (pointer: coarse) {
+    .bgm-toggle { width: 44px; height: 44px; }
 }
 
 /* ============== DECK NAVIGATION UI ============== */

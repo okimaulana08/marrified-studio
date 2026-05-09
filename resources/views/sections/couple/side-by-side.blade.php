@@ -12,7 +12,7 @@
             <article class="couple-person couple-person--bride">
                 <div class="couple-photo">
                     @if ($couple->bride_photo_path)
-                        <img src="{{ asset('storage/'.$couple->bride_photo_path) }}" alt="{{ $couple->bride_name }}" loading="lazy">
+                        <img src="{{ \Illuminate\Support\Facades\Storage::disk('invitation_media')->url($couple->bride_photo_path) }}" alt="{{ $couple->bride_name }}" loading="lazy">
                     @else
                         <div class="couple-photo-placeholder">{{ mb_substr($couple->bride_nickname ?? $couple->bride_name, 0, 1) }}</div>
                     @endif
@@ -32,7 +32,7 @@
             <article class="couple-person couple-person--groom">
                 <div class="couple-photo">
                     @if ($couple->groom_photo_path)
-                        <img src="{{ asset('storage/'.$couple->groom_photo_path) }}" alt="{{ $couple->groom_name }}" loading="lazy">
+                        <img src="{{ \Illuminate\Support\Facades\Storage::disk('invitation_media')->url($couple->groom_photo_path) }}" alt="{{ $couple->groom_name }}" loading="lazy">
                     @else
                         <div class="couple-photo-placeholder">{{ mb_substr($couple->groom_nickname ?? $couple->groom_name, 0, 1) }}</div>
                     @endif

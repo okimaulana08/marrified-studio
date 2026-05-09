@@ -11,7 +11,7 @@
             <div class="gallery-grid">
                 @foreach ($images as $img)
                     <figure class="gallery-item">
-                        <img src="{{ asset('storage/'.$img) }}" alt="" loading="lazy">
+                        <img src="{{ \Illuminate\Support\Facades\Storage::disk('invitation_media')->url($img) }}" alt="" loading="lazy">
                     </figure>
                 @endforeach
             </div>

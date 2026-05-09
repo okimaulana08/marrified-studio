@@ -85,11 +85,11 @@
     @endif
 
     {{-- Main credential card --}}
-    <div class="glass rounded-2xl p-5">
+    <div class="glass rounded-2xl p-6 sm:p-7">
         @if ($linkedUser === null)
             {{-- State 1: No credentials yet --}}
-            <h2 class="font-display text-lg font-semibold text-white mb-1">Belum Ada Kredensial</h2>
-            <p class="text-sm text-white/50 mb-4">
+            <h2 class="font-display text-lg font-semibold text-white mb-2">Belum Ada Kredensial</h2>
+            <p class="text-sm text-white/50 mb-5 leading-relaxed">
                 Buat akun login untuk couple. Mereka akan login dengan email + password yang di-generate untuk edit invitation.
             </p>
 
@@ -112,24 +112,24 @@
             </div>
         @else
             {{-- State 2: Credentials exist --}}
-            <h2 class="font-display text-lg font-semibold text-white mb-1">Akses Couple Aktif</h2>
-            <p class="text-sm text-white/50 mb-4">
+            <h2 class="font-display text-lg font-semibold text-white mb-2">Akses Couple Aktif</h2>
+            <p class="text-sm text-white/50 mb-5 leading-relaxed">
                 Kredensial sudah di-issue. Couple bisa login dan edit invitation mereka.
             </p>
 
-            <div class="bg-white/5 border border-white/10 rounded-lg px-4 py-3 space-y-1.5 mb-5">
-                <div class="flex items-center gap-2">
-                    <span class="text-[10px] uppercase tracking-widest text-white/40 font-bold w-16">Email</span>
-                    <span class="font-mono text-sm text-white">{{ $linkedUser->email }}</span>
+            <div class="bg-white/5 border border-white/10 rounded-lg p-5 space-y-2 mb-5">
+                <div class="flex items-start gap-3 flex-wrap">
+                    <span class="text-[10px] uppercase tracking-widest text-white/40 font-bold w-16 shrink-0 pt-0.5">Email</span>
+                    <span class="font-mono text-sm text-white break-all">{{ $linkedUser->email }}</span>
                 </div>
-                <div class="flex items-center gap-2">
-                    <span class="text-[10px] uppercase tracking-widest text-white/40 font-bold w-16">Status</span>
+                <div class="flex items-center gap-3 flex-wrap">
+                    <span class="text-[10px] uppercase tracking-widest text-white/40 font-bold w-16 shrink-0">Status</span>
                     <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-400/30">
                         Aktif
                     </span>
                 </div>
-                <div class="flex items-center gap-2">
-                    <span class="text-[10px] uppercase tracking-widest text-white/40 font-bold w-16">Created</span>
+                <div class="flex items-center gap-3 flex-wrap">
+                    <span class="text-[10px] uppercase tracking-widest text-white/40 font-bold w-16 shrink-0">Created</span>
                     <span class="text-xs text-white/60">{{ $linkedUser->created_at->diffForHumans() }}</span>
                 </div>
             </div>

@@ -59,10 +59,27 @@ return [
         // potentially gift QR codes. Public-visible via storage:link symlink.
         // Files are addressed by invitation_id (not slug) so renaming the
         // invitation slug doesn't orphan the directory.
+        //
+        // URL is HOST-RELATIVE on purpose — browser uses whatever host the
+        // current page is served from. Lets the same image URL work over
+        // localhost, LAN IP, and tunneled URLs (cloudflared/ngrok) without
+        // re-configuring APP_URL each time.
         'invitation_media' => [
             'driver' => 'local',
             'root' => storage_path('app/public/invitations'),
-            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage/invitations',
+            'url' => '/storage/invitations',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
+
+        // Admin-curated music library shared across all invitations. Files
+        // are addressed by ULID under `tracks/`. Same host-relative URL
+        // pattern as invitation_media so it works across localhost, LAN, and
+        // tunneled URLs without re-configuring APP_URL.
+        'music_assets' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/music'),
+            'url' => '/storage/music',
             'visibility' => 'public',
             'throw' => false,
         ],

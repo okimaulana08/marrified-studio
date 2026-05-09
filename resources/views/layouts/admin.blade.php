@@ -158,6 +158,69 @@
             color: white;
         }
 
+        /* ==================== PHOTO DROPZONE ==================== */
+        .photo-dropzone {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 0.85rem;
+            overflow: hidden;
+            cursor: pointer;
+            background: rgba(255,255,255,0.03);
+            border: 1.5px dashed rgba(255,255,255,0.18);
+            transition: all 0.2s ease;
+        }
+        .photo-dropzone:hover {
+            background: rgba(16,185,129,0.06);
+            border-color: rgba(16,185,129,0.45);
+        }
+        .photo-dropzone--has-image {
+            border-style: solid;
+            border-color: rgba(255,255,255,0.12);
+            background: transparent;
+        }
+        .photo-dropzone-label {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            position: relative;
+        }
+        .photo-dropzone-empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            padding: 1rem;
+        }
+        .photo-dropzone-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .photo-dropzone-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            color: white;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, rgba(16,185,129,0.55) 0%, rgba(0,0,0,0.5) 100%);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        .photo-dropzone--has-image:hover .photo-dropzone-overlay { opacity: 1; }
+
         /* ==================== TYPOGRAPHY ==================== */
         .text-gradient {
             background: linear-gradient(135deg, #ffffff 0%, #d1fae5 50%, #a7f3d0 100%);
@@ -575,6 +638,10 @@
                 <a href="{{ route('admin.invitations.index') }}"
                    class="px-3 py-1.5 text-sm text-white/60 hover:text-white hover:bg-white/8 rounded-lg transition-all">
                     Invitations
+                </a>
+                <a href="{{ route('admin.music.index') }}"
+                   class="px-3 py-1.5 text-sm text-white/60 hover:text-white hover:bg-white/8 rounded-lg transition-all">
+                    Music
                 </a>
             @endif
         @endauth

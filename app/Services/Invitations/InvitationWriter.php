@@ -21,9 +21,14 @@ final class InvitationWriter
 {
     private const SLUG_REGEX = '/^[a-z0-9][a-z0-9\-]{1,48}[a-z0-9]$/';
 
-    /** Section types every invitation gets seeded with on create. */
+    /**
+     * Section types every invitation gets seeded with on create.
+     * Order here = default sort_order on creation. 'story' sits between
+     * 'couple' and 'event' for natural narrative flow (Cover → Quotes →
+     * Couple → Story → Event → Gallery → Gift → RSVP → Guestbook).
+     */
     public const DEFAULT_SECTION_TYPES = [
-        'cover', 'quotes', 'couple', 'event', 'gallery', 'gift', 'rsvp', 'guestbook',
+        'cover', 'quotes', 'couple', 'story', 'event', 'gallery', 'gift', 'rsvp', 'guestbook',
     ];
 
     /**

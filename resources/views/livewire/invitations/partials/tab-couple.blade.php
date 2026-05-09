@@ -54,16 +54,51 @@
             </div>
 
             <div>
-                <label class="block text-[11px] text-white/50 mb-1">Foto</label>
-                @if ($bridePreview)
-                    <div class="mb-2">
-                        <img src="{{ $bridePreview }}" alt="Bride"
-                             class="w-full aspect-square object-cover rounded-xl ring-1 ring-white/10">
+                <label class="block text-[11px] text-white/50 mb-1.5">Foto</label>
+                <div class="photo-dropzone {{ $bridePreview ? 'photo-dropzone--has-image' : '' }}">
+                    <label for="brideUpload" class="photo-dropzone-label">
+                        @if ($bridePreview)
+                            <img src="{{ $bridePreview }}" alt="Bride preview" class="photo-dropzone-image">
+                            <div class="photo-dropzone-overlay">
+                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+                                </svg>
+                                <span>Ganti foto</span>
+                            </div>
+                        @else
+                            <div class="photo-dropzone-empty">
+                                <svg class="w-7 h-7 mb-1.5 text-emerald-400/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/>
+                                </svg>
+                                <span class="text-xs font-semibold text-white/80">Klik untuk upload foto</span>
+                                <span class="text-[10px] text-white/40 mt-0.5">JPG / PNG / WebP · maks 5 MB</span>
+                            </div>
+                        @endif
+                    </label>
+                    <input id="brideUpload" type="file" wire:model="bridePhoto" accept="image/*" class="sr-only">
+                </div>
+                <div class="flex items-center justify-between mt-1.5 min-h-[18px]">
+                    <div wire:loading wire:target="bridePhoto" class="text-[11px] text-emerald-300/80 flex items-center gap-1.5">
+                        <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                        </svg>
+                        Mengunggah...
                     </div>
-                @endif
-                <input type="file" wire:model="bridePhoto" accept="image/*"
-                       class="text-xs text-white/60 w-full">
-                <div wire:loading wire:target="bridePhoto" class="text-[11px] text-white/40 mt-1">Mengunggah...</div>
+                    @if ($couple->bridePhotoPath || $bridePhoto)
+                        <button type="button"
+                                wire:click="removeBridePhoto"
+                                wire:confirm="Hapus foto mempelai wanita?"
+                                wire:loading.attr="disabled"
+                                wire:target="removeBridePhoto"
+                                class="text-[11px] text-red-300/70 hover:text-red-300 ml-auto inline-flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                            Hapus foto
+                        </button>
+                    @endif
+                </div>
                 @error('bridePhoto') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
             </div>
         </div>
@@ -94,16 +129,51 @@
             </div>
 
             <div>
-                <label class="block text-[11px] text-white/50 mb-1">Foto</label>
-                @if ($groomPreview)
-                    <div class="mb-2">
-                        <img src="{{ $groomPreview }}" alt="Groom"
-                             class="w-full aspect-square object-cover rounded-xl ring-1 ring-white/10">
+                <label class="block text-[11px] text-white/50 mb-1.5">Foto</label>
+                <div class="photo-dropzone {{ $groomPreview ? 'photo-dropzone--has-image' : '' }}">
+                    <label for="groomUpload" class="photo-dropzone-label">
+                        @if ($groomPreview)
+                            <img src="{{ $groomPreview }}" alt="Groom preview" class="photo-dropzone-image">
+                            <div class="photo-dropzone-overlay">
+                                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+                                </svg>
+                                <span>Ganti foto</span>
+                            </div>
+                        @else
+                            <div class="photo-dropzone-empty">
+                                <svg class="w-7 h-7 mb-1.5 text-emerald-400/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/>
+                                </svg>
+                                <span class="text-xs font-semibold text-white/80">Klik untuk upload foto</span>
+                                <span class="text-[10px] text-white/40 mt-0.5">JPG / PNG / WebP · maks 5 MB</span>
+                            </div>
+                        @endif
+                    </label>
+                    <input id="groomUpload" type="file" wire:model="groomPhoto" accept="image/*" class="sr-only">
+                </div>
+                <div class="flex items-center justify-between mt-1.5 min-h-[18px]">
+                    <div wire:loading wire:target="groomPhoto" class="text-[11px] text-emerald-300/80 flex items-center gap-1.5">
+                        <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                        </svg>
+                        Mengunggah...
                     </div>
-                @endif
-                <input type="file" wire:model="groomPhoto" accept="image/*"
-                       class="text-xs text-white/60 w-full">
-                <div wire:loading wire:target="groomPhoto" class="text-[11px] text-white/40 mt-1">Mengunggah...</div>
+                    @if ($couple->groomPhotoPath || $groomPhoto)
+                        <button type="button"
+                                wire:click="removeGroomPhoto"
+                                wire:confirm="Hapus foto mempelai pria?"
+                                wire:loading.attr="disabled"
+                                wire:target="removeGroomPhoto"
+                                class="text-[11px] text-red-300/70 hover:text-red-300 ml-auto inline-flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                            Hapus foto
+                        </button>
+                    @endif
+                </div>
                 @error('groomPhoto') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
             </div>
         </div>

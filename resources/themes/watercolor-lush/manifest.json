@@ -20,6 +20,7 @@
         "cover": "minimal",
         "quotes": "default",
         "couple": "side-by-side",
+        "story": "timeline-vertical",
         "event": "card",
         "gallery": "grid",
         "gift": "cashless-modal",

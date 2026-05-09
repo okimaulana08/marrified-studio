@@ -40,7 +40,7 @@ it('admin builds invitation, couple logs in, fills tabs, guest opens via token',
 
     $invitation = Invitation::query()->where('slug', 'happy-path')->firstOrFail();
 
-    expect($invitation->sections()->count())->toBe(8) // auto-seeded
+    expect($invitation->sections()->count())->toBe(9) // auto-seeded (cover/quotes/couple/story/event/gallery/gift/rsvp/guestbook)
         ->and($invitation->user_id)->toBeNull(); // no credentials yet
 
     /* ─────────── 3. Admin issues couple credentials ─────────── */

@@ -40,6 +40,7 @@ beforeEach(function () {
             'type' => $type,
             'variant' => match ($type) {
                 'cover' => 'arch', 'quotes' => 'default', 'couple' => 'side-by-side',
+                'story' => 'timeline-vertical',
                 'event' => 'card', 'gallery' => 'grid', 'gift' => 'cashless-modal',
                 'rsvp' => 'default', 'guestbook' => 'default',
             },

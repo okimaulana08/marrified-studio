@@ -21,7 +21,7 @@ final class InvitationPreviewController extends Controller
     {
         $invitation = Invitation::query()
             ->where('slug', $slug)
-            ->with(['couple', 'events', 'sections', 'giftAccounts'])
+            ->with(['couple', 'events', 'sections', 'giftAccounts', 'musicTrack'])
             ->firstOrFail();
 
         Gate::authorize('view', $invitation);

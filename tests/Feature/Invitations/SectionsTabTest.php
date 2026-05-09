@@ -13,7 +13,7 @@ beforeEach(function () {
     $this->actingAs(User::factory()->admin()->create());
 });
 
-it('seeds 8 default sections when creating an invitation through writer', function () {
+it('seeds default sections when creating an invitation through writer', function () {
     $writer = new InvitationWriter;
     $inv = $writer->create([
         'slug' => 'fresh-invite',
@@ -21,9 +21,10 @@ it('seeds 8 default sections when creating an invitation through writer', functi
         'religion_type' => 'islam',
     ]);
 
+    $expected = InvitationWriter::DEFAULT_SECTION_TYPES;
     $sections = Section::query()->where('invitation_id', $inv->id)->orderBy('sort_order')->get();
-    expect($sections)->toHaveCount(8)
-        ->and($sections->pluck('type')->all())->toBe(InvitationWriter::DEFAULT_SECTION_TYPES);
+    expect($sections)->toHaveCount(count($expected))
+        ->and($sections->pluck('type')->all())->toBe($expected);
 
     // Each section should be enabled by default and have a non-empty variant.
     foreach ($sections as $s) {
@@ -45,7 +46,7 @@ it('loads section rows into the form when opening the editor', function () {
 
     $component = Livewire::test(InvitationEditor::class, ['invitation' => $invitation->fresh(['sections'])]);
 
-    expect($component->get('sections.rows'))->toHaveCount(8);
+    expect($component->get('sections.rows'))->toHaveCount(count(InvitationWriter::DEFAULT_SECTION_TYPES));
 });
 
 it('toggles enabled and saves to DB', function () {

@@ -73,6 +73,23 @@
         </div>
     </main>
 
+    {{-- Background music: only renders when couple picked a track. Audio.src is
+         set lazily via JS after the cover-open click (browser autoplay policy
+         requires a user gesture). loop + playsinline for iOS Safari. --}}
+    @if ($invitation->musicTrack)
+        <audio id="invitation-bgm" preload="none" loop playsinline
+               data-src="{{ \Illuminate\Support\Facades\Storage::disk('music_assets')->url($invitation->musicTrack->file_path) }}"
+               aria-hidden="true"></audio>
+        <button type="button" class="bgm-toggle" data-bgm-toggle aria-label="Matikan musik" hidden>
+            <svg class="bgm-toggle-on" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 010 7.07"/><path d="M19.07 4.93a10 10 0 010 14.14"/>
+            </svg>
+            <svg class="bgm-toggle-off" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
+                <path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
+            </svg>
+        </button>
+    @endif
+
     @livewireScripts
     @vite('resources/js/render.js')
 </body>

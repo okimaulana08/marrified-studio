@@ -99,6 +99,41 @@ final class CoupleForm extends Form
     }
 
     /**
+     * Remove a previously uploaded photo for the given role. Clears the disk
+     * file (if it still exists) and nulls the model column. Returns the
+     * updated Couple, or null if there was no couple row to update.
+     */
+    public function removePhoto(Invitation $invitation, string $role): ?Couple
+    {
+        if (! in_array($role, ['bride', 'groom'], true)) {
+            return null;
+        }
+
+        $couple = Couple::query()->where('invitation_id', $invitation->id)->first();
+        if ($couple === null) {
+            return null;
+        }
+
+        $column = "{$role}_photo_path";
+        $existing = $couple->{$column};
+
+        if ($existing !== null && Storage::disk(self::PHOTO_DISK)->exists($existing)) {
+            Storage::disk(self::PHOTO_DISK)->delete($existing);
+        }
+
+        $couple->{$column} = null;
+        $couple->save();
+
+        if ($role === 'bride') {
+            $this->bridePhotoPath = null;
+        } else {
+            $this->groomPhotoPath = null;
+        }
+
+        return $couple;
+    }
+
+    /**
      * Store a photo with a deterministic filename ({role}.{ext}). Replaces any
      * previous photo for the same role even if the extension changed.
      */

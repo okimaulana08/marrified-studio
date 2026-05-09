@@ -128,6 +128,70 @@ it('couple owner can save their own couple data', function () {
     expect(Couple::query()->where('invitation_id', $invitation->id)->value('bride_name'))->toBe('My Name');
 });
 
+it('removeBridePhoto deletes file from disk and clears DB column', function () {
+    $admin = User::factory()->admin()->create();
+    $invitation = Invitation::factory()->create();
+
+    $this->actingAs($admin);
+
+    // First upload a photo.
+    Livewire::test(InvitationEditor::class, ['invitation' => $invitation])
+        ->set('couple.brideName', 'X')
+        ->set('couple.groomName', 'Y')
+        ->set('bridePhoto', UploadedFile::fake()->image('b.jpg'))
+        ->call('saveCouple');
+
+    Storage::disk('invitation_media')->assertExists("{$invitation->id}/couple/bride.jpg");
+    expect(Couple::query()->where('invitation_id', $invitation->id)->value('bride_photo_path'))
+        ->toBe("{$invitation->id}/couple/bride.jpg");
+
+    // Now remove it.
+    Livewire::test(InvitationEditor::class, ['invitation' => $invitation->fresh()])
+        ->call('removeBridePhoto')
+        ->assertSet('flashType', 'success')
+        ->assertSet('couple.bridePhotoPath', null);
+
+    Storage::disk('invitation_media')->assertMissing("{$invitation->id}/couple/bride.jpg");
+    expect(Couple::query()->where('invitation_id', $invitation->id)->value('bride_photo_path'))->toBeNull();
+});
+
+it('removeGroomPhoto only touches groom column', function () {
+    $admin = User::factory()->admin()->create();
+    $invitation = Invitation::factory()->create();
+
+    $this->actingAs($admin);
+
+    Livewire::test(InvitationEditor::class, ['invitation' => $invitation])
+        ->set('couple.brideName', 'X')
+        ->set('couple.groomName', 'Y')
+        ->set('bridePhoto', UploadedFile::fake()->image('b.jpg'))
+        ->set('groomPhoto', UploadedFile::fake()->image('g.jpg'))
+        ->call('saveCouple');
+
+    Livewire::test(InvitationEditor::class, ['invitation' => $invitation->fresh()])
+        ->call('removeGroomPhoto');
+
+    $couple = Couple::query()->where('invitation_id', $invitation->id)->firstOrFail();
+    expect($couple->bride_photo_path)->toBe("{$invitation->id}/couple/bride.jpg")
+        ->and($couple->groom_photo_path)->toBeNull();
+});
+
+it('removing a photo when none was set is a no-op', function () {
+    $admin = User::factory()->admin()->create();
+    $invitation = Invitation::factory()->create();
+
+    $this->actingAs($admin);
+
+    Livewire::test(InvitationEditor::class, ['invitation' => $invitation])
+        ->set('couple.brideName', 'X')
+        ->set('couple.groomName', 'Y')
+        ->call('saveCouple');
+
+    expect(fn () => Livewire::test(InvitationEditor::class, ['invitation' => $invitation->fresh()])
+        ->call('removeBridePhoto')
+        ->assertSet('flashType', 'success'))->not->toThrow(Throwable::class);
+});
+
 it('media directory is removed when invitation is deleted', function () {
     $admin = User::factory()->admin()->create();
     $invitation = Invitation::factory()->create();

@@ -19,6 +19,7 @@ final class PublishedInvitationController extends Controller
                 'events',
                 'sections' => fn ($q) => $q->where('enabled', true)->orderBy('sort_order'),
                 'giftAccounts',
+                'musicTrack',
             ])
             ->where('slug', $slug)
             ->firstOrFail();

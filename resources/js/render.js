@@ -40,10 +40,70 @@ document.addEventListener('DOMContentLoaded', () => {
         nested: true,
     });
 
-    // Cover open button → advance deck.
+    // ============================================================
+    // Background music: lazy-load src + start playing on cover-open click.
+    // Browsers block audio.play() before any user gesture, so we leverage
+    // the existing "Open Invitation" click as the unlock event. Mute toggle
+    // floats bottom-right, swap icons via [hidden] attribute.
+    // ============================================================
+    const bgm = document.getElementById('invitation-bgm');
+    const bgmToggle = document.querySelector('[data-bgm-toggle]');
+    let bgmStarted = false;
+
+    const startBgm = () => {
+        if (! bgm || bgmStarted) return;
+        const src = bgm.dataset.src;
+        if (! src) return;
+        bgm.src = src;
+        bgmStarted = true;
+        bgm.play().catch(() => {
+            // Autoplay rejected (rare after user-gesture). Show toggle anyway
+            // so user can manually start.
+        });
+        if (bgmToggle) bgmToggle.hidden = false;
+    };
+
+    const updateBgmToggleIcons = () => {
+        if (! bgmToggle || ! bgm) return;
+        const onIcon = bgmToggle.querySelector('.bgm-toggle-on');
+        const offIcon = bgmToggle.querySelector('.bgm-toggle-off');
+        const muted = bgm.paused || bgm.muted;
+        if (onIcon) onIcon.hidden = muted;
+        if (offIcon) offIcon.hidden = ! muted;
+        bgmToggle.setAttribute('aria-label', muted ? 'Hidupkan musik' : 'Matikan musik');
+    };
+
+    if (bgmToggle && bgm) {
+        bgmToggle.addEventListener('click', () => {
+            if (bgm.paused) {
+                bgm.play().catch(() => {});
+            } else {
+                bgm.pause();
+            }
+            updateBgmToggleIcons();
+        });
+        bgm.addEventListener('play', updateBgmToggleIcons);
+        bgm.addEventListener('pause', updateBgmToggleIcons);
+    }
+
+    // Pause when tab is hidden, resume when visible (only if was playing).
+    if (bgm) {
+        let wasPlayingBeforeHide = false;
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                wasPlayingBeforeHide = ! bgm.paused;
+                if (wasPlayingBeforeHide) bgm.pause();
+            } else if (wasPlayingBeforeHide) {
+                bgm.play().catch(() => {});
+            }
+        });
+    }
+
+    // Cover open button → advance deck + unlock bgm playback.
     document.querySelectorAll('[data-cover-open]').forEach((btn) => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
+            startBgm();
             swiper.slideNext(800);
         });
     });

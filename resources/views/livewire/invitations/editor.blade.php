@@ -73,10 +73,13 @@
                 @foreach ([
                     'basic'     => ['label' => 'Info',     'enabled' => true],
                     'couple'    => ['label' => 'Couple',   'enabled' => ! $isNew],
+                    'stories'   => ['label' => 'Cerita',   'enabled' => ! $isNew],
                     'events'    => ['label' => 'Events',   'enabled' => ! $isNew],
                     'religious' => ['label' => 'Religi',   'enabled' => ! $isNew],
                     'sections'  => ['label' => 'Section',  'enabled' => ! $isNew],
+                    'gallery'   => ['label' => 'Gallery',  'enabled' => ! $isNew],
                     'gift'      => ['label' => 'Gift',     'enabled' => ! $isNew],
+                    'music'     => ['label' => 'Music',    'enabled' => ! $isNew],
                     'guests'    => ['label' => 'Tamu',     'enabled' => ! $isNew],
                 ] as $key => $meta)
                     <button type="button"
@@ -117,6 +120,9 @@
                     <div x-show="tab === 'couple'" x-cloak class="fade-up">
                         @include('livewire.invitations.partials.tab-couple')
                     </div>
+                    <div x-show="tab === 'stories'" x-cloak class="fade-up">
+                        @include('livewire.invitations.partials.tab-story')
+                    </div>
                     <div x-show="tab === 'events'" x-cloak class="fade-up">
                         @include('livewire.invitations.partials.tab-events')
                     </div>
@@ -125,6 +131,12 @@
                     </div>
                     <div x-show="tab === 'sections'" x-cloak class="fade-up">
                         @include('livewire.invitations.partials.tab-sections')
+                    </div>
+                    <div x-show="tab === 'gallery'" x-cloak class="fade-up">
+                        @include('livewire.invitations.partials.tab-gallery')
+                    </div>
+                    <div x-show="tab === 'music'" x-cloak class="fade-up">
+                        @include('livewire.invitations.partials.tab-music')
                     </div>
                     <div x-show="tab === 'gift'" x-cloak class="fade-up">
                         @include('livewire.invitations.partials.tab-gift')

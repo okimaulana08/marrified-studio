@@ -13,12 +13,15 @@
     {{-- Toolbar --}}
     <div class="glass rounded-2xl px-4 py-3 mb-4 flex items-center gap-3">
         <div class="relative flex-1">
-            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <svg class="absolute top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none"
+                 style="left: 14px;"
+                 fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
             </svg>
             <input wire:model.live.debounce.300ms="search" type="text"
                    placeholder="Cari slug atau nama mempelai..."
-                   class="admin-input w-full pl-10 pr-3 py-2 text-sm">
+                   style="padding-left: 42px;"
+                   class="admin-input w-full pr-3 py-2 text-sm">
         </div>
         <a href="{{ route('admin.invitations.create') }}" class="btn-primary text-xs flex items-center gap-1.5">
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -94,21 +97,23 @@
                             </td>
                             <td class="px-4 py-3 text-right text-white/60 font-mono text-xs">{{ $inv->guests_count }}</td>
                             <td class="px-4 py-3 text-right whitespace-nowrap">
-                                <a href="{{ route('invitations.edit', $inv->slug) }}" class="btn-ghost text-xs">Edit</a>
-                                <a href="{{ route('admin.invitations.credentials', $inv->slug) }}"
-                                   class="btn-ghost text-xs {{ $inv->user_id === null ? 'text-amber-300/80 hover:text-amber-300' : '' }}"
-                                   title="{{ $inv->user_id === null ? 'Generate kredensial couple' : 'Manage kredensial' }}">
-                                    {{ $inv->user_id === null ? 'Issue Login' : 'Login' }}
-                                </a>
-                                <button type="button" wire:click="openCloneModal({{ $inv->id }})"
-                                        class="btn-ghost text-xs"
-                                        title="Duplikasi invitation ini ke slug baru">
-                                    Duplikat
-                                </button>
-                                <button type="button" wire:click="confirmDelete({{ $inv->id }})"
-                                        class="btn-ghost text-xs text-red-300/80 hover:text-red-300">
-                                    Hapus
-                                </button>
+                                <div class="inline-flex items-center gap-1.5">
+                                    <a href="{{ route('invitations.edit', $inv->slug) }}" class="btn-ghost text-xs">Edit</a>
+                                    <a href="{{ route('admin.invitations.credentials', $inv->slug) }}"
+                                       class="btn-ghost text-xs {{ $inv->user_id === null ? 'text-amber-300/80 hover:text-amber-300' : '' }}"
+                                       title="{{ $inv->user_id === null ? 'Generate kredensial couple' : 'Manage kredensial' }}">
+                                        {{ $inv->user_id === null ? 'Issue Login' : 'Login' }}
+                                    </a>
+                                    <button type="button" wire:click="openCloneModal({{ $inv->id }})"
+                                            class="btn-ghost text-xs"
+                                            title="Duplikasi invitation ini ke slug baru">
+                                        Duplikat
+                                    </button>
+                                    <button type="button" wire:click="confirmDelete({{ $inv->id }})"
+                                            class="btn-ghost text-xs text-red-300/80 hover:text-red-300">
+                                        Hapus
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     @endforeach

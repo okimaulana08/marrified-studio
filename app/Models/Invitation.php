@@ -21,8 +21,10 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property string|null $religion_type
  * @property array<string, mixed>|null $religious_text
  * @property string $theme_slug
+ * @property int|null $music_track_id
  * @property array<string, mixed>|null $customizations
  * @property-read User|null $user
+ * @property-read MusicTrack|null $musicTrack
  * @property-read Couple|null $couple
  * @property-read Collection<int, Event> $events
  * @property-read Collection<int, Guest> $guests
@@ -43,6 +45,7 @@ final class Invitation extends Model
         'religion_type',
         'religious_text',
         'theme_slug',
+        'music_track_id',
         'customizations',
     ];
 
@@ -63,6 +66,12 @@ final class Invitation extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /** @return BelongsTo<MusicTrack, $this> */
+    public function musicTrack(): BelongsTo
+    {
+        return $this->belongsTo(MusicTrack::class);
     }
 
     public function couple(): HasOne
