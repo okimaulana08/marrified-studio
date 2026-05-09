@@ -15,12 +15,24 @@ use App\Services\Themes\ThemeWriter;
 use App\Services\Themes\VariantScanner;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\File;
+use Livewire\Attributes\Validate;
 use Livewire\Component;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Livewire\WithFileUploads;
 use RuntimeException;
 
 final class ThemeEditor extends Component
 {
+    use WithFileUploads;
+
     private const FORM_NAMES = ['basic', 'palette', 'fonts', 'variants', 'layout'];
+
+    private const PREVIEW_EXTENSIONS = ['webp', 'jpg', 'jpeg', 'png'];
+
+    /** Pending preview-image upload. Cleared after savePreviewImage(). */
+    #[Validate('nullable|image|mimes:webp,jpg,jpeg,png|max:2048')]
+    public $previewImage = null;
 
     public string $slug = '';
 
@@ -123,6 +135,71 @@ final class ThemeEditor extends Component
         } catch (RuntimeException $e) {
             $this->flash($e->getMessage(), 'error');
         }
+    }
+
+    public function savePreviewImage(): void
+    {
+        if ($this->isNew || $this->slug === '') {
+            $this->flash('Simpan tema dulu sebelum upload preview.', 'error');
+
+            return;
+        }
+
+        try {
+            $this->validate(['previewImage' => 'required|image|mimes:webp,jpg,jpeg,png|max:2048']);
+
+            if (! $this->previewImage instanceof TemporaryUploadedFile) {
+                return;
+            }
+
+            $assetsDir = resource_path("themes/{$this->slug}/assets");
+            File::ensureDirectoryExists($assetsDir);
+
+            // Wipe any prior preview.* so the only file left is the new one,
+            // matching the lookup order in ThemeAsset::findPreview.
+            foreach (self::PREVIEW_EXTENSIONS as $ext) {
+                $existing = "{$assetsDir}/preview.{$ext}";
+                if (File::exists($existing)) {
+                    File::delete($existing);
+                }
+            }
+
+            $ext = strtolower($this->previewImage->getClientOriginalExtension() ?: 'webp');
+            if (! in_array($ext, self::PREVIEW_EXTENSIONS, true)) {
+                $ext = 'webp';
+            }
+            File::copy($this->previewImage->getRealPath(), "{$assetsDir}/preview.{$ext}");
+
+            Artisan::call('themes:publish-assets', ['slug' => $this->slug]);
+
+            $this->previewImage = null;
+            $this->previewKey++;
+            $this->flash('Preview image diperbarui.', 'success');
+        } catch (RuntimeException $e) {
+            $this->flash($e->getMessage(), 'error');
+        }
+    }
+
+    public function removePreviewImage(): void
+    {
+        if ($this->isNew || $this->slug === '') {
+            return;
+        }
+
+        $assetsDir = resource_path("themes/{$this->slug}/assets");
+        $publicDir = public_path("themes/{$this->slug}");
+
+        foreach (self::PREVIEW_EXTENSIONS as $ext) {
+            foreach (["{$assetsDir}/preview.{$ext}", "{$publicDir}/preview.{$ext}"] as $path) {
+                if (File::exists($path)) {
+                    File::delete($path);
+                }
+            }
+        }
+
+        $this->previewImage = null;
+        $this->previewKey++;
+        $this->flash('Preview image dihapus.', 'success');
     }
 
     public function discardChanges(): void

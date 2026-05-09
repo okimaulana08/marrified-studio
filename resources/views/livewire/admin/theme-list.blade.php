@@ -76,11 +76,11 @@
                      class="glass card-lift rounded-2xl overflow-hidden group fade-up">
 
                     {{-- Preview thumbnail --}}
-                    <div class="relative h-44 overflow-hidden">
+                    <div class="relative overflow-hidden" style="aspect-ratio: 4 / 3;">
                         <div class="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-emerald-500/5"></div>
-                        @php $previewAsset = \App\Support\ThemeAsset::publicPath($theme->slug, 'preview.webp'); @endphp
-                        @if (file_exists($previewAsset))
-                            <img src="{{ \App\Support\ThemeAsset::url($theme->slug, 'preview.webp') }}"
+                        @php $previewFile = \App\Support\ThemeAsset::findPreview($theme->slug); @endphp
+                        @if ($previewFile)
+                            <img src="{{ \App\Support\ThemeAsset::url($theme->slug, $previewFile) }}"
                                  alt="{{ $theme->name }}"
                                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
                             {{-- Vignette --}}

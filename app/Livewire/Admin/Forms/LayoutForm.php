@@ -10,7 +10,7 @@ use Livewire\Form;
 final class LayoutForm extends Form
 {
     /** Section types eligible for per-page slot overrides (matches sections we render). */
-    public const SECTION_TYPES = ['cover', 'quotes', 'couple', 'event', 'gallery', 'gift', 'rsvp', 'guestbook'];
+    public const SECTION_TYPES = ['cover', 'quotes', 'couple', 'story', 'event', 'gallery', 'gift', 'rsvp', 'guestbook', 'thanks'];
 
     /* ---------- Default page: Background ---------- */
     public string $bgFile = '';

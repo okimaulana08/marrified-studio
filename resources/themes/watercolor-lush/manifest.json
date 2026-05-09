@@ -20,13 +20,11 @@
         "cover": "minimal",
         "quotes": "default",
         "couple": "side-by-side",
-        "story": "timeline-vertical",
         "event": "card",
         "gallery": "grid",
         "gift": "cashless-modal",
         "rsvp": "default",
-        "guestbook": "default",
-        "thanks": "with-photo"
+        "guestbook": "default"
     },
     "layout": {
         "default": {
@@ -38,15 +36,15 @@
             "slots": {
                 "corner-tl": {
                     "file": "tl-2.webp",
-                    "anim_in": "fade-down",
+                    "anim_in": "fade-right",
                     "duration_ms": 3000,
-                    "delay_ms": 750
+                    "delay_ms": 900
                 },
                 "corner-br": {
                     "file": "br-2.webp",
                     "anim_in": "fade-left",
-                    "duration_ms": 3000,
-                    "delay_ms": 800
+                    "duration_ms": 900,
+                    "delay_ms": 200
                 }
             },
             "lottie": {
@@ -56,6 +54,6 @@
                 "size": "full"
             }
         },
-        "pages": []
+        "pages": {}
     }
 }
