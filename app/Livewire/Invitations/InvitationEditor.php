@@ -14,6 +14,7 @@ use App\Livewire\Invitations\Forms\MusicForm;
 use App\Livewire\Invitations\Forms\ReligiousTextForm;
 use App\Livewire\Invitations\Forms\SectionsForm;
 use App\Livewire\Invitations\Forms\StoriesForm;
+use App\Livewire\Invitations\Forms\ThanksForm;
 use App\Models\Invitation;
 use App\Models\Section;
 use App\Services\Invitations\InvitationWriter;
@@ -76,6 +77,12 @@ final class InvitationEditor extends Component
 
     public MusicForm $music;
 
+    public ThanksForm $thanks;
+
+    /** Pending file pick for thanks photo. Cleared after saveThanks. */
+    #[Validate('nullable|image|max:5120')]
+    public $thanksPhoto = null;
+
     /** Bumped after each save so iframe `?v=N` cache-busts and reloads. */
     public int $previewKey = 0;
 
@@ -124,6 +131,9 @@ final class InvitationEditor extends Component
         $this->stories->fillFromSection($storySection);
 
         $this->music->fillFromModel($invitation);
+
+        $thanksSection = $invitation->sections->firstWhere('type', 'thanks');
+        $this->thanks->fillFromSection($thanksSection);
     }
 
     public function save(): void
@@ -446,6 +456,35 @@ final class InvitationEditor extends Component
         unset($this->storyPhotos[$index]);
     }
 
+    public function saveThanks(): void
+    {
+        try {
+            $invitation = $this->resolveInvitation();
+            $this->validate(['thanksPhoto' => 'nullable|image|max:5120']);
+            $this->thanks->validate();
+
+            $photo = $this->thanksPhoto instanceof TemporaryUploadedFile ? $this->thanksPhoto : null;
+            $this->thanks->persist($invitation, $photo);
+            $this->thanksPhoto = null;
+
+            $this->flashSaved();
+        } catch (RuntimeException $e) {
+            $this->flash($e->getMessage(), 'error');
+        }
+    }
+
+    public function removeThanksPhoto(): void
+    {
+        try {
+            $invitation = $this->resolveInvitation();
+            $this->thanks->removePhoto($invitation);
+            $this->thanksPhoto = null;
+            $this->flashSaved();
+        } catch (RuntimeException $e) {
+            $this->flash($e->getMessage(), 'error');
+        }
+    }
+
     public function saveMusic(): void
     {
         try {
@@ -533,6 +572,9 @@ final class InvitationEditor extends Component
                 Section::query()->where('invitation_id', $invitation->id)->where('type', 'story')->first()
             ),
             'music' => $this->music->fillFromModel($invitation),
+            'thanks' => $this->thanks->fillFromSection(
+                Section::query()->where('invitation_id', $invitation->id)->where('type', 'thanks')->first()
+            ),
             default => null,
         };
 

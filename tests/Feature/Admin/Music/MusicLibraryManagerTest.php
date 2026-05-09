@@ -29,7 +29,7 @@ it('uploads a track via Livewire form', function () {
         ->set('title', 'Canon in D')
         ->set('artist', 'Pachelbel')
         ->set('newFile', UploadedFile::fake()->create('canon.mp3', 1024, 'audio/mpeg'))
-        ->call('upload')
+        ->call('uploadTrack')
         ->assertSet('flashType', 'success')
         ->assertSet('title', '')
         ->assertSet('artist', '')
@@ -44,7 +44,7 @@ it('rejects non-mp3 file', function () {
     Livewire::test(MusicLibraryManager::class)
         ->set('title', 'Bad')
         ->set('newFile', UploadedFile::fake()->create('not-music.txt', 100, 'text/plain'))
-        ->call('upload')
+        ->call('uploadTrack')
         ->assertHasErrors(['newFile']);
 });
 
@@ -52,7 +52,7 @@ it('rejects missing title', function () {
     Livewire::test(MusicLibraryManager::class)
         ->set('title', '')
         ->set('newFile', UploadedFile::fake()->create('song.mp3', 500, 'audio/mpeg'))
-        ->call('upload')
+        ->call('uploadTrack')
         ->assertHasErrors(['title']);
 });
 

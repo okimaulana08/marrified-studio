@@ -65,12 +65,6 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
             </svg>
         </button>
-
-        {{-- Swipe hint (only visible on cover) --}}
-        <div class="deck-swipe-hint" aria-hidden="true">
-            <span class="deck-swipe-hint-icon">↑</span>
-            <span class="deck-swipe-hint-text">Geser untuk lanjut</span>
-        </div>
     </main>
 
     {{-- Background music: only renders when couple picked a track. Audio.src is
@@ -82,10 +76,14 @@
                aria-hidden="true"></audio>
         <button type="button" class="bgm-toggle" data-bgm-toggle aria-label="Matikan musik" hidden>
             <svg class="bgm-toggle-on" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 010 7.07"/><path d="M19.07 4.93a10 10 0 010 14.14"/>
+                <path d="M11 5L6 9H2v6h4l5 4V5z" fill="currentColor"/>
+                <path d="M15.54 8.46a5 5 0 010 7.07"/>
+                <path d="M19.07 4.93a10 10 0 010 14.14"/>
             </svg>
-            <svg class="bgm-toggle-off" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
-                <path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
+            <svg class="bgm-toggle-off is-hidden" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+                <line x1="22" y1="8" x2="16" y2="16"/>
+                <line x1="16" y1="8" x2="22" y2="16"/>
             </svg>
         </button>
     @endif

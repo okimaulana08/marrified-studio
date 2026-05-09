@@ -63,10 +63,6 @@
             </svg>
         </button>
 
-        <div class="deck-swipe-hint" aria-hidden="true">
-            <span class="deck-swipe-hint-icon">↑</span>
-            <span class="deck-swipe-hint-text">Geser untuk lanjut</span>
-        </div>
     </main>
 
     @livewireScripts

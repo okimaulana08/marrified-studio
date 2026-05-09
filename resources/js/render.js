@@ -3,6 +3,36 @@ import { Navigation, Pagination, Keyboard, Mousewheel, A11y } from 'swiper/modul
 import 'swiper/css';
 import 'swiper/css/pagination';
 
+/**
+ * Alpine factory for the gallery lightbox. Each gallery <section> wraps with
+ * `x-data="galleryLightbox([...urls])"` and exposes open/close/prev/next.
+ *
+ * Lightbox state lives in component scope so multiple galleries on the same
+ * page (unlikely here but clean) won't conflict. Body scroll is locked while
+ * the overlay is open so the swiper deck doesn't accidentally page-change
+ * underneath.
+ */
+window.galleryLightbox = (urls) => ({
+    urls: Array.isArray(urls) ? urls : [],
+    index: 0,
+    active: false,
+    get total() { return this.urls.length; },
+    get canPrev() { return this.index > 0; },
+    get canNext() { return this.index < this.urls.length - 1; },
+    open(i) {
+        if (i < 0 || i >= this.urls.length) return;
+        this.index = i;
+        this.active = true;
+        document.body.style.overflow = 'hidden';
+    },
+    close() {
+        this.active = false;
+        document.body.style.overflow = '';
+    },
+    prev() { if (this.canPrev) this.index--; },
+    next() { if (this.canNext) this.index++; },
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     const deckEl = document.querySelector('.invitation-deck');
     if (!deckEl) return;
@@ -40,6 +70,12 @@ document.addEventListener('DOMContentLoaded', () => {
         nested: true,
     });
 
+    // Lock cover slide: user must click "Open Invitation" to advance.
+    // Without this, swiping past the cover skips music autoplay (which
+    // requires the explicit cover-button user-gesture). Unlocked on click.
+    swiper.allowSlideNext = false;
+    swiper.mousewheel?.disable?.();
+
     // ============================================================
     // Background music: lazy-load src + start playing on cover-open click.
     // Browsers block audio.play() before any user gesture, so we leverage
@@ -68,8 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const onIcon = bgmToggle.querySelector('.bgm-toggle-on');
         const offIcon = bgmToggle.querySelector('.bgm-toggle-off');
         const muted = bgm.paused || bgm.muted;
-        if (onIcon) onIcon.hidden = muted;
-        if (offIcon) offIcon.hidden = ! muted;
+        if (onIcon) onIcon.classList.toggle('is-hidden', muted);
+        if (offIcon) offIcon.classList.toggle('is-hidden', ! muted);
         bgmToggle.setAttribute('aria-label', muted ? 'Hidupkan musik' : 'Matikan musik');
     };
 
@@ -104,6 +140,8 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
             startBgm();
+            swiper.allowSlideNext = true;
+            swiper.mousewheel?.enable?.();
             swiper.slideNext(800);
         });
     });

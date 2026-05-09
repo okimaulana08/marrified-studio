@@ -43,6 +43,7 @@ beforeEach(function () {
                 'story' => 'timeline-vertical',
                 'event' => 'card', 'gallery' => 'grid', 'gift' => 'cashless-modal',
                 'rsvp' => 'default', 'guestbook' => 'default',
+                'thanks' => 'with-photo',
             },
             'sort_order' => $i,
             'enabled' => true,

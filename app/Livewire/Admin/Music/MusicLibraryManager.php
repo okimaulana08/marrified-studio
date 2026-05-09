@@ -42,7 +42,12 @@ final class MusicLibraryManager extends Component
 
     public ?string $flashType = null;
 
-    public function upload(MusicLibrary $library): void
+    /**
+     * NOTE: method name avoids `upload` because Livewire reserves that as a
+     * magic JS action ($wire.upload(name, file, ...)) — wire:click="upload"
+     * would invoke the JS file-upload bridge instead of this PHP method.
+     */
+    public function uploadTrack(MusicLibrary $library): void
     {
         $this->validate();
 

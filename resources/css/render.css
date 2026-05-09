@@ -636,12 +636,109 @@ html, body { height: 100%; }
     overflow: hidden;
     border-radius: 8px;
     margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    transition: transform 0.18s ease;
 }
-.gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+.gallery-item:hover { transform: scale(1.02); }
+.gallery-item:active { transform: scale(0.98); }
+.gallery-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .gallery-empty {
     color: var(--muted);
     font-style: italic;
     font-size: 0.85rem;
+}
+
+/* Staggered (Instagram-style masonry) — each photo keeps native aspect ratio
+ * and flows column-first via CSS multi-column. break-inside avoids splits. */
+.gallery-staggered {
+    column-count: 2;
+    column-gap: 0.4rem;
+    margin-top: 1rem;
+}
+.gallery-staggered-item {
+    display: block;
+    width: 100%;
+    margin: 0 0 0.4rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 10px;
+    overflow: hidden;
+    break-inside: avoid;
+    transition: transform 0.18s ease;
+}
+.gallery-staggered-item:hover { transform: scale(1.015); }
+.gallery-staggered-item img { width: 100%; height: auto; display: block; }
+@media (min-width: 480px) {
+    .gallery-staggered { column-count: 3; }
+}
+
+/* Lightbox overlay shared by grid + staggered. Fixed full-viewport,
+ * dimmed background, image centered with max constraints. */
+.gallery-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: rgba(8, 12, 20, 0.92);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+.gl-figure {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    max-width: min(94vw, 900px);
+    max-height: 86vh;
+}
+.gl-image {
+    max-width: 100%;
+    max-height: 80vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 6px;
+    box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.6);
+}
+.gl-counter {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.8rem;
+    font-family: var(--fb);
+    letter-spacing: 0.06em;
+}
+.gl-close, .gl-nav {
+    position: absolute;
+    width: 42px;
+    height: 42px;
+    border-radius: 999px;
+    border: 0;
+    background: rgba(255, 255, 255, 0.12);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease, transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.gl-close:hover, .gl-nav:hover { background: rgba(255, 255, 255, 0.22); transform: scale(1.05); }
+.gl-close { top: 16px; right: 16px; }
+.gl-prev { left: 16px; top: 50%; transform: translateY(-50%); }
+.gl-prev:hover { transform: translateY(-50%) scale(1.05); }
+.gl-next { right: 16px; top: 50%; transform: translateY(-50%); }
+.gl-next:hover { transform: translateY(-50%) scale(1.05); }
+@media (max-width: 480px) {
+    .gl-prev, .gl-next { width: 38px; height: 38px; }
+    .gl-prev { left: 8px; }
+    .gl-next { right: 8px; }
 }
 
 /* ─── GIFT ─── */
@@ -741,6 +838,74 @@ html, body { height: 100%; }
     color: var(--muted);
     margin: 0;
 }
+
+/* Inline-cards variant: gift accounts shown directly on the page (no modal).
+ * Each card horizontal flex with icon + body + copy button. */
+.section--gift-inline .section-inner { padding-bottom: 1rem; }
+.gift-card {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    padding: 0.9rem 1rem;
+    margin: 0.6rem auto;
+    max-width: 360px;
+    text-align: left;
+    box-shadow: 0 4px 14px -8px rgba(0, 0, 0, 0.15);
+}
+.gift-card-icon {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--p) 14%, transparent);
+    color: var(--p);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.gift-card-body {
+    flex: 1;
+    min-width: 0;
+}
+.gift-card-bank {
+    font-family: var(--fd);
+    font-weight: 600;
+    color: var(--ink);
+    font-size: 0.92rem;
+    margin: 0 0 0.1rem;
+}
+.gift-card-number {
+    font-family: monospace;
+    font-size: 0.95rem;
+    color: var(--p);
+    letter-spacing: 0.06em;
+    margin: 0 0 0.1rem;
+    overflow-wrap: anywhere;
+}
+.gift-card-name {
+    font-size: 0.74rem;
+    color: var(--muted);
+    margin: 0;
+}
+.gift-card-copy {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--p) 25%, transparent);
+    background: color-mix(in srgb, var(--p) 8%, transparent);
+    color: var(--p);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+.gift-card-copy:hover { background: var(--p); color: white; }
+.gift-card-copy-ok { font-size: 1rem; font-weight: 700; }
 
 /* ─── RSVP / GUESTBOOK ─── */
 
@@ -883,6 +1048,8 @@ html, body { height: 100%; }
 .bgm-toggle:hover { transform: scale(1.08); }
 .bgm-toggle:active { transform: scale(0.95); }
 .bgm-toggle[hidden] { display: none; }
+.bgm-toggle svg { display: block; }
+.bgm-toggle svg.is-hidden { display: none; }
 
 @media (hover: none) and (pointer: coarse) {
     .bgm-toggle { width: 44px; height: 44px; }
@@ -927,27 +1094,24 @@ html, body { height: 100%; }
     left: 50%;
     transform: translateX(-50%);
     z-index: 25;
-    width: 38px;
-    height: 38px;
+    width: 28px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(10px) saturate(140%);
-    -webkit-backdrop-filter: blur(10px) saturate(140%);
+    border: 0;
+    background: transparent;
     color: var(--ink);
+    opacity: 0.45;
     cursor: pointer;
-    box-shadow: 0 4px 16px -4px rgba(0, 0, 0, 0.15);
     transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.deck-nav svg { width: 16px; height: 16px; }
-.deck-nav:hover { transform: translateX(-50%) scale(1.08); }
-.deck-nav:active { transform: translateX(-50%) scale(0.95); }
+.deck-nav svg { width: 18px; height: 18px; }
+.deck-nav:hover { opacity: 0.9; transform: translateX(-50%) scale(1.08); }
+.deck-nav:active { opacity: 1; transform: translateX(-50%) scale(0.95); }
 
-.deck-nav-prev { top: 14px; }
-.deck-nav-next { bottom: 14px; }
+.deck-nav-prev { top: 10px; }
+.deck-nav-next { bottom: 10px; }
 
 /* Hide arrows when at first/last slide (Swiper applies these classes) */
 .swiper-button-disabled.deck-nav { opacity: 0; pointer-events: none; }
@@ -961,49 +1125,162 @@ html, body { height: 100%; }
     animation: deck-bounce 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* Swipe hint — only visible on cover */
-.deck-swipe-hint {
-    position: absolute;
-    left: 50%;
-    bottom: 60px;
-    transform: translateX(-50%);
-    z-index: 22;
+/* Cover is locked: user must click "Buka Undangan" — hide down arrow on cover
+   so there's only one path forward. Reappears from the second slide onward. */
+.deck-at-cover .deck-nav-next {
     display: none;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.4rem;
-    color: var(--muted);
-    font-size: 0.7rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.4s ease;
-}
-.deck-at-cover .deck-swipe-hint {
-    display: flex;
-    opacity: 0.6;
-    animation: deck-fade-in 1.2s 0.8s ease-out backwards;
-}
-.deck-swipe-hint-icon {
-    font-size: 1.2rem;
-    animation: deck-bounce 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-@keyframes deck-fade-in {
-    from { opacity: 0; }
-    to { opacity: 0.6; }
 }
 
 /* Hide nav buttons on touch primary (rely on swipe + dots) */
 @media (hover: none) and (pointer: coarse) {
-    .deck-nav-prev { display: none; }
-    /* Keep deck-nav-next visible at cover only as an affordance */
-    body:not(.deck-at-cover) .deck-nav-next { display: none; }
+    .deck-nav-prev,
+    .deck-nav-next { display: none; }
+}
+
+/* ============== RSVP CARD VARIANT ============== */
+.section--rsvp-card .rsvp-card-wrapper {
+    position: relative;
+    margin: 0 auto;
+    padding: 2rem 1.4rem 1.6rem;
+    max-width: 360px;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+    border-radius: 22px;
+    box-shadow: 0 14px 40px -16px rgba(0, 0, 0, 0.18);
+    backdrop-filter: blur(6px);
+}
+.section--rsvp-card .rsvp-card-icon {
+    width: 52px;
+    height: 52px;
+    margin: -3rem auto 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: var(--bg);
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+    box-shadow: 0 6px 16px -6px rgba(0, 0, 0, 0.18);
+}
+.section--rsvp-card .rsvp-card-body { margin-top: 1.2rem; }
+
+/* ============== GUESTBOOK WALL VARIANT ============== */
+.section--guestbook-wall .guestbook-wall {
+    margin-top: 1.6rem;
+    column-count: 2;
+    column-gap: 0.8rem;
+}
+@media (max-width: 480px) {
+    .section--guestbook-wall .guestbook-wall { column-count: 1; }
+}
+.guestbook-note {
+    break-inside: avoid;
+    display: block;
+    margin-bottom: 0.9rem;
+    padding: 0.9rem 1rem 0.7rem;
+    border-radius: 4px;
+    box-shadow: 0 4px 10px -4px rgba(0, 0, 0, 0.15),
+                0 1px 0 rgba(0, 0, 0, 0.04);
+    font-family: var(--font-body);
+    color: #4a3520;
+}
+.guestbook-note-text {
+    font-size: 0.85rem;
+    line-height: 1.55;
+    margin: 0 0 0.5rem;
+    white-space: pre-wrap;
+}
+.guestbook-note-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.4rem;
+    font-size: 0.65rem;
+    opacity: 0.75;
+}
+.guestbook-note-name { font-weight: 600; }
+
+/* ============== THANKS / CLOSING PAGE ============== */
+.section--thanks .section-inner { text-align: center; }
+.thanks-message {
+    margin: 1rem auto 1.6rem;
+    max-width: 32ch;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--ink);
+    opacity: 0.85;
+    white-space: pre-line;
+}
+.thanks-signature {
+    margin-top: 1.2rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    text-transform: uppercase;
+}
+.thanks-couple {
+    margin-top: 0.4rem;
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    color: var(--ink);
+}
+
+/* with-photo variant: rounded photo on top */
+.section--thanks-photo .thanks-photo {
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 1.4rem;
+    overflow: hidden;
+    border-radius: 999px;
+    box-shadow: 0 8px 28px -8px rgba(0, 0, 0, 0.25);
+    border: 4px solid rgba(255, 255, 255, 0.85);
+}
+.section--thanks-photo .thanks-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* elegant variant: full-bleed photo background with veil */
+.section--thanks-elegant { position: relative; overflow: hidden; }
+.section--thanks-elegant .thanks-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    z-index: 0;
+}
+.section--thanks-elegant .thanks-bg-veil {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+        color-mix(in srgb, var(--bg) 86%, transparent) 0%,
+        color-mix(in srgb, var(--bg) 92%, transparent) 100%);
+    z-index: 1;
+}
+.section--thanks-elegant .thanks-elegant-inner {
+    position: relative;
+    z-index: 2;
+}
+.thanks-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    margin: 1rem auto;
+    color: var(--accent);
+}
+.thanks-divider span {
+    display: block;
+    width: 50px;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.4;
 }
 
 /* ─── Reduced motion ─── */
 @media (prefers-reduced-motion: reduce) {
     .section, .cover-open-btn, .form-submit { transition: none !important; }
-    .deck-at-cover .deck-nav-next,
-    .deck-swipe-hint-icon { animation: none !important; }
+    .deck-at-cover .deck-nav-next { animation: none !important; }
 }

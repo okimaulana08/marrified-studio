@@ -27,17 +27,34 @@
             </div>
             <div class="col-span-12 md:col-span-3">
                 <label class="block text-[11px] text-white/50 mb-1.5 uppercase tracking-wider">File MP3 *</label>
-                <input type="file" wire:model="newFile" accept="audio/mpeg,.mp3"
-                       class="text-xs text-white/60 w-full">
+                <label for="musicUpload"
+                       class="file-pick-btn flex items-center justify-center gap-2 px-3 py-2 text-xs cursor-pointer">
+                    <svg wire:loading.remove wire:target="newFile" class="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+                    </svg>
+                    <svg wire:loading wire:target="newFile" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                    <span wire:loading.remove wire:target="newFile" class="truncate">
+                        @if ($newFile && method_exists($newFile, 'getClientOriginalName'))
+                            {{ $newFile->getClientOriginalName() }}
+                        @else
+                            Pilih File MP3
+                        @endif
+                    </span>
+                    <span wire:loading wire:target="newFile">Mengunggah...</span>
+                </label>
+                <input id="musicUpload" type="file" wire:model="newFile" accept="audio/mpeg,.mp3" class="sr-only">
                 @error('newFile') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
             </div>
         </div>
         <div class="flex items-center justify-between mt-4 pt-4 border-t border-white/8">
             <p class="text-[11px] text-white/40">Format: MP3 &middot; maks {{ \App\Services\Music\MusicLibrary::MAX_FILE_KB / 1024 }} MB</p>
-            <button wire:click="upload" wire:loading.attr="disabled" wire:target="upload,newFile"
+            <button wire:click="uploadTrack" wire:loading.attr="disabled" wire:target="uploadTrack,newFile"
                     class="btn-primary text-xs">
-                <span wire:loading.remove wire:target="upload">Upload Track</span>
-                <span wire:loading wire:target="upload">Memproses...</span>
+                <span wire:loading.remove wire:target="uploadTrack">Upload Track</span>
+                <span wire:loading wire:target="uploadTrack">Memproses...</span>
             </button>
         </div>
     </div>

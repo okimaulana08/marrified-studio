@@ -28,7 +28,7 @@ final class InvitationWriter
      * Couple → Story → Event → Gallery → Gift → RSVP → Guestbook).
      */
     public const DEFAULT_SECTION_TYPES = [
-        'cover', 'quotes', 'couple', 'story', 'event', 'gallery', 'gift', 'rsvp', 'guestbook',
+        'cover', 'quotes', 'couple', 'story', 'event', 'gallery', 'gift', 'rsvp', 'guestbook', 'thanks',
     ];
 
     /**

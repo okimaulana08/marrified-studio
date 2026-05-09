@@ -7,7 +7,7 @@
     );
 @endphp
 
-<section id="section-gallery" class="section section--gallery"
+<section id="section-gallery" class="section section--gallery section--gallery-staggered"
          data-section="gallery"
          x-data="galleryLightbox(@js($urls))"
          x-on:keydown.escape.window="close()"
@@ -17,9 +17,12 @@
         <h2 class="section-title">Galeri</h2>
 
         @if (! empty($urls))
-            <div class="gallery-grid">
+            {{-- CSS multi-column gives a masonry/Instagram-staggered effect:
+                 each photo keeps its native aspect ratio and flows into columns
+                 with `break-inside: avoid` to prevent splits. --}}
+            <div class="gallery-staggered">
                 @foreach ($urls as $i => $url)
-                    <button type="button" class="gallery-item" @click="open({{ $i }})">
+                    <button type="button" class="gallery-staggered-item" @click="open({{ $i }})">
                         <img src="{{ $url }}" alt="" loading="lazy">
                     </button>
                 @endforeach

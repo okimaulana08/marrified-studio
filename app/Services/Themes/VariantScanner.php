@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\File;
 final class VariantScanner
 {
     private const SECTION_TYPES = [
-        'cover', 'quotes', 'couple', 'event', 'gallery', 'gift', 'rsvp', 'guestbook',
+        'cover', 'quotes', 'couple', 'story', 'event', 'gallery', 'gift', 'rsvp', 'guestbook', 'thanks',
     ];
 
     public function __construct(
@@ -44,8 +44,15 @@ final class VariantScanner
         $variants = [];
 
         foreach (File::files($dir) as $file) {
+            $filename = $file->getFilename();
+
             // Only process *.blade.php files
-            if (! str_ends_with($file->getFilename(), '.blade.php')) {
+            if (! str_ends_with($filename, '.blade.php')) {
+                continue;
+            }
+
+            // Skip partial includes (underscore prefix convention, e.g. _lightbox.blade.php)
+            if (str_starts_with($filename, '_')) {
                 continue;
             }
 

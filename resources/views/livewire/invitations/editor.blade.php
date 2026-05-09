@@ -80,6 +80,7 @@
                     'gallery'   => ['label' => 'Gallery',  'enabled' => ! $isNew],
                     'gift'      => ['label' => 'Gift',     'enabled' => ! $isNew],
                     'music'     => ['label' => 'Music',    'enabled' => ! $isNew],
+                    'thanks'    => ['label' => 'Penutup',  'enabled' => ! $isNew],
                     'guests'    => ['label' => 'Tamu',     'enabled' => ! $isNew],
                 ] as $key => $meta)
                     <button type="button"
@@ -137,6 +138,9 @@
                     </div>
                     <div x-show="tab === 'music'" x-cloak class="fade-up">
                         @include('livewire.invitations.partials.tab-music')
+                    </div>
+                    <div x-show="tab === 'thanks'" x-cloak class="fade-up">
+                        @include('livewire.invitations.partials.tab-thanks')
                     </div>
                     <div x-show="tab === 'gift'" x-cloak class="fade-up">
                         @include('livewire.invitations.partials.tab-gift')

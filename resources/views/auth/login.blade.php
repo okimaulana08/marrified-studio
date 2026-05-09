@@ -311,6 +311,22 @@
             min-width: 0;
         }
         .auth-input::placeholder { color: rgba(255,255,255,0.25); }
+
+        /* Override Chrome/Safari autofill yellow + white-bg styling so it
+         * stays consistent with the dark glass form. The 9999s transition
+         * is a hack to keep the fake bg from animating back to default. */
+        .auth-input:-webkit-autofill,
+        .auth-input:-webkit-autofill:hover,
+        .auth-input:-webkit-autofill:focus,
+        .auth-input:-webkit-autofill:active {
+            -webkit-text-fill-color: #ffffff !important;
+            -webkit-box-shadow: 0 0 0 1000px rgba(255,255,255,0.04) inset !important;
+            box-shadow: 0 0 0 1000px rgba(255,255,255,0.04) inset !important;
+            caret-color: #ffffff;
+            transition: background-color 9999s ease-in-out 0s;
+            border-radius: 0;
+        }
+
         .pw-toggle {
             background: transparent;
             border: 0;

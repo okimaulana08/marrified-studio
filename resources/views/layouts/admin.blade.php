@@ -158,6 +158,31 @@
             color: white;
         }
 
+        /* ==================== FILE PICKER BUTTON ====================
+         * Generic styled <label> that wraps a hidden <input type="file">.
+         * Looks like a button, shows selected filename once chosen. Pair
+         * the label with `<input ... class="sr-only">`. Reusable for any
+         * single-file picker that wants to look like a real button. */
+        .file-pick-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 0.65rem;
+            color: rgba(255,255,255,0.85);
+            font-weight: 500;
+            transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 38px;
+        }
+        .file-pick-btn:hover {
+            background: rgba(16,185,129,0.10);
+            border-color: rgba(16,185,129,0.4);
+            color: white;
+        }
+        .file-pick-btn:focus-within {
+            outline: none;
+            border-color: rgba(16,185,129,0.6);
+            box-shadow: 0 0 0 3px rgba(16,185,129,0.15);
+        }
+
         /* ==================== PHOTO DROPZONE ==================== */
         .photo-dropzone {
             position: relative;
