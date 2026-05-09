@@ -5,10 +5,7 @@
 @endphp
 
 <section id="section-couple" class="section section--couple" data-section="couple">
-    <x-theme.section-decorations :theme="$theme" sectionKey="couple" />
-
     <div class="section-inner">
-        <x-theme.section-icon :theme="$theme" sectionKey="couple" size="48px" />
         <h2 class="section-title">Mempelai</h2>
 
         <div class="couple-grid">

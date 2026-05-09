@@ -1,4 +1,4 @@
-<div class="rsvp-form-wrap">
+<div class="rsvp-form-wrap no-swipe">
     @if ($submitted)
         <div class="rsvp-success">
             <p>✓ Terima kasih, konfirmasi Anda sudah kami terima.</p>

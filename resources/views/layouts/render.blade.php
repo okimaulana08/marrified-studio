@@ -5,21 +5,21 @@
     $custom = (array) ($invitation->customizations ?? []);
     $palette = array_merge($theme->defaultPalette, (array) ($custom['colors'] ?? []));
     $fonts = array_merge($theme->defaultFonts, (array) ($custom['fonts'] ?? []));
-    $sections = $invitation->sections->where('enabled', true)->sortBy('sort_order');
-    $coverSection = $sections->firstWhere('type', 'cover');
-    $bodySections = $sections->filter(fn ($s) => $s->type !== 'cover');
-    $bg = $theme->background();
+    $sections = $invitation->sections->where('enabled', true)->sortBy('sort_order')->values();
     $couple = $invitation->couple;
 @endphp
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>{{ $couple?->bride_nickname ?? $couple?->bride_name ?? 'Bride' }} &amp; {{ $couple?->groom_nickname ?? $couple?->groom_name ?? 'Groom' }} — Undangan Pernikahan</title>
 
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=playfair-display:400,500,600,700|petit-formal-script:400|lato:300,400,700&display=swap" rel="stylesheet">
+    @php $bunnyFontsUrl = \App\Support\BunnyFonts::url($fonts); @endphp
+    @if ($bunnyFontsUrl !== '')
+        <link href="{{ $bunnyFontsUrl }}" rel="stylesheet">
+    @endif
 
     <style>
         :root {
@@ -39,18 +39,38 @@
     @livewireStyles
 </head>
 <body class="render-body" data-theme="{{ $theme->slug }}">
-    @if ($bg)
-        <div class="theme-page-bg" style="background-image: url('{{ \App\Support\ThemeAsset::url($theme->slug, $bg['file']) }}'); opacity: {{ $bg['opacity'] ?? 0.5 }};"></div>
-    @endif
+    <main class="invitation-deck swiper" id="invitation-main">
+        <div class="swiper-wrapper">
+            @foreach ($sections as $section)
+                <article class="swiper-slide page page--{{ $section->type }}" data-page-type="{{ $section->type }}" data-page-index="{{ $loop->index }}">
+                    <x-theme.layout-slots :theme="$theme" :page="$section->type" />
+                    <div class="page-content">
+                        <x-render-section :section="$section" :theme="$theme" :invitation="$invitation" :guest="$guest" />
+                    </div>
+                </article>
+            @endforeach
+        </div>
 
-    @if ($coverSection)
-        <x-render-section :section="$coverSection" :theme="$theme" :invitation="$invitation" :guest="$guest" />
-    @endif
+        {{-- Pagination dots (vertical, right side) --}}
+        <div class="deck-pagination" aria-hidden="true"></div>
 
-    <main id="invitation-main" class="invitation-main">
-        @foreach ($bodySections as $section)
-            <x-render-section :section="$section" :theme="$theme" :invitation="$invitation" :guest="$guest" />
-        @endforeach
+        {{-- Up / down nav arrows --}}
+        <button type="button" class="deck-nav deck-nav-prev" aria-label="Halaman sebelumnya">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/>
+            </svg>
+        </button>
+        <button type="button" class="deck-nav deck-nav-next" aria-label="Halaman berikutnya">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </button>
+
+        {{-- Swipe hint (only visible on cover) --}}
+        <div class="deck-swipe-hint" aria-hidden="true">
+            <span class="deck-swipe-hint-icon">↑</span>
+            <span class="deck-swipe-hint-text">Geser untuk lanjut</span>
+        </div>
     </main>
 
     @livewireScripts

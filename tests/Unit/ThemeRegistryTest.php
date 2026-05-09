@@ -25,7 +25,7 @@ function manifest(string $dir, string $slug, array $extra = []): void
         'default_palette' => ['primary' => '#000'],
         'default_fonts' => ['display' => 'Inter'],
         'default_section_variants' => ['cover' => 'arch'],
-        'decorations' => [],
+        'layout' => ['default' => [], 'pages' => []],
         ...$extra,
     ]));
 }
@@ -62,52 +62,194 @@ it('resolves variant from default mapping with explicit override', function () {
         ->and($theme->variantFor('cover', 'photo-blur'))->toBe('photo-blur');
 });
 
-it('exposes per-section decoration as nested array', function () {
+it('exposes default layout slots and background', function () {
     manifest($this->tmp, 'alpha', [
-        'decorations' => [
-            'sections' => [
-                'cover' => [
-                    'tossed' => ['file' => 'flowers.webp', 'slot' => 'top'],
+        'layout' => [
+            'default' => [
+                'background' => ['file' => 'bg.webp', 'opacity' => 0.4, 'fit' => 'cover'],
+                'slots' => [
+                    'edge-top' => ['file' => 'florals-top.webp', 'anim_in' => 'fade-down'],
+                    'middle' => ['file' => 'ornament.svg'],
                 ],
             ],
         ],
     ]);
     $theme = (new ThemeRegistry($this->tmp))->find('alpha');
 
-    expect($theme->decorationFor('cover'))->toMatchArray([
-        'tossed' => ['file' => 'flowers.webp', 'slot' => 'top'],
-    ])
-        ->and($theme->decorationFor('rsvp'))->toBe([]);
+    expect($theme->background())->toMatchArray(['file' => 'bg.webp', 'opacity' => 0.4, 'fit' => 'cover'])
+        ->and($theme->slots())->toHaveCount(2)
+        ->and($theme->slots()['edge-top']['anim_in'])->toBe('fade-down')
+        ->and($theme->lottie())->toBeNull();
 });
 
-it('rejects invalid decoration slot in manifest', function () {
+it('returns null background and empty slots when not configured', function () {
+    manifest($this->tmp, 'alpha');
+    $theme = (new ThemeRegistry($this->tmp))->find('alpha');
+
+    expect($theme->background())->toBeNull()
+        ->and($theme->slots())->toBe([])
+        ->and($theme->lottie())->toBeNull();
+});
+
+it('merges per-page overrides with default layout', function () {
     manifest($this->tmp, 'alpha', [
-        'decorations' => [
-            'sections' => [
-                'cover' => [
-                    'tossed' => ['file' => 'x.webp', 'slot' => 'INVALID'],
+        'layout' => [
+            'default' => [
+                'background' => ['file' => 'default-bg.webp'],
+                'slots' => [
+                    'edge-top' => ['file' => 'default-top.webp'],
+                    'edge-bottom' => ['file' => 'default-bottom.webp'],
                 ],
+            ],
+            'pages' => [
+                'cover' => [
+                    'slots' => [
+                        'middle' => ['file' => 'cover-middle.svg'],
+                        'edge-top' => ['file' => 'cover-top.webp'],
+                    ],
+                ],
+            ],
+        ],
+    ]);
+    $theme = (new ThemeRegistry($this->tmp))->find('alpha');
+
+    // Default page: 2 slots
+    $defaultSlots = $theme->slots();
+    expect($defaultSlots)->toHaveCount(2)
+        ->and($defaultSlots['edge-top']['file'])->toBe('default-top.webp');
+
+    // Cover page: 3 slots (default merged + override)
+    $coverSlots = $theme->slots('cover');
+    expect($coverSlots)->toHaveCount(3)
+        ->and($coverSlots['edge-top']['file'])->toBe('cover-top.webp')
+        ->and($coverSlots['edge-bottom']['file'])->toBe('default-bottom.webp')
+        ->and($coverSlots['middle']['file'])->toBe('cover-middle.svg');
+});
+
+it('rejects unknown slot name in manifest', function () {
+    manifest($this->tmp, 'alpha', [
+        'layout' => [
+            'default' => [
+                'slots' => ['unknown-slot' => ['file' => 'x.webp']],
             ],
         ],
     ]);
 
     $registry = new ThemeRegistry($this->tmp);
-    expect(fn () => $registry->all())->toThrow(RuntimeException::class, "slot 'INVALID' is invalid");
+    expect(fn () => $registry->all())->toThrow(RuntimeException::class, 'unknown-slot');
 });
 
-it('rejects disallowed file extension', function () {
+it('rejects invalid anim_in preset', function () {
     manifest($this->tmp, 'alpha', [
-        'decorations' => [
-            'sections' => [
-                'cover' => [
-                    'tossed' => ['file' => 'evil.exe', 'slot' => 'top'],
-                ],
+        'layout' => [
+            'default' => [
+                'slots' => ['middle' => ['file' => 'x.webp', 'anim_in' => 'space-warp']],
+            ],
+        ],
+    ]);
+
+    $registry = new ThemeRegistry($this->tmp);
+    expect(fn () => $registry->all())->toThrow(RuntimeException::class, "anim_in 'space-warp' invalid");
+});
+
+it('rejects invalid background fit', function () {
+    manifest($this->tmp, 'alpha', [
+        'layout' => [
+            'default' => [
+                'background' => ['file' => 'bg.webp', 'fit' => 'stretch'],
+            ],
+        ],
+    ]);
+
+    $registry = new ThemeRegistry($this->tmp);
+    expect(fn () => $registry->all())->toThrow(RuntimeException::class, "fit 'stretch' invalid");
+});
+
+it('rejects disallowed file extension on slot', function () {
+    manifest($this->tmp, 'alpha', [
+        'layout' => [
+            'default' => [
+                'slots' => ['middle' => ['file' => 'evil.exe']],
             ],
         ],
     ]);
 
     $registry = new ThemeRegistry($this->tmp);
     expect(fn () => $registry->all())->toThrow(RuntimeException::class, 'disallowed extension');
+});
+
+it('accepts duration_ms and delay_ms within range', function () {
+    manifest($this->tmp, 'alpha', [
+        'layout' => [
+            'default' => [
+                'slots' => [
+                    'middle' => [
+                        'file' => 'x.svg',
+                        'anim_in' => 'fade-in',
+                        'duration_ms' => 1200,
+                        'delay_ms' => 500,
+                    ],
+                ],
+            ],
+        ],
+    ]);
+
+    $theme = (new ThemeRegistry($this->tmp))->find('alpha');
+
+    expect($theme->slots()['middle']['duration_ms'])->toBe(1200)
+        ->and($theme->slots()['middle']['delay_ms'])->toBe(500);
+});
+
+it('rejects duration_ms below minimum', function () {
+    manifest($this->tmp, 'alpha', [
+        'layout' => [
+            'default' => [
+                'slots' => ['middle' => ['file' => 'x.svg', 'duration_ms' => 50]],
+            ],
+        ],
+    ]);
+
+    $registry = new ThemeRegistry($this->tmp);
+    expect(fn () => $registry->all())->toThrow(RuntimeException::class, 'duration_ms must be');
+});
+
+it('rejects duration_ms above maximum', function () {
+    manifest($this->tmp, 'alpha', [
+        'layout' => [
+            'default' => [
+                'slots' => ['middle' => ['file' => 'x.svg', 'duration_ms' => 5000]],
+            ],
+        ],
+    ]);
+
+    $registry = new ThemeRegistry($this->tmp);
+    expect(fn () => $registry->all())->toThrow(RuntimeException::class, 'duration_ms must be');
+});
+
+it('rejects delay_ms above maximum', function () {
+    manifest($this->tmp, 'alpha', [
+        'layout' => [
+            'default' => [
+                'slots' => ['middle' => ['file' => 'x.svg', 'delay_ms' => 3000]],
+            ],
+        ],
+    ]);
+
+    $registry = new ThemeRegistry($this->tmp);
+    expect(fn () => $registry->all())->toThrow(RuntimeException::class, 'delay_ms must be');
+});
+
+it('rejects non-json lottie file', function () {
+    manifest($this->tmp, 'alpha', [
+        'layout' => [
+            'default' => [
+                'lottie' => ['file' => 'anim.webp'],
+            ],
+        ],
+    ]);
+
+    $registry = new ThemeRegistry($this->tmp);
+    expect(fn () => $registry->all())->toThrow(RuntimeException::class, 'lottie.file must be .json');
 });
 
 it('skips directories without manifest.json', function () {

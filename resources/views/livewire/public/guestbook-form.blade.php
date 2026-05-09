@@ -1,4 +1,4 @@
-<div class="guestbook-form-wrap">
+<div class="guestbook-form-wrap no-swipe">
     <form wire:submit="submit" class="guestbook-form">
         <label class="form-field">
             <span class="form-label">Nama</span>

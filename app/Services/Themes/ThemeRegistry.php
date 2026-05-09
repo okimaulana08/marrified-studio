@@ -13,9 +13,31 @@ use RuntimeException;
  */
 final class ThemeRegistry
 {
-    private const ALLOWED_SLOTS = ['top', 'bottom', 'tl', 'tr', 'bl', 'br', 'center', 'cover-overlay'];
+    public const SLOT_KEYS = [
+        'corner-tl', 'corner-tr', 'corner-bl', 'corner-br',
+        'edge-top', 'edge-bottom',
+        'side-tc', 'side-bc', 'side-lc', 'side-rc',
+        'middle',
+    ];
 
-    private const ALLOWED_EXTS = ['webp', 'svg', 'png', 'jpg', 'jpeg', 'json'];
+    public const ANIM_PRESETS = [
+        'fade-in', 'fade-down', 'fade-up', 'fade-left', 'fade-right',
+        'slide-down', 'slide-up', 'scale-in', 'rotate-in', 'blur-in',
+    ];
+
+    public const BG_FITS = ['cover', 'contain', 'fill', 'tile'];
+
+    public const LOTTIE_PLACEMENTS = ['top', 'bottom', 'left', 'right', 'center'];
+
+    public const LOTTIE_SIZES = ['small', 'medium', 'large', 'xlarge', 'full'];
+
+    public const ALLOWED_EXTS = ['webp', 'svg', 'png', 'jpg', 'jpeg', 'json'];
+
+    public const DURATION_MIN_MS = 100;
+
+    public const DURATION_MAX_MS = 3000;
+
+    public const DELAY_MAX_MS = 2000;
 
     /** @var array<string, Theme>|null */
     private ?array $cache = null;
@@ -81,8 +103,9 @@ final class ThemeRegistry
             throw new RuntimeException("Manifest missing 'slug' at {$manifestPath}");
         }
 
-        if (isset($data['decorations'])) {
-            $this->validateDecorations((array) $data['decorations'], $manifestPath);
+        $layout = (array) ($data['layout'] ?? []);
+        if ($layout !== []) {
+            $this->validateLayout($layout, $manifestPath);
         }
 
         return new Theme(
@@ -93,38 +116,110 @@ final class ThemeRegistry
             defaultPalette: (array) ($data['default_palette'] ?? []),
             defaultFonts: (array) ($data['default_fonts'] ?? []),
             defaultSectionVariants: (array) ($data['default_section_variants'] ?? []),
-            decorations: (array) ($data['decorations'] ?? []),
+            layout: $layout,
         );
     }
 
     /**
-     * @param  array<string, mixed>  $deco
+     * @param  array<string, mixed>  $layout
      */
-    private function validateDecorations(array $deco, string $manifestPath): void
+    private function validateLayout(array $layout, string $manifestPath): void
     {
-        $sections = (array) ($deco['sections'] ?? []);
-        foreach ($sections as $key => $sectionDeco) {
-            if (! is_array($sectionDeco)) {
+        if (isset($layout['default'])) {
+            $this->validatePageLayout((array) $layout['default'], 'default', $manifestPath);
+        }
+
+        foreach ((array) ($layout['pages'] ?? []) as $page => $pageLayout) {
+            $this->validatePageLayout((array) $pageLayout, "pages.{$page}", $manifestPath);
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $page
+     */
+    private function validatePageLayout(array $page, string $context, string $manifestPath): void
+    {
+        if (isset($page['background'])) {
+            $bg = (array) $page['background'];
+            $file = (string) ($bg['file'] ?? '');
+            if ($file === '') {
+                throw new RuntimeException("Layout {$context}.background missing 'file' in {$manifestPath}");
+            }
+            $this->assertExtension($file, "{$context}.background.file", $manifestPath);
+
+            $fit = (string) ($bg['fit'] ?? 'cover');
+            if (! in_array($fit, self::BG_FITS, true)) {
+                throw new RuntimeException("Layout {$context}.background.fit '{$fit}' invalid in {$manifestPath}");
+            }
+        }
+
+        foreach ((array) ($page['slots'] ?? []) as $slotName => $slotEntry) {
+            if (! in_array($slotName, self::SLOT_KEYS, true)) {
+                throw new RuntimeException("Layout {$context}.slots.{$slotName}: unknown slot in {$manifestPath}");
+            }
+            if (! is_array($slotEntry)) {
                 continue;
             }
-            foreach (['frame', 'tossed', 'scene', 'icon'] as $slot) {
-                $entry = $sectionDeco[$slot] ?? null;
-                if (! is_array($entry)) {
-                    continue;
-                }
-                $file = (string) ($entry['file'] ?? '');
-                if ($file === '') {
-                    throw new RuntimeException("Decoration {$key}.{$slot} missing 'file' in {$manifestPath}");
-                }
-                $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-                if (! in_array($ext, self::ALLOWED_EXTS, true)) {
-                    throw new RuntimeException("Decoration {$key}.{$slot}.file '{$file}' has disallowed extension '.{$ext}' in {$manifestPath}");
-                }
-                $entrySlot = (string) ($entry['slot'] ?? '');
-                if ($entrySlot !== '' && ! in_array($entrySlot, self::ALLOWED_SLOTS, true)) {
-                    throw new RuntimeException("Decoration {$key}.{$slot}.slot '{$entrySlot}' is invalid in {$manifestPath}");
+            $file = (string) ($slotEntry['file'] ?? '');
+            if ($file === '') {
+                throw new RuntimeException("Layout {$context}.slots.{$slotName} missing 'file' in {$manifestPath}");
+            }
+            $this->assertExtension($file, "{$context}.slots.{$slotName}.file", $manifestPath);
+
+            $anim = (string) ($slotEntry['anim_in'] ?? '');
+            if ($anim !== '' && ! in_array($anim, self::ANIM_PRESETS, true)) {
+                throw new RuntimeException("Layout {$context}.slots.{$slotName}.anim_in '{$anim}' invalid in {$manifestPath}");
+            }
+
+            if (isset($slotEntry['duration_ms'])) {
+                $d = (int) $slotEntry['duration_ms'];
+                if ($d < self::DURATION_MIN_MS || $d > self::DURATION_MAX_MS) {
+                    throw new RuntimeException(
+                        "Layout {$context}.slots.{$slotName}.duration_ms must be ".self::DURATION_MIN_MS.'-'.self::DURATION_MAX_MS."ms in {$manifestPath}"
+                    );
                 }
             }
+
+            if (isset($slotEntry['delay_ms'])) {
+                $d = (int) $slotEntry['delay_ms'];
+                if ($d < 0 || $d > self::DELAY_MAX_MS) {
+                    throw new RuntimeException(
+                        "Layout {$context}.slots.{$slotName}.delay_ms must be 0-".self::DELAY_MAX_MS."ms in {$manifestPath}"
+                    );
+                }
+            }
+        }
+
+        if (isset($page['lottie'])) {
+            $l = (array) $page['lottie'];
+            $file = (string) ($l['file'] ?? '');
+            if ($file === '') {
+                throw new RuntimeException("Layout {$context}.lottie missing 'file' in {$manifestPath}");
+            }
+            $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+            if ($ext !== 'json') {
+                throw new RuntimeException("Layout {$context}.lottie.file must be .json (got '.{$ext}') in {$manifestPath}");
+            }
+
+            $placement = (string) ($l['placement'] ?? 'center');
+            if (! in_array($placement, self::LOTTIE_PLACEMENTS, true)) {
+                throw new RuntimeException("Layout {$context}.lottie.placement '{$placement}' invalid in {$manifestPath}");
+            }
+
+            if (isset($l['size'])) {
+                $size = (string) $l['size'];
+                if (! in_array($size, self::LOTTIE_SIZES, true)) {
+                    throw new RuntimeException("Layout {$context}.lottie.size '{$size}' invalid in {$manifestPath}");
+                }
+            }
+        }
+    }
+
+    private function assertExtension(string $file, string $context, string $manifestPath): void
+    {
+        $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+        if (! in_array($ext, self::ALLOWED_EXTS, true)) {
+            throw new RuntimeException("Layout {$context} '{$file}' has disallowed extension '.{$ext}' in {$manifestPath}");
         }
     }
 }

@@ -4,10 +4,7 @@
 @endphp
 
 <section id="section-guestbook" class="section section--guestbook" data-section="guestbook">
-    <x-theme.section-decorations :theme="$theme" sectionKey="guestbook" />
-
     <div class="section-inner">
-        <x-theme.section-icon :theme="$theme" sectionKey="guestbook" size="48px" />
         <h2 class="section-title">Ucapan &amp; Doa</h2>
 
         @livewire('public.guestbook-form', ['invitation' => $invitation, 'guest' => $guest])

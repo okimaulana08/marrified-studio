@@ -46,9 +46,10 @@ it('renders guest greeting when token matches', function () {
 
     $response = $this->get('/raka-dewi/'.$guest->token);
 
-    $response->assertOk()
-        ->assertSee('Kepada Yth.', false)
-        ->assertSee('Pak Budi Hartono');
+    // Guest name must always render when token resolves; the "Kepada Yth."
+    // honorific is variant-specific (arch shows it, minimal omits it), so we
+    // only assert the name to keep the test variant-agnostic.
+    $response->assertOk()->assertSee('Pak Budi Hartono');
 });
 
 it('returns 404 when slug does not exist', function () {

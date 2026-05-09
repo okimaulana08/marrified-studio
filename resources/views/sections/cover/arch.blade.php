@@ -8,8 +8,6 @@
 @endphp
 
 <section id="section-cover" class="section section--cover" data-section="cover">
-    <x-theme.section-decorations :theme="$theme" sectionKey="cover" />
-
     <div class="cover-inner">
         <p class="cover-eyebrow">The Wedding of</p>
         <h1 class="cover-title cover-title--script">

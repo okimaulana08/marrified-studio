@@ -1,47 +1,59 @@
 {
     "slug": "watercolor-lush",
-    "name": "Watercolor Lush",
-    "description": "Tema mewah watercolor dengan arch frame elegan dan ayat suci.",
+    "name": "Watercolor Lush New",
+    "description": "Tema mewah watercolor dengan elemen florals lembut di tepi atas dan bawah halaman.",
     "is_premium": true,
     "default_palette": {
-        "primary":  "#5d8068",
-        "accent":   "#c9a96e",
-        "accent2":  "#3d5a47",
-        "bg":       "#eef2ea",
-        "ink":      "#2a3d31",
-        "muted":    "#6f7e72"
+        "primary": "#5d8068",
+        "accent": "#c9a96e",
+        "accent2": "#3d5a47",
+        "bg": "#eef2ea",
+        "ink": "#2a3d31",
+        "muted": "#6f7e72"
     },
     "default_fonts": {
         "display": "Playfair Display",
-        "body":    "Lato",
-        "script":  "Petit Formal Script"
+        "body": "Lato",
+        "script": "Parisienne"
     },
     "default_section_variants": {
-        "cover":     "arch",
-        "quotes":    "default",
-        "couple":    "side-by-side",
-        "event":     "card",
-        "gallery":   "grid",
-        "gift":      "cashless-modal",
-        "rsvp":      "default",
+        "cover": "minimal",
+        "quotes": "default",
+        "couple": "side-by-side",
+        "event": "card",
+        "gallery": "grid",
+        "gift": "cashless-modal",
+        "rsvp": "default",
         "guestbook": "default"
     },
-    "decorations": {
-        "background": { "file": "sky-bg.webp", "opacity": 0.5 },
-        "sections": {
-            "cover":     { "frame":  { "file": "arch.webp" },
-                           "tossed": { "file": "florals-bottom.webp", "slot": "bottom" } },
-            "quotes":    { "tossed": { "file": "florals-top.webp",   "slot": "top" },
-                           "scene":  { "file": "venue-scene.webp",   "slot": "bottom", "opacity": 0.95 },
-                           "icon":   { "file": "moon-star.svg" } },
-            "couple":    { "tossed": { "file": "florals-top.webp",   "slot": "top", "opacity": 0.85 },
-                           "icon":   { "file": "heart-rings.svg" } },
-            "event":     { "icon":   { "file": "rings.svg" },
-                           "scene":  { "file": "venue-scene.webp",   "slot": "bottom", "opacity": 0.9 } },
-            "gallery":   { "tossed": { "file": "florals-top.webp",   "slot": "top", "opacity": 0.7 } },
-            "gift":      { "icon":   { "file": "envelope.svg" } },
-            "rsvp":      { "icon":   { "file": "scroll.svg" } },
-            "guestbook": { "icon":   { "file": "feather.svg" } }
-        }
+    "layout": {
+        "default": {
+            "background": {
+                "file": "bg.webp",
+                "opacity": 1,
+                "fit": "cover"
+            },
+            "slots": {
+                "corner-tl": {
+                    "file": "tl-2.webp",
+                    "anim_in": "fade-down",
+                    "duration_ms": 3000,
+                    "delay_ms": 750
+                },
+                "corner-br": {
+                    "file": "br-2.webp",
+                    "anim_in": "fade-left",
+                    "duration_ms": 3000,
+                    "delay_ms": 800
+                }
+            },
+            "lottie": {
+                "file": "pplen85etm.json",
+                "placement": "bottom",
+                "loop": true,
+                "size": "full"
+            }
+        },
+        "pages": []
     }
 }

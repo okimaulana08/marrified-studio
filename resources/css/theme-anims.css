@@ -1,41 +1,179 @@
-/* Section decoration slot positioning + animations. */
-.theme-section-decorations { position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
-.theme-section-frame { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+/* =====================================================================
+ * Layout slot system + per-slot entrance animations.
+ *
+ * Positioning uses `translate` and `scale` long-form CSS properties so
+ * that animations using `transform` shorthand combine additively
+ * (browser composes: translate -> rotate -> scale -> transform), and
+ * keyframes don't clobber slot centering.
+ * ===================================================================== */
 
-.theme-section-tossed {
+.page {
+    position: relative;
+    overflow: hidden;
+}
+
+.layout-slots {
     position: absolute;
-    width: var(--tossed-size, 100%);
-    height: auto;
-    opacity: var(--tossed-opacity, 1);
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
 }
-.theme-section-tossed--top    { top: 0;    left: 50%; transform: translateX(-50%); }
-.theme-section-tossed--bottom { bottom: 0; left: 50%; transform: translateX(-50%); }
-.theme-section-tossed--tl     { top: 0;    left: 0; }
-.theme-section-tossed--tr     { top: 0;    right: 0; }
-.theme-section-tossed--bl     { bottom: 0; left: 0; }
-.theme-section-tossed--br     { bottom: 0; right: 0; }
 
-.theme-section-scene {
+/* --------------------- Background --------------------- */
+.layout-bg {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
+    inset: 0;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -1;
+}
+.layout-bg--cover    { background-size: cover; }
+.layout-bg--contain  { background-size: contain; }
+.layout-bg--fill     { background-size: 100% 100%; }
+.layout-bg--tile     { background-size: auto; background-repeat: repeat; background-position: 0 0; }
+
+/* --------------------- Slot positioning --------------------- */
+.layout-slot {
+    position: absolute;
+    line-height: 0;
+}
+.layout-slot img {
+    display: block;
+    max-width: 100%;
     height: auto;
-    opacity: var(--scene-opacity, 1);
 }
 
-.theme-section-icon {
-    display: inline-block;
-    color: var(--p);
-    margin: 0 auto;
-    vertical-align: middle;
+/* Corners — render assets as-is (no auto-flip; each corner uses its own asset) */
+.layout-slot--corner-tl,
+.layout-slot--corner-tr,
+.layout-slot--corner-bl,
+.layout-slot--corner-br {
+    width: clamp(80px, 22vw, 180px);
 }
-.theme-section-icon svg { width: 100%; height: 100%; fill: currentColor; }
+.layout-slot--corner-tl { top: 0; left: 0; }
+.layout-slot--corner-tr { top: 0; right: 0; }
+.layout-slot--corner-bl { bottom: 0; left: 0; }
+.layout-slot--corner-br { bottom: 0; right: 0; }
 
+/* Edges */
+.layout-slot--edge-top,
+.layout-slot--edge-bottom { left: 0; right: 0; width: 100%; }
+.layout-slot--edge-top    { top: 0; }
+.layout-slot--edge-bottom { bottom: 0; }
+.layout-slot--edge-top img,
+.layout-slot--edge-bottom img { width: 100%; }
+
+/* Sides — translate long-form for centering */
+.layout-slot--side-tc,
+.layout-slot--side-bc {
+    left: 50%;
+    translate: -50% 0;
+    width: clamp(120px, 35vw, 280px);
+}
+.layout-slot--side-tc { top: 0; }
+.layout-slot--side-bc { bottom: 0; }
+
+.layout-slot--side-lc,
+.layout-slot--side-rc {
+    top: 50%;
+    translate: 0 -50%;
+    width: clamp(60px, 12vw, 100px);
+}
+.layout-slot--side-lc { left: 0; }
+.layout-slot--side-rc { right: 0; }
+
+/* Middle */
+.layout-slot--middle {
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+    width: clamp(120px, 40vw, 320px);
+}
+
+/* --------------------- Lottie placement --------------------- */
+.layout-lottie {
+    position: absolute;
+    /* Default size — overridden by .layout-lottie--size-* modifiers below */
+    width: clamp(120px, 30vw, 240px);
+    height: clamp(120px, 30vw, 240px);
+    pointer-events: none;
+}
+.layout-lottie--top    { top: 0;    left: 50%; translate: -50% 0; }
+.layout-lottie--bottom { bottom: 0; left: 50%; translate: -50% 0; }
+.layout-lottie--left   { left: 0;   top: 50%;  translate: 0 -50%; }
+.layout-lottie--right  { right: 0;  top: 50%;  translate: 0 -50%; }
+.layout-lottie--center { top: 50%;  left: 50%; translate: -50% -50%; }
+
+/* Size presets */
+.layout-lottie--size-small  { width: clamp(80px, 20vw, 160px);  height: clamp(80px, 20vw, 160px); }
+.layout-lottie--size-medium { width: clamp(120px, 30vw, 240px); height: clamp(120px, 30vw, 240px); }
+.layout-lottie--size-large  { width: clamp(200px, 50vw, 400px); height: clamp(200px, 50vw, 400px); }
+.layout-lottie--size-xlarge { width: clamp(280px, 70vw, 560px); height: clamp(280px, 70vw, 560px); }
+.layout-lottie--size-full   { top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; translate: 0 0; }
+
+/* =====================================================================
+ * ENTRANCE ANIMATIONS (per-slot anim_in)
+ *
+ * Elements with `data-anim` attribute start hidden. When their parent
+ * slide gains `.is-entered` (set by JS once it becomes active), the
+ * matching keyframe animation plays and persists (animation-fill-mode:
+ * forwards). The class is added once per slide so re-visits don't flash.
+ * ===================================================================== */
+
+/* Slots with anim start invisible until their slide is entered */
+[data-anim] {
+    opacity: 0;
+}
+
+.is-entered [data-anim="fade-in"]    { animation: lay-fade-in    0.7s ease-out forwards; }
+.is-entered [data-anim="fade-down"]  { animation: lay-fade-down  0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.is-entered [data-anim="fade-up"]    { animation: lay-fade-up    0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.is-entered [data-anim="fade-left"]  { animation: lay-fade-left  0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.is-entered [data-anim="fade-right"] { animation: lay-fade-right 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.is-entered [data-anim="slide-down"] { animation: lay-slide-down 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.is-entered [data-anim="slide-up"]   { animation: lay-slide-up   0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.is-entered [data-anim="scale-in"]   { animation: lay-scale-in   0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.is-entered [data-anim="rotate-in"]  { animation: lay-rotate-in  0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.is-entered [data-anim="blur-in"]    { animation: lay-blur-in    0.9s ease-out forwards; }
+
+/* Stagger by slot region — top elements first, bottom last */
+.is-entered .layout-slot--corner-tl[data-anim],
+.is-entered .layout-slot--edge-top[data-anim],
+.is-entered .layout-slot--side-tc[data-anim]    { animation-delay: 0.10s; }
+
+.is-entered .layout-slot--corner-tr[data-anim],
+.is-entered .layout-slot--side-rc[data-anim]    { animation-delay: 0.20s; }
+
+.is-entered .layout-slot--corner-br[data-anim],
+.is-entered .layout-slot--edge-bottom[data-anim],
+.is-entered .layout-slot--side-bc[data-anim]    { animation-delay: 0.30s; }
+
+.is-entered .layout-slot--corner-bl[data-anim],
+.is-entered .layout-slot--side-lc[data-anim]    { animation-delay: 0.40s; }
+
+.is-entered .layout-slot--middle[data-anim]     { animation-delay: 0.55s; }
+
+/* Background gets a subtle fade-in (not configurable per spec, just feels right) */
+.is-entered .layout-bg { animation: lay-fade-in 0.6s ease-out backwards; }
+
+/* --------------------- Keyframes --------------------- */
+@keyframes lay-fade-in    { from { opacity: 0; }                                              to { opacity: 1; } }
+@keyframes lay-fade-down  { from { opacity: 0; transform: translateY(-30px); }                to { opacity: 1; transform: translateY(0); } }
+@keyframes lay-fade-up    { from { opacity: 0; transform: translateY(30px); }                 to { opacity: 1; transform: translateY(0); } }
+@keyframes lay-fade-left  { from { opacity: 0; transform: translateX(30px); }                 to { opacity: 1; transform: translateX(0); } }
+@keyframes lay-fade-right { from { opacity: 0; transform: translateX(-30px); }                to { opacity: 1; transform: translateX(0); } }
+@keyframes lay-slide-down { from { opacity: 0; transform: translateY(-100%); }                to { opacity: 1; transform: translateY(0); } }
+@keyframes lay-slide-up   { from { opacity: 0; transform: translateY(100%); }                 to { opacity: 1; transform: translateY(0); } }
+@keyframes lay-scale-in   { from { opacity: 0; transform: scale(0.85); }                      to { opacity: 1; transform: scale(1); } }
+@keyframes lay-rotate-in  { from { opacity: 0; transform: rotate(-12deg) scale(0.92); }       to { opacity: 1; transform: rotate(0deg) scale(1); } }
+@keyframes lay-blur-in    { from { opacity: 0; filter: blur(10px); }                          to { opacity: 1; filter: blur(0); } }
+
+/* --------------------- Reduced motion --------------------- */
 @media (prefers-reduced-motion: reduce) {
-    .theme-section-decorations img,
-    .theme-section-decorations * {
+    [data-anim], .layout-bg {
         animation: none !important;
-        transition: none !important;
+        opacity: 1 !important;
+        filter: none !important;
     }
 }

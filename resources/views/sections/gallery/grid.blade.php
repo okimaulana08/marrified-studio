@@ -4,8 +4,6 @@
 @endphp
 
 <section id="section-gallery" class="section section--gallery" data-section="gallery">
-    <x-theme.section-decorations :theme="$theme" sectionKey="gallery" />
-
     <div class="section-inner">
         <h2 class="section-title">Galeri</h2>
 

@@ -5,10 +5,7 @@
 @endphp
 
 <section id="section-event" class="section section--event" data-section="event">
-    <x-theme.section-decorations :theme="$theme" sectionKey="event" />
-
     <div class="section-inner">
-        <x-theme.section-icon :theme="$theme" sectionKey="event" size="48px" />
         <h2 class="section-title">Acara</h2>
 
         <div class="event-list">
