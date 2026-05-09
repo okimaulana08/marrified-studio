@@ -109,7 +109,10 @@
         </div>
     </div>
 
-    <div class="border-t border-white/8 pt-4 flex justify-end">
+    <div class="border-t border-white/8 pt-4 flex justify-end gap-2">
+        <button wire:click="discardTab('couple')"
+                wire:confirm="Buang semua perubahan di tab ini?"
+                class="btn-ghost text-xs">Batalkan</button>
         <button wire:click="saveCouple" wire:loading.attr="disabled" wire:target="saveCouple,bridePhoto,groomPhoto"
                 class="btn-primary text-xs">
             <span wire:loading.remove wire:target="saveCouple">Simpan Couple</span>

@@ -254,6 +254,33 @@ final class InvitationEditor extends Component
         }
     }
 
+    /**
+     * Re-load a single tab's form from the DB, discarding any pending edits.
+     * Used by the per-tab "Batalkan" buttons. No-op in create mode.
+     */
+    public function discardTab(string $tab): void
+    {
+        if ($this->isNew) {
+            return;
+        }
+
+        $invitation = $this->resolveInvitation();
+        $invitation->load(['couple', 'events', 'sections', 'giftAccounts']);
+
+        match ($tab) {
+            'basic' => $this->basic->fillFromModel($invitation),
+            'couple' => $this->couple->fillFromModel($invitation->couple),
+            'events' => $this->events->fillFromModel($invitation),
+            'religious' => $this->religious->fillFromModel($invitation),
+            'sections' => $this->sections->fillFromModel($invitation),
+            'gift' => $this->gift->fillFromModel($invitation),
+            default => null,
+        };
+
+        $this->resetErrorBag();
+        $this->flash('Perubahan dibatalkan.', 'info');
+    }
+
     private function resolveInvitation(): Invitation
     {
         $invitation = Invitation::query()->findOrFail($this->invitationId);

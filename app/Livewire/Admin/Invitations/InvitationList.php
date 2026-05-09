@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace App\Livewire\Admin\Invitations;
 
 use App\Models\Invitation;
+use App\Services\Invitations\InvitationCloner;
 use App\Services\Invitations\InvitationWriter;
 use Illuminate\Contracts\View\View;
+use Livewire\Attributes\Validate;
 use Livewire\Component;
+use RuntimeException;
 
 /**
  * Admin-only list of every invitation in the system. Search across slug +
@@ -23,6 +26,15 @@ final class InvitationList extends Component
     public ?int $deleteTargetId = null;
 
     public string $deleteTargetSlug = '';
+
+    public bool $showCloneModal = false;
+
+    public ?int $cloneSourceId = null;
+
+    public string $cloneSourceSlug = '';
+
+    #[Validate('required|regex:/^[a-z0-9][a-z0-9\-]{1,48}[a-z0-9]$/')]
+    public string $cloneTargetSlug = '';
 
     public ?string $flashMessage = null;
 
@@ -55,6 +67,45 @@ final class InvitationList extends Component
         $this->closeDeleteModal();
         $this->flashMessage = "Invitation '{$invitation->slug}' dihapus.";
         $this->flashType = 'success';
+    }
+
+    public function openCloneModal(int $id): void
+    {
+        $invitation = Invitation::query()->findOrFail($id);
+        $this->authorize('create', Invitation::class);
+
+        $this->cloneSourceId = $invitation->id;
+        $this->cloneSourceSlug = $invitation->slug;
+        $this->cloneTargetSlug = $invitation->slug.'-copy';
+        $this->showCloneModal = true;
+        $this->resetErrorBag();
+    }
+
+    public function closeCloneModal(): void
+    {
+        $this->showCloneModal = false;
+        $this->cloneSourceId = null;
+        $this->cloneSourceSlug = '';
+        $this->cloneTargetSlug = '';
+    }
+
+    public function confirmClone(InvitationCloner $cloner): void
+    {
+        $this->validate();
+        $this->authorize('create', Invitation::class);
+
+        $source = Invitation::query()->findOrFail($this->cloneSourceId);
+
+        try {
+            $clone = $cloner->clone($source, $this->cloneTargetSlug);
+        } catch (RuntimeException $e) {
+            $this->addError('cloneTargetSlug', $e->getMessage());
+
+            return;
+        }
+
+        $this->closeCloneModal();
+        $this->redirect(route('invitations.edit', $clone->slug));
     }
 
     public function render(): View

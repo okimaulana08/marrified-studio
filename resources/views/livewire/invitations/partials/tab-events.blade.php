@@ -105,10 +105,15 @@
             </svg>
             Tambah Event
         </button>
-        <button wire:click="saveEvents" wire:loading.attr="disabled" wire:target="saveEvents"
-                class="btn-primary text-xs">
-            <span wire:loading.remove wire:target="saveEvents">Simpan Events</span>
-            <span wire:loading wire:target="saveEvents">Menyimpan...</span>
-        </button>
+        <div class="flex items-center gap-2">
+            <button wire:click="discardTab('events')"
+                    wire:confirm="Buang semua perubahan di tab ini?"
+                    class="btn-ghost text-xs">Batalkan</button>
+            <button wire:click="saveEvents" wire:loading.attr="disabled" wire:target="saveEvents"
+                    class="btn-primary text-xs">
+                <span wire:loading.remove wire:target="saveEvents">Simpan Events</span>
+                <span wire:loading wire:target="saveEvents">Menyimpan...</span>
+            </button>
+        </div>
     </div>
 </div>

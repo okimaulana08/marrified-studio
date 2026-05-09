@@ -63,7 +63,10 @@
         @endforeach
     </div>
 
-    <div class="flex justify-end border-t border-white/8 pt-4">
+    <div class="flex justify-end gap-2 border-t border-white/8 pt-4">
+        <button wire:click="discardTab('sections')"
+                wire:confirm="Buang semua perubahan di tab ini?"
+                class="btn-ghost text-xs">Batalkan</button>
         <button wire:click="saveSections" wire:loading.attr="disabled" wire:target="saveSections"
                 class="btn-primary text-xs">
             <span wire:loading.remove wire:target="saveSections">Simpan Sections</span>

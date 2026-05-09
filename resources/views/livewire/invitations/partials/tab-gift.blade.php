@@ -88,10 +88,15 @@
             </svg>
             Tambah Akun
         </button>
-        <button wire:click="saveGift" wire:loading.attr="disabled" wire:target="saveGift"
-                class="btn-primary text-xs">
-            <span wire:loading.remove wire:target="saveGift">Simpan Gift</span>
-            <span wire:loading wire:target="saveGift">Menyimpan...</span>
-        </button>
+        <div class="flex items-center gap-2">
+            <button wire:click="discardTab('gift')"
+                    wire:confirm="Buang semua perubahan di tab ini?"
+                    class="btn-ghost text-xs">Batalkan</button>
+            <button wire:click="saveGift" wire:loading.attr="disabled" wire:target="saveGift"
+                    class="btn-primary text-xs">
+                <span wire:loading.remove wire:target="saveGift">Simpan Gift</span>
+                <span wire:loading wire:target="saveGift">Menyimpan...</span>
+            </button>
+        </div>
     </div>
 </div>
