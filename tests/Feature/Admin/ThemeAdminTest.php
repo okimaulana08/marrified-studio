@@ -2,11 +2,15 @@
 
 declare(strict_types=1);
 
+use App\Models\User;
 use App\Services\Themes\ThemeRegistry;
 use App\Services\Themes\ThemeWriter;
 use Illuminate\Support\Facades\File;
 
 beforeEach(function () {
+    // All admin theme routes are gated by `auth + role:admin` since Phase 0.
+    $this->actingAs(User::factory()->admin()->create());
+
     $this->tmp = storage_path('framework/testing/admin-'.uniqid());
     File::makeDirectory($this->tmp.'/watercolor-lush/assets', 0755, true);
 

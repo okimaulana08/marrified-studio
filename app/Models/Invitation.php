@@ -4,20 +4,25 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Observers\InvitationObserver;
 use Database\Factories\InvitationFactory;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * @property int $id
+ * @property int|null $user_id
  * @property string $slug
  * @property string|null $religion_type
  * @property array<string, mixed>|null $religious_text
  * @property string $theme_slug
  * @property array<string, mixed>|null $customizations
+ * @property-read User|null $user
  * @property-read Couple|null $couple
  * @property-read Collection<int, Event> $events
  * @property-read Collection<int, Guest> $guests
@@ -26,12 +31,14 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property-read Collection<int, Rsvp> $rsvps
  * @property-read Collection<int, GiftAccount> $giftAccounts
  */
+#[ObservedBy([InvitationObserver::class])]
 final class Invitation extends Model
 {
     /** @use HasFactory<InvitationFactory> */
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'slug',
         'religion_type',
         'religious_text',
@@ -45,6 +52,17 @@ final class Invitation extends Model
             'religious_text' => 'array',
             'customizations' => 'array',
         ];
+    }
+
+    /**
+     * Owning couple-user. Null when admin created the invitation but hasn't
+     * issued couple credentials yet.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function couple(): HasOne

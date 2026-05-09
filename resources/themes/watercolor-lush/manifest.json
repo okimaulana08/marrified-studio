@@ -14,7 +14,7 @@
     "default_fonts": {
         "display": "Playfair Display",
         "body": "Lato",
-        "script": "Parisienne"
+        "script": "Dancing Script"
     },
     "default_section_variants": {
         "cover": "minimal",

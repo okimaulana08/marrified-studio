@@ -55,6 +55,18 @@ return [
             'throw' => false,
         ],
 
+        // User-uploaded media tied to invitations: couple photos, gallery,
+        // potentially gift QR codes. Public-visible via storage:link symlink.
+        // Files are addressed by invitation_id (not slug) so renaming the
+        // invitation slug doesn't orphan the directory.
+        'invitation_media' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/invitations'),
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage/invitations',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

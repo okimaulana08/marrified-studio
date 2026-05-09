@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Enums\UserRole;
 use App\Models\Couple;
 use App\Models\Event;
 use App\Models\GiftAccount;
@@ -11,16 +12,37 @@ use App\Models\Guest;
 use App\Models\GuestbookMessage;
 use App\Models\Invitation;
 use App\Models\Section;
+use App\Models\User;
 use App\Support\GuestToken;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 final class DemoInvitationSeeder extends Seeder
 {
     public function run(): void
     {
+        $admin = User::query()->updateOrCreate(
+            ['email' => 'admin@marrified.test'],
+            [
+                'name' => 'Studio Admin',
+                'password' => Hash::make('admin'),
+                'role' => UserRole::Admin,
+            ],
+        );
+
+        $coupleUser = User::query()->updateOrCreate(
+            ['email' => 'raka-dewi@marrified.test'],
+            [
+                'name' => 'Raka & Dewi',
+                'password' => Hash::make('couple'),
+                'role' => UserRole::Couple,
+            ],
+        );
+
         $invitation = Invitation::query()->updateOrCreate(
             ['slug' => 'raka-dewi'],
             [
+                'user_id' => $coupleUser->id,
                 'religion_type' => 'islam',
                 'religious_text' => [
                     'ayat' => 'وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً',
@@ -144,5 +166,7 @@ final class DemoInvitationSeeder extends Seeder
 
         $this->command?->info('Demo invitation seeded: /raka-dewi');
         $this->command?->info('First guest token: '.$invitation->guests->first()?->token);
+        $this->command?->info('Admin login:  '.$admin->email.' / admin');
+        $this->command?->info('Couple login: '.$coupleUser->email.' / couple');
     }
 }

@@ -566,17 +566,18 @@
     <div class="h-5 w-px bg-gradient-to-b from-transparent via-white/15 to-transparent"></div>
 
     <nav class="flex items-center gap-1">
-        <a href="{{ route('admin.themes.index') }}"
-           class="px-3 py-1.5 text-sm text-white/60 hover:text-white hover:bg-white/8 rounded-lg transition-all">
-            Themes
-        </a>
-        <a href="{{ route('admin.themes.create') }}"
-           class="px-3 py-1.5 text-sm text-white/60 hover:text-white hover:bg-white/8 rounded-lg transition-all flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            New Theme
-        </a>
+        @auth
+            @if (auth()->user()->isAdmin())
+                <a href="{{ route('admin.themes.index') }}"
+                   class="px-3 py-1.5 text-sm text-white/60 hover:text-white hover:bg-white/8 rounded-lg transition-all">
+                    Themes
+                </a>
+                <a href="{{ route('admin.invitations.index') }}"
+                   class="px-3 py-1.5 text-sm text-white/60 hover:text-white hover:bg-white/8 rounded-lg transition-all">
+                    Invitations
+                </a>
+            @endif
+        @endauth
     </nav>
 
     <div class="ml-auto flex items-center gap-2">
@@ -597,6 +598,17 @@
             </svg>
             Demo
         </a>
+
+        @auth
+            <span class="hidden md:inline text-xs text-white/30 font-mono px-2">{{ auth()->user()->email }}</span>
+            <form method="POST" action="{{ route('logout') }}" class="inline">
+                @csrf
+                <button type="submit"
+                        class="flex items-center gap-1.5 px-3 py-1.5 text-xs text-white/40 hover:text-red-300/80 glass-sm rounded-lg transition-all">
+                    Logout
+                </button>
+            </form>
+        @endauth
     </div>
 </nav>
 
