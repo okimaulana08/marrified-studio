@@ -35,3 +35,4 @@ phpstan-out.txt
 # Local debug / agent scratch
 /.playwright-mcp/
 fix-layout.png
+cookies.txt
