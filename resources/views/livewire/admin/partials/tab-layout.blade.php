@@ -119,7 +119,7 @@
                         Kosong
                     </span>
                     <span class="flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full" style="background: linear-gradient(135deg, #10b981, #14b8a6); box-shadow: 0 0 4px rgba(16,185,129,0.5);"></span>
+                        <span class="w-2 h-2 rounded-full" style="background: linear-gradient(135deg, #10b981, #14b8a6); box-shadow: 0 0 4px rgba(232,62,140,0.5);"></span>
                         Terisi
                     </span>
                 </div>
@@ -253,7 +253,7 @@
                                 <div class="grid grid-cols-12 gap-2 items-center">
                                     <div class="col-span-1 flex justify-center">
                                         @if ($hasFile)
-                                            <span class="w-2 h-2 rounded-full" style="background: linear-gradient(135deg, #10b981, #14b8a6); box-shadow: 0 0 6px rgba(16,185,129,0.5);" title="Set"></span>
+                                            <span class="w-2 h-2 rounded-full" style="background: linear-gradient(135deg, #10b981, #14b8a6); box-shadow: 0 0 6px rgba(232,62,140,0.5);" title="Set"></span>
                                         @elseif ($isInheriting)
                                             <span class="w-2 h-2 rounded-full bg-amber-400/40 border border-amber-400/60" title="Inherits from default"></span>
                                         @else

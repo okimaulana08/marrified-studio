@@ -11,14 +11,65 @@
     <link href="https://fonts.bunny.net/css?family=playfair-display:400,500,700|cormorant-garamond:400,500,600|libre-baskerville:400,700|eb-garamond:400,500|crimson-text:400,600|lato:300,400,700|poppins:300,400,500,600|montserrat:400,500,600|raleway:400,500,600|josefin-sans:300,400,600|petit-formal-script:400|dancing-script:400,600|great-vibes:400|parisienne:400|sacramento:400|alex-brush:400|space-grotesk:400,500,600,700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --emerald-glow: 16 185 129;
-            --teal-glow: 20 184 166;
+            --emerald-glow: 232 62 140;
+            --teal-glow: 255 122 133;
             --indigo-glow: 99 102 241;
             --pink-glow: 236 72 153;
             --amber-glow: 251 191 36;
         }
 
         [x-cloak] { display: none !important; }
+
+        /* Tailwind v4 resolves emerald/teal utilities through these CSS vars.
+         * Overriding them here flips every emerald-* and teal-* class to pink
+         * without touching markup. */
+        :root, :host {
+            --color-emerald-50:  #fff5f7;
+            --color-emerald-100: #ffe6ee;
+            --color-emerald-200: #ffd0dd;
+            --color-emerald-300: #ffa8c1;
+            --color-emerald-400: #ff7a9e;
+            --color-emerald-500: #e83e8c;
+            --color-emerald-600: #d63384;
+            --color-emerald-700: #c82c75;
+            --color-emerald-800: #a32463;
+            --color-emerald-900: #7a1a4a;
+            --color-emerald-950: #4d1130;
+
+            --color-teal-50:  #fff4f5;
+            --color-teal-100: #ffe2e5;
+            --color-teal-200: #ffc7cc;
+            --color-teal-300: #ffa1aa;
+            --color-teal-400: #ff7a85;
+            --color-teal-500: #ff5d6c;
+            --color-teal-600: #e84455;
+            --color-teal-700: #c8324a;
+            --color-teal-800: #a3263c;
+            --color-teal-900: #7a1c2e;
+        }
+
+        /* Remap Tailwind emerald + teal utilities to the pink brand palette so
+         * existing markup keeps working without per-class edits. */
+        [class*="text-emerald-"]   { color: #ff7a85 !important; }
+        [class*="text-teal-"]      { color: #ff7a85 !important; }
+        [class*="bg-emerald-"]     { background-color: rgba(232,62,140,0.15) !important; }
+        [class*="bg-teal-"]        { background-color: rgba(255,122,133,0.15) !important; }
+        .bg-emerald-400, .bg-emerald-500, .bg-emerald-600 { background-color: #e83e8c !important; }
+        .bg-teal-400,    .bg-teal-500,    .bg-teal-600    { background-color: #ff7a85 !important; }
+        [class*="border-emerald-"] { border-color: rgba(232,62,140,0.4) !important; }
+        [class*="border-teal-"]    { border-color: rgba(255,122,133,0.4) !important; }
+        [class*="ring-emerald-"]   { --tw-ring-color: rgba(232,62,140,0.5) !important; }
+        [class*="ring-teal-"]      { --tw-ring-color: rgba(255,122,133,0.5) !important; }
+        [class*="from-emerald-"]   { --tw-gradient-from: #e83e8c !important; }
+        [class*="to-emerald-"]     { --tw-gradient-to:   #ff7a85 !important; }
+        [class*="via-emerald-"]    { --tw-gradient-via:  #e83e8c !important; }
+        [class*="from-teal-"]      { --tw-gradient-from: #ff7a85 !important; }
+        [class*="to-teal-"]        { --tw-gradient-to:   #ff9aa2 !important; }
+        [class*="shadow-emerald-"] { --tw-shadow-color: rgba(232,62,140,0.5) !important; }
+        [class*="accent-emerald-"] { accent-color: #e83e8c !important; }
+        [class*="fill-emerald-"]   { fill: #e83e8c !important; }
+        [class*="stroke-emerald-"] { stroke: #e83e8c !important; }
+        [class*="decoration-emerald-"] { text-decoration-color: #e83e8c !important; }
 
         html { scroll-behavior: smooth; }
 
@@ -44,7 +95,7 @@
         .glass {
             background:
                 linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 100%),
-                radial-gradient(at top left, rgba(16,185,129,0.04) 0%, transparent 50%);
+                radial-gradient(at top left, rgba(232,62,140,0.04) 0%, transparent 50%);
             backdrop-filter: blur(20px) saturate(160%);
             -webkit-backdrop-filter: blur(20px) saturate(160%);
             border: 1px solid rgba(255,255,255,0.10);
@@ -107,7 +158,7 @@
         /* ==================== BUTTONS ==================== */
         .btn-primary {
             position: relative;
-            background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+            background: linear-gradient(135deg, #c82c75 0%, #e83e8c 100%);
             color: white;
             font-weight: 600;
             border-radius: 0.75rem;
@@ -115,7 +166,7 @@
             font-size: 0.875rem;
             transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
             box-shadow:
-                0 4px 16px -4px rgba(16,185,129,0.5),
+                0 4px 16px -4px rgba(232,62,140,0.5),
                 inset 0 1px 0 rgba(255,255,255,0.2);
             overflow: hidden;
         }
@@ -131,7 +182,7 @@
         .btn-primary:hover {
             transform: translateY(-1px);
             box-shadow:
-                0 8px 24px -4px rgba(16,185,129,0.6),
+                0 8px 24px -4px rgba(232,62,140,0.6),
                 inset 0 1px 0 rgba(255,255,255,0.3);
         }
         .btn-primary:disabled {
@@ -173,14 +224,14 @@
             min-height: 38px;
         }
         .file-pick-btn:hover {
-            background: rgba(16,185,129,0.10);
-            border-color: rgba(16,185,129,0.4);
+            background: rgba(232,62,140,0.10);
+            border-color: rgba(232,62,140,0.4);
             color: white;
         }
         .file-pick-btn:focus-within {
             outline: none;
-            border-color: rgba(16,185,129,0.6);
-            box-shadow: 0 0 0 3px rgba(16,185,129,0.15);
+            border-color: rgba(232,62,140,0.6);
+            box-shadow: 0 0 0 3px rgba(232,62,140,0.15);
         }
 
         /* ==================== PHOTO DROPZONE ==================== */
@@ -196,8 +247,8 @@
             transition: all 0.2s ease;
         }
         .photo-dropzone:hover {
-            background: rgba(16,185,129,0.06);
-            border-color: rgba(16,185,129,0.45);
+            background: rgba(232,62,140,0.06);
+            border-color: rgba(232,62,140,0.45);
         }
         .photo-dropzone--has-image {
             border-style: solid;
@@ -240,7 +291,7 @@
             font-weight: 600;
             letter-spacing: 0.08em;
             text-transform: uppercase;
-            background: linear-gradient(135deg, rgba(16,185,129,0.55) 0%, rgba(0,0,0,0.5) 100%);
+            background: linear-gradient(135deg, rgba(232,62,140,0.55) 0%, rgba(0,0,0,0.5) 100%);
             opacity: 0;
             transition: opacity 0.2s ease;
         }
@@ -255,7 +306,7 @@
             color: transparent;
         }
         .text-gradient-emerald {
-            background: linear-gradient(135deg, #34d399 0%, #2dd4bf 100%);
+            background: linear-gradient(135deg, #e83e8c 0%, #ff7a85 100%);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -280,17 +331,17 @@
             box-shadow:
                 inset 0 1px 0 rgba(255,255,255,0.1),
                 0 16px 40px -8px rgba(0,0,0,0.5),
-                0 0 32px -8px rgba(16,185,129,0.2);
+                0 0 32px -8px rgba(232,62,140,0.2);
             border-color: rgba(255,255,255,0.18);
         }
 
         .glow-emerald {
-            box-shadow: 0 0 24px -4px rgba(16,185,129,0.4);
+            box-shadow: 0 0 24px -4px rgba(232,62,140,0.4);
         }
         .glow-emerald-strong {
             box-shadow:
-                0 0 32px -4px rgba(16,185,129,0.5),
-                0 0 0 1px rgba(16,185,129,0.3);
+                0 0 32px -4px rgba(232,62,140,0.5),
+                0 0 0 1px rgba(232,62,140,0.3);
         }
 
         /* Animated dirty pulse */
@@ -315,7 +366,7 @@
             z-index: -1;
             margin: -1px;
             border-radius: inherit;
-            background: linear-gradient(135deg, rgba(16,185,129,0.4), rgba(99,102,241,0.4));
+            background: linear-gradient(135deg, rgba(232,62,140,0.4), rgba(99,102,241,0.4));
         }
 
         /* ==================== AURORA BACKGROUND ==================== */
@@ -342,7 +393,7 @@
         .aurora-1 {
             top: -10%; left: -10%;
             width: 50vw; height: 50vw;
-            background: radial-gradient(circle, rgba(16,185,129,0.35) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(232,62,140,0.35) 0%, transparent 70%);
             animation: aurora-1 32s ease-in-out infinite;
         }
         .aurora-2 {
@@ -360,7 +411,7 @@
         .aurora-4 {
             top: 50%; left: 25%;
             width: 35vw; height: 35vw;
-            background: radial-gradient(circle, rgba(20,184,166,0.18) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(255,122,133,0.18) 0%, transparent 70%);
             animation: aurora-1 36s ease-in-out infinite reverse;
         }
 
@@ -372,7 +423,7 @@
             transform: translateX(-50%);
             width: 80vw;
             height: 35vh;
-            background: radial-gradient(ellipse at top, rgba(16,185,129,0.18) 0%, transparent 60%);
+            background: radial-gradient(ellipse at top, rgba(232,62,140,0.18) 0%, transparent 60%);
             pointer-events: none;
         }
 
@@ -405,7 +456,7 @@
             border-bottom: 1px solid transparent;
             background-image:
                 linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%),
-                linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.4) 50%, transparent 100%);
+                linear-gradient(90deg, transparent 0%, rgba(232,62,140,0.4) 50%, transparent 100%);
             background-origin: border-box;
             background-clip: padding-box, border-box;
         }
@@ -414,14 +465,14 @@
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, rgba(16,185,129,0.4), rgba(99,102,241,0.3));
+            background: linear-gradient(180deg, rgba(232,62,140,0.4), rgba(99,102,241,0.3));
             border-radius: 3px;
         }
-        ::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, rgba(16,185,129,0.6), rgba(99,102,241,0.5)); }
+        ::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, rgba(232,62,140,0.6), rgba(99,102,241,0.5)); }
 
         /* Inputs */
         input[type=range] {
-            accent-color: #10b981;
+            accent-color: #c82c75;
             height: 4px;
         }
         input[type=color] {
@@ -476,7 +527,7 @@
             border-radius: 18px;
             background:
                 linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%),
-                radial-gradient(circle at top, rgba(16,185,129,0.06) 0%, transparent 60%);
+                radial-gradient(circle at top, rgba(232,62,140,0.06) 0%, transparent 60%);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
         }
 
@@ -492,10 +543,10 @@
         }
         .lmap-zone:hover { transform: scale(1.15); border-color: rgba(255,255,255,0.4); z-index: 5; }
         .lmap-zone.is-filled {
-            background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
-            border-color: rgba(16,185,129,0.5);
+            background: linear-gradient(135deg, #c82c75 0%, #e83e8c 100%);
+            border-color: rgba(232,62,140,0.5);
             color: white;
-            box-shadow: 0 0 10px rgba(16,185,129,0.4);
+            box-shadow: 0 0 10px rgba(232,62,140,0.4);
         }
         .lmap-zone.is-focused {
             outline: 2px solid rgb(16,185,129);
@@ -529,7 +580,7 @@
 
         /* Slot card focused-flash highlight when clicked from map */
         @keyframes slot-focus-flash {
-            0%   { background-color: rgba(16,185,129,0.15); }
+            0%   { background-color: rgba(232,62,140,0.15); }
             100% { background-color: transparent; }
         }
         .slot-row.is-flash { animation: slot-focus-flash 1.6s ease-out; }
@@ -554,13 +605,13 @@
             display: flex; align-items: center; justify-content: center;
         }
         .anim-pick-box:hover {
-            border-color: rgba(16,185,129,0.4);
+            border-color: rgba(232,62,140,0.4);
             transform: translateY(-1px);
         }
         .anim-pick-box.is-active {
             border-color: rgb(16,185,129);
-            background: rgba(16,185,129,0.08);
-            box-shadow: 0 0 0 2px rgba(16,185,129,0.25);
+            background: rgba(232,62,140,0.08);
+            box-shadow: 0 0 0 2px rgba(232,62,140,0.25);
         }
         .anim-pick-label {
             position: absolute;
@@ -576,8 +627,8 @@
             width: 32%;
             height: 32%;
             border-radius: 999px;
-            background: linear-gradient(135deg, #34d399 0%, #2dd4bf 100%);
-            box-shadow: 0 0 6px rgba(52,211,153,0.5);
+            background: linear-gradient(135deg, #e83e8c 0%, #ff7a85 100%);
+            box-shadow: 0 0 6px rgba(232,62,140,0.5);
         }
         .anim-pick-none {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -633,14 +684,14 @@
 
     {{-- Soft light beam under nav --}}
     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-px"
-         style="background: linear-gradient(90deg, transparent, rgba(16,185,129,0.5), transparent);"
+         style="background: linear-gradient(90deg, transparent, rgba(232,62,140,0.5), transparent);"
          aria-hidden="true"></div>
 
     <a href="{{ route('admin.themes.index') }}"
        class="flex items-center gap-2.5 group">
         <span class="relative w-8 h-8 rounded-xl flex items-center justify-center text-white text-sm font-bold tracking-wide overflow-hidden"
-              style="background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
-                     box-shadow: 0 4px 16px -2px rgba(16,185,129,0.5), inset 0 1px 0 rgba(255,255,255,0.3);">
+              style="background: linear-gradient(135deg, #c82c75 0%, #e83e8c 100%);
+                     box-shadow: 0 4px 16px -2px rgba(232,62,140,0.5), inset 0 1px 0 rgba(255,255,255,0.3);">
             M
             <span class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
                   style="background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.4) 50%, transparent 70%);"></span>
@@ -676,10 +727,10 @@
         {{-- Live status pill --}}
         <div class="hidden md:flex items-center gap-1.5 px-2.5 py-1 glass-subtle rounded-full">
             <span class="relative flex w-1.5 h-1.5">
-                <span class="absolute inline-flex w-full h-full bg-emerald-400 rounded-full opacity-75 animate-ping"></span>
-                <span class="relative inline-flex rounded-full w-1.5 h-1.5 bg-emerald-400"></span>
+                <span class="absolute inline-flex w-full h-full rounded-full opacity-75 animate-ping" style="background-color: #10b981 !important;"></span>
+                <span class="relative inline-flex rounded-full w-1.5 h-1.5" style="background-color: #10b981 !important;"></span>
             </span>
-            <span class="text-[10px] uppercase tracking-widest text-emerald-300/80 font-semibold">Live</span>
+            <span class="text-[10px] uppercase tracking-widest font-semibold" style="color: rgba(52,211,153,0.85) !important;">Live</span>
         </div>
 
         <a href="{{ route('public.invitation', 'raka-dewi') }}" target="_blank"

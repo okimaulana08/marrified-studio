@@ -82,7 +82,7 @@
                                 ? 'text-white shadow-inner'
                                 : 'text-white/40 hover:text-white/70'"
                             x-bind:style="tab === '{{ $tabKey }}'
-                                ? 'background: linear-gradient(135deg, rgba(16,185,129,0.25) 0%, rgba(20,184,166,0.18) 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 0 16px -4px rgba(16,185,129,0.4); border: 1px solid rgba(16,185,129,0.4);'
+                                ? 'background: linear-gradient(135deg, rgba(232,62,140,0.25) 0%, rgba(255,122,133,0.18) 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 0 16px -4px rgba(232,62,140,0.4); border: 1px solid rgba(232,62,140,0.4);'
                                 : 'background: transparent; border: 1px solid transparent;'"
                             class="relative flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl transition-all">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -103,7 +103,7 @@
                  x-on:click.capture="hasDirty = true">
                 {{-- Subtle highlight on top --}}
                 <div class="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-px"
-                     style="background: linear-gradient(90deg, transparent, rgba(16,185,129,0.4), transparent);"></div>
+                     style="background: linear-gradient(90deg, transparent, rgba(232,62,140,0.4), transparent);"></div>
 
                 <div x-show="tab === 'basic'" x-cloak class="fade-up">
                     @include('livewire.admin.partials.tab-basic')
@@ -170,10 +170,10 @@
                 <div class="glass rounded-2xl px-4 py-2.5 mb-3 flex items-center gap-3">
                     <div class="flex items-center gap-1.5">
                         <span class="relative flex w-1.5 h-1.5">
-                            <span class="absolute inline-flex w-full h-full bg-emerald-400 rounded-full opacity-75 animate-ping"></span>
-                            <span class="relative inline-flex rounded-full w-1.5 h-1.5 bg-emerald-400"></span>
+                            <span class="absolute inline-flex w-full h-full rounded-full opacity-75 animate-ping" style="background-color: #10b981 !important;"></span>
+                            <span class="relative inline-flex rounded-full w-1.5 h-1.5" style="background-color: #10b981 !important;"></span>
                         </span>
-                        <span class="text-[10px] uppercase tracking-widest text-emerald-300/80 font-bold">Live</span>
+                        <span class="text-[10px] uppercase tracking-widest font-bold" style="color: rgba(52,211,153,0.85) !important;">Live</span>
                     </div>
 
                     <div class="h-3 w-px bg-white/10"></div>

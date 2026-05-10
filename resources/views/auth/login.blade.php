@@ -8,12 +8,24 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=playfair-display:400,500,600,700|petit-formal-script:400|space-grotesk:400,500,600,700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --brand: #e83e8c;
+            --brand-dark: #c82c75;
+            --brand-soft: #ff6b9d;
+            --coral: #ff7a85;
+            --bg-tint: #fff5f7;
+            --ink: #2b1320;
+            --ink-soft: #6b4858;
+            --ink-mute: #9b7888;
+            --line: rgba(232,62,140,0.18);
+        }
+        [x-cloak] { display: none !important; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { height: 100%; overflow-x: hidden; }
         body {
             font-family: 'Space Grotesk', system-ui, sans-serif;
-            background: #050913;
-            color: white;
+            background: #fff;
+            color: var(--ink);
             min-height: 100vh;
             position: relative;
         }
@@ -42,9 +54,9 @@
                 flex-direction: column;
                 justify-content: center;
                 background:
-                    radial-gradient(ellipse 70% 60% at 30% 20%, rgba(16,185,129,0.20), transparent 65%),
-                    radial-gradient(ellipse 60% 60% at 80% 80%, rgba(20,184,166,0.16), transparent 60%),
-                    linear-gradient(135deg, #050913 0%, #0a1421 50%, #06101c 100%);
+                    radial-gradient(ellipse 80% 60% at 20% 0%, rgba(180,40,95,0.45), transparent 60%),
+                    radial-gradient(ellipse 70% 60% at 90% 100%, rgba(200,70,90,0.40), transparent 60%),
+                    linear-gradient(135deg, #b8326b 0%, #c45567 55%, #d98a93 100%);
             }
         }
         .brand-panel::after {
@@ -52,10 +64,9 @@
             position: absolute;
             inset: 0;
             background-image:
-                linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-            background-size: 32px 32px;
-            mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+                radial-gradient(rgba(255,255,255,0.35) 1px, transparent 1px);
+            background-size: 18px 18px;
+            mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
             pointer-events: none;
             z-index: 0;
         }
@@ -65,7 +76,7 @@
             font-size: 0.7rem;
             letter-spacing: 0.3em;
             text-transform: uppercase;
-            color: rgba(16,185,129,0.85);
+            color: rgba(255,255,255,0.95);
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -76,7 +87,7 @@
             content: '';
             display: inline-block;
             width: 24px; height: 1px;
-            background: rgba(16,185,129,0.5);
+            background: rgba(255,255,255,0.7);
         }
 
         .brand-illustration {
@@ -108,9 +119,10 @@
             color: white;
             margin-bottom: 0.4rem;
             max-width: 540px;
+            text-shadow: 0 2px 12px rgba(200,40,100,0.25);
         }
         .brand-title .accent {
-            background: linear-gradient(135deg, #34d399 0%, #14b8a6 60%, #6366f1 120%);
+            background: linear-gradient(135deg, #fff 0%, #ffe6ee 60%, #fff 120%);
             background-size: 200% 200%;
             -webkit-background-clip: text;
             background-clip: text;
@@ -123,7 +135,7 @@
         }
         .brand-tagline {
             position: relative; z-index: 5;
-            color: rgba(255,255,255,0.5);
+            color: rgba(255,255,255,0.85);
             font-size: 0.95rem;
             line-height: 1.7;
             max-width: 480px;
@@ -142,11 +154,14 @@
             font-size: 0.72rem;
             font-weight: 600;
             letter-spacing: 0.04em;
-            border: 1px solid;
+            border: 1px solid rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.18);
+            color: #fff;
+            backdrop-filter: blur(6px);
         }
-        .pill--emerald { background: rgba(16,185,129,0.10); border-color: rgba(16,185,129,0.3); color: rgb(110,231,183); }
-        .pill--pink    { background: rgba(244,114,182,0.10); border-color: rgba(244,114,182,0.3); color: rgb(249,168,212); }
-        .pill--amber   { background: rgba(251,191,36,0.10); border-color: rgba(251,191,36,0.3); color: rgb(252,211,77); }
+        .pill--emerald { background: rgba(255,255,255,0.22); }
+        .pill--pink    { background: rgba(255,255,255,0.18); }
+        .pill--amber   { background: rgba(255,255,255,0.14); }
 
         .brand-foot {
             position: absolute;
@@ -156,7 +171,7 @@
             justify-content: space-between;
             align-items: center;
             font-size: 0.75rem;
-            color: rgba(255,255,255,0.3);
+            color: rgba(255,255,255,0.7);
         }
         @media (min-width: 1024px) {
             .brand-foot { left: 5rem; right: 5rem; }
@@ -166,9 +181,10 @@
         .flower {
             position: absolute;
             pointer-events: none;
-            opacity: 0.8;
+            opacity: 0.55;
             z-index: 1;
             animation: flower-drift 24s ease-in-out infinite;
+            filter: drop-shadow(0 2px 6px rgba(255,255,255,0.3));
         }
         .flower--1 { top: 8%;  left: 12%; width: 56px; animation-delay: 0s; }
         .flower--2 { top: 20%; right: 18%; width: 36px; animation-delay: -6s; }
@@ -192,8 +208,9 @@
             justify-content: center;
             padding: 2rem 1.5rem;
             background:
-                radial-gradient(ellipse 80% 60% at 50% 0%, rgba(20,184,166,0.10), transparent 65%),
-                #050913;
+                radial-gradient(ellipse 90% 70% at 50% 0%, rgba(232,62,140,0.10), transparent 70%),
+                radial-gradient(ellipse 60% 50% at 100% 100%, rgba(255,122,133,0.10), transparent 65%),
+                linear-gradient(180deg, #fff5f7 0%, #ffffff 60%);
         }
         @media (min-width: 1024px) {
             .form-panel { padding: 4rem 5rem; }
@@ -202,15 +219,16 @@
         .form-card {
             width: 100%;
             max-width: 420px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02));
+            background: rgba(255,255,255,0.85);
             backdrop-filter: blur(24px) saturate(160%);
             -webkit-backdrop-filter: blur(24px) saturate(160%);
-            border: 1px solid rgba(255,255,255,0.10);
+            border: 1px solid rgba(232,62,140,0.15);
             border-radius: 1.5rem;
             padding: 2.25rem 2rem;
             box-shadow:
-                0 24px 60px -12px rgba(0,0,0,0.7),
-                inset 0 1px 0 rgba(255,255,255,0.07);
+                0 24px 60px -12px rgba(232,62,140,0.18),
+                0 4px 16px -4px rgba(232,62,140,0.08),
+                inset 0 1px 0 rgba(255,255,255,0.9);
             animation: card-rise 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
         }
         @keyframes card-rise {
@@ -227,10 +245,10 @@
         .form-mark {
             width: 44px; height: 44px;
             border-radius: 0.75rem;
-            background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+            background: linear-gradient(135deg, #e83e8c 0%, #ff7a85 100%);
             box-shadow:
-                0 8px 20px -4px rgba(16,185,129,0.5),
-                inset 0 1px 0 rgba(255,255,255,0.3);
+                0 8px 20px -4px rgba(232,62,140,0.45),
+                inset 0 1px 0 rgba(255,255,255,0.4);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -239,6 +257,7 @@
             font-weight: 700;
             font-size: 1.05rem;
             letter-spacing: -0.01em;
+            color: var(--ink);
         }
         .form-brand small {
             display: block;
@@ -246,7 +265,7 @@
             font-size: 0.7rem;
             letter-spacing: 0.18em;
             text-transform: uppercase;
-            color: rgba(16,185,129,0.7);
+            color: var(--brand);
             margin-top: 0.1rem;
         }
 
@@ -254,12 +273,12 @@
             font-family: 'Space Grotesk', sans-serif;
             font-size: 1.4rem;
             font-weight: 700;
-            color: white;
+            color: var(--ink);
             margin-bottom: 0.35rem;
             letter-spacing: -0.01em;
         }
         .form-subtitle {
-            color: rgba(255,255,255,0.45);
+            color: var(--ink-soft);
             font-size: 0.85rem;
             margin-bottom: 1.5rem;
         }
@@ -270,25 +289,25 @@
             display: block;
             font-size: 0.72rem;
             font-weight: 600;
-            color: rgba(255,255,255,0.7);
+            color: var(--ink-soft);
             margin-bottom: 0.5rem;
         }
         .input-wrap {
             position: relative;
             display: flex;
             align-items: center;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.10);
+            background: #fff;
+            border: 1px solid var(--line);
             border-radius: 0.75rem;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+            box-shadow: 0 1px 2px rgba(232,62,140,0.04);
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .input-wrap:focus-within {
-            background: rgba(255,255,255,0.07);
-            border-color: rgba(16,185,129,0.6);
+            background: #fff;
+            border-color: var(--brand);
             box-shadow:
-                inset 0 1px 0 rgba(255,255,255,0.07),
-                0 0 0 4px rgba(16,185,129,0.12);
+                0 1px 2px rgba(232,62,140,0.08),
+                0 0 0 4px rgba(232,62,140,0.12);
         }
         .input-wrap.error { border-color: rgba(239,68,68,0.55); }
         .input-icon {
@@ -296,21 +315,21 @@
             align-items: center;
             justify-content: center;
             width: 44px;
-            color: rgba(255,255,255,0.4);
+            color: var(--ink-mute);
             flex-shrink: 0;
         }
-        .input-wrap:focus-within .input-icon { color: rgb(52,211,153); }
+        .input-wrap:focus-within .input-icon { color: var(--brand); }
         .auth-input {
             flex: 1;
             background: transparent;
             border: 0;
             outline: none;
-            color: white;
+            color: var(--ink);
             font-size: 0.92rem;
             padding: 0.78rem 0.6rem 0.78rem 0;
             min-width: 0;
         }
-        .auth-input::placeholder { color: rgba(255,255,255,0.25); }
+        .auth-input::placeholder { color: rgba(155,120,136,0.55); }
 
         /* Override Chrome/Safari autofill yellow + white-bg styling so it
          * stays consistent with the dark glass form. The 9999s transition
@@ -334,10 +353,10 @@
         .auth-input:-webkit-autofill:hover,
         .auth-input:-webkit-autofill:focus,
         .auth-input:-webkit-autofill:active {
-            -webkit-text-fill-color: #ffffff !important;
-            -webkit-box-shadow: 0 0 0 1000px rgba(255,255,255,0.04) inset !important;
-            box-shadow: 0 0 0 1000px rgba(255,255,255,0.04) inset !important;
-            caret-color: #ffffff;
+            -webkit-text-fill-color: #2b1320 !important;
+            -webkit-box-shadow: 0 0 0 1000px #fff inset !important;
+            box-shadow: 0 0 0 1000px #fff inset !important;
+            caret-color: #2b1320;
             transition: background-color 9999s ease-in-out 0s;
             border-radius: 0;
         }
@@ -345,17 +364,17 @@
         .pw-toggle {
             background: transparent;
             border: 0;
-            color: rgba(255,255,255,0.4);
+            color: var(--ink-mute);
             cursor: pointer;
             padding: 0 0.85rem 0 0.6rem;
             display: flex;
             align-items: center;
             transition: color 0.15s ease;
         }
-        .pw-toggle:hover { color: white; }
+        .pw-toggle:hover { color: var(--brand); }
 
         .auth-error {
-            color: #fca5a5;
+            color: #dc2626;
             font-size: 0.72rem;
             margin-top: 0.35rem;
             display: flex;
@@ -374,19 +393,19 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            color: rgba(255,255,255,0.6);
+            color: var(--ink-soft);
             font-size: 0.82rem;
             cursor: pointer;
             user-select: none;
         }
-        .auth-checkbox input { width: 1rem; height: 1rem; accent-color: #10b981; cursor: pointer; }
+        .auth-checkbox input { width: 1rem; height: 1rem; accent-color: var(--brand); cursor: pointer; }
         .form-row .help-link {
             font-size: 0.78rem;
-            color: rgba(16,185,129,0.85);
+            color: var(--brand);
             text-decoration: none;
             font-weight: 600;
             cursor: not-allowed;
-            opacity: 0.6;
+            opacity: 0.7;
         }
 
         /* Submit button */
@@ -398,7 +417,7 @@
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
-            background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+            background: linear-gradient(135deg, #e83e8c 0%, #ff7a85 100%);
             color: white;
             font-weight: 700;
             font-size: 0.85rem;
@@ -407,8 +426,8 @@
             border-radius: 0.85rem;
             cursor: pointer;
             box-shadow:
-                0 8px 24px -4px rgba(16,185,129,0.5),
-                inset 0 1px 0 rgba(255,255,255,0.25);
+                0 8px 24px -4px rgba(232,62,140,0.45),
+                inset 0 1px 0 rgba(255,255,255,0.3);
             overflow: hidden;
             transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
@@ -423,19 +442,19 @@
         .auth-submit:hover {
             transform: translateY(-1.5px);
             box-shadow:
-                0 12px 32px -4px rgba(16,185,129,0.6),
-                inset 0 1px 0 rgba(255,255,255,0.35);
+                0 12px 32px -4px rgba(232,62,140,0.55),
+                inset 0 1px 0 rgba(255,255,255,0.4);
         }
         .auth-submit:hover::before { transform: translateX(100%); }
         .auth-submit:active { transform: translateY(0); }
 
         .form-foot {
             text-align: center;
-            color: rgba(255,255,255,0.3);
+            color: var(--ink-mute);
             font-size: 0.72rem;
             margin-top: 1.4rem;
         }
-        .form-foot strong { color: rgba(16,185,129,0.7); font-weight: 600; }
+        .form-foot strong { color: var(--brand); font-weight: 600; }
 
         @media (prefers-reduced-motion: reduce) {
             .flower, .brand-illustration, .ring-a, .ring-b, .form-card, .accent { animation: none !important; }
@@ -492,12 +511,12 @@
             <svg class="brand-illustration" viewBox="0 0 240 240" fill="none" aria-hidden="true">
                 <defs>
                     <linearGradient id="ring-grad-a" x1="0" y1="0" x2="240" y2="240">
-                        <stop offset="0%" stop-color="#34d399"/>
-                        <stop offset="100%" stop-color="#14b8a6"/>
+                        <stop offset="0%" stop-color="#ffffff"/>
+                        <stop offset="100%" stop-color="#ffe6ee"/>
                     </linearGradient>
                     <linearGradient id="ring-grad-b" x1="0" y1="0" x2="240" y2="240">
-                        <stop offset="0%" stop-color="#f472b6"/>
-                        <stop offset="100%" stop-color="#ec4899"/>
+                        <stop offset="0%" stop-color="#ffffff"/>
+                        <stop offset="100%" stop-color="#fff0f3"/>
                     </linearGradient>
                 </defs>
                 {{-- Outer dashed ornament ring --}}
@@ -580,7 +599,7 @@
                         @error('email') <p class="auth-error">{{ $message }}</p> @enderror
                     </div>
 
-                    <div class="auth-field" x-data="{ show: false }">
+                    <div class="auth-field">
                         <label class="auth-label" for="password">Password</label>
                         <div class="input-wrap @error('password') error @enderror">
                             <span class="input-icon" aria-hidden="true">
@@ -589,17 +608,17 @@
                                     <path d="M8 11V7a4 4 0 018 0v4"/>
                                 </svg>
                             </span>
-                            <input id="password" name="password" :type="show ? 'text' : 'password'"
+                            <input id="password" name="password" type="password"
                                    class="auth-input"
                                    autocomplete="current-password" required
                                    placeholder="••••••••••••">
-                            <button type="button" class="pw-toggle" x-on:click="show = !show"
-                                    :aria-label="show ? 'Sembunyikan password' : 'Tampilkan password'">
-                                <svg x-show="!show" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <button type="button" class="pw-toggle" data-pw-toggle
+                                    aria-label="Tampilkan password">
+                                <svg data-eye width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                                     <circle cx="12" cy="12" r="3"/>
                                 </svg>
-                                <svg x-show="show" x-cloak width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg data-eye-off hidden width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
                                     <line x1="1" y1="1" x2="23" y2="23"/>
                                 </svg>
@@ -632,5 +651,20 @@
     </div>
 
     @vite(['resources/js/app.js'])
+    <script>
+        document.querySelectorAll('[data-pw-toggle]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const wrap = btn.closest('.input-wrap');
+                const input = wrap.querySelector('input');
+                const eye = btn.querySelector('[data-eye]');
+                const eyeOff = btn.querySelector('[data-eye-off]');
+                const showing = input.type === 'text';
+                input.type = showing ? 'password' : 'text';
+                eye.hidden = !showing;
+                eyeOff.hidden = showing;
+                btn.setAttribute('aria-label', showing ? 'Tampilkan password' : 'Sembunyikan password');
+            });
+        });
+    </script>
 </body>
 </html>

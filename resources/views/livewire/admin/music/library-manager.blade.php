@@ -63,7 +63,7 @@
     @if ($tracks->isEmpty())
         <div class="glass rounded-2xl p-12 text-center">
             <div class="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center mb-4"
-                 style="background: linear-gradient(135deg, rgba(16,185,129,0.18), rgba(20,184,166,0.12)); border: 1px solid rgba(16,185,129,0.25);">
+                 style="background: linear-gradient(135deg, rgba(232,62,140,0.18), rgba(255,122,133,0.12)); border: 1px solid rgba(232,62,140,0.25);">
                 <svg class="w-7 h-7 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3zm12-3c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3z"/>
                 </svg>

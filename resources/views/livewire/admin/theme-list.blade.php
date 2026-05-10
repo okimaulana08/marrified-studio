@@ -51,7 +51,7 @@
     @if ($themes->isEmpty())
         <div class="text-center py-24 glass rounded-3xl">
             <div class="w-20 h-20 rounded-2xl bg-emerald-500/10 border border-emerald-400/20 flex items-center justify-center mx-auto mb-5"
-                 style="box-shadow: 0 8px 32px -8px rgba(16,185,129,0.3);">
+                 style="box-shadow: 0 8px 32px -8px rgba(232,62,140,0.3);">
                 <svg class="w-10 h-10 text-emerald-400/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
