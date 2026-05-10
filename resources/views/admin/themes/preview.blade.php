@@ -42,6 +42,12 @@
     </style>
 
     @vite(['resources/css/app.css', 'resources/css/render.css', 'resources/css/theme-anims.css'])
+
+    {{-- Admin-authored custom CSS, applied after bundle for highest specificity. --}}
+    @if (! empty($theme->customCss))
+        <style data-theme-custom>{!! \App\Support\CustomCss::sanitize($theme->customCss) !!}</style>
+    @endif
+
     @livewireStyles
 </head>
 <body class="render-body" data-theme="{{ $theme->slug }}">

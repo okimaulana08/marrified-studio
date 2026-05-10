@@ -25,6 +25,7 @@ final readonly class Theme
         public array $defaultFonts,
         public array $defaultSectionVariants,
         public array $layout,
+        public string $customCss = '',
     ) {}
 
     public function variantFor(string $sectionType, ?string $explicit = null): string

@@ -120,6 +120,7 @@ final class ThemeRegistry
             defaultFonts: (array) ($data['default_fonts'] ?? []),
             defaultSectionVariants: (array) ($data['default_section_variants'] ?? []),
             layout: $layout,
+            customCss: isset($data['custom_css']) ? (string) $data['custom_css'] : '',
         );
     }
 

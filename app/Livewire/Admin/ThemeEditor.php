@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Livewire\Admin;
 
 use App\Livewire\Admin\Forms\BasicInfoForm;
+use App\Livewire\Admin\Forms\CustomCssForm;
 use App\Livewire\Admin\Forms\FontsForm;
 use App\Livewire\Admin\Forms\LayoutForm;
 use App\Livewire\Admin\Forms\PaletteForm;
@@ -26,7 +27,7 @@ final class ThemeEditor extends Component
 {
     use WithFileUploads;
 
-    private const FORM_NAMES = ['basic', 'palette', 'fonts', 'variants', 'layout'];
+    private const FORM_NAMES = ['basic', 'palette', 'fonts', 'variants', 'layout', 'customCss'];
 
     private const PREVIEW_EXTENSIONS = ['webp', 'jpg', 'jpeg', 'png'];
 
@@ -47,6 +48,8 @@ final class ThemeEditor extends Component
     public VariantsForm $variants;
 
     public LayoutForm $layout;
+
+    public CustomCssForm $customCss;
 
     /** Tracks which form objects have unsaved changes. */
     public array $dirty = [];
@@ -224,6 +227,7 @@ final class ThemeEditor extends Component
         $this->fonts->fillFromManifest((array) ($manifest['default_fonts'] ?? []));
         $this->variants->fillFromManifest((array) ($manifest['default_section_variants'] ?? []));
         $this->layout->fillFromManifest((array) ($manifest['layout'] ?? []));
+        $this->customCss->fillFromManifest($manifest);
     }
 
     private function flash(string $message, string $type): void

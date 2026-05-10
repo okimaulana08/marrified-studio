@@ -76,6 +76,7 @@
                     'variants'    => ['label' => 'Variants',  'icon' => 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z'],
                     'layout'      => ['label' => 'Layout',    'icon' => 'M4 5a1 1 0 011-1h4a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM14 13a1 1 0 011-1h4a1 1 0 011 1v6a1 1 0 01-1 1h-4a1 1 0 01-1-1v-6zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4z'],
                     'assets'      => ['label' => 'Assets',    'icon' => 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'],
+                    'customCss'   => ['label' => 'CSS',        'icon' => 'M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4'],
                 ] as $tabKey => $tabMeta)
                     <button type="button" x-on:click="tab = '{{ $tabKey }}'"
                             :class="tab === '{{ $tabKey }}'
@@ -122,6 +123,9 @@
                 </div>
                 <div x-show="tab === 'assets'" x-cloak class="fade-up">
                     @include('livewire.admin.partials.tab-assets')
+                </div>
+                <div x-show="tab === 'customCss'" x-cloak class="fade-up">
+                    @include('livewire.admin.partials.tab-custom-css')
                 </div>
             </div>
 
