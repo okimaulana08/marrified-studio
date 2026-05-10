@@ -21,6 +21,7 @@
         "@codemirror/state": "^6.4.1",
         "@codemirror/theme-one-dark": "^6.1.2",
         "@codemirror/view": "^6.28.0",
+        "apexcharts": "^3.54.0",
         "lottie-web": "^5.13.0",
         "swiper": "^12.1.4"
     }

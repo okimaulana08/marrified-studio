@@ -18,6 +18,7 @@ use App\Livewire\Invitations\Forms\StoriesForm;
 use App\Livewire\Invitations\Forms\ThanksForm;
 use App\Models\Invitation;
 use App\Models\Section;
+use App\Services\Invitations\CompletionAuditor;
 use App\Services\Invitations\InvitationWriter;
 use App\Services\Themes\ThemeRegistry;
 use App\Services\Themes\VariantScanner;
@@ -89,6 +90,12 @@ final class InvitationEditor extends Component
     /** Bumped after each save so iframe `?v=N` cache-busts and reloads. */
     public int $previewKey = 0;
 
+    /** Completion percentage (0-100) shown by the gauge in the editor header. */
+    public int $completionPercent = 0;
+
+    /** List of pending todos for the gauge dropdown. */
+    public array $completionTodos = [];
+
     /** Live-uploaded photos. Reset to null after each successful saveCouple. */
     #[Validate('nullable|image|max:5120')]
     public $bridePhoto = null;
@@ -140,6 +147,19 @@ final class InvitationEditor extends Component
 
         $countdownSection = $invitation->sections->firstWhere('type', 'countdown');
         $this->countdown->fillFromSection($countdownSection);
+
+        $this->refreshCompletion($invitation);
+    }
+
+    private function refreshCompletion(?Invitation $invitation = null): void
+    {
+        $invitation ??= Invitation::query()->find($this->invitationId);
+        if ($invitation === null) {
+            return;
+        }
+        $audit = app(CompletionAuditor::class)->audit($invitation);
+        $this->completionPercent = $audit['percent'];
+        $this->completionTodos = $audit['todos'];
     }
 
     public function save(): void
@@ -616,6 +636,7 @@ final class InvitationEditor extends Component
         $this->flash('Disimpan.', 'success');
         $this->previewKey++;
         $this->dispatch('invitation-saved');
+        $this->refreshCompletion();
     }
 
     private function flash(string $message, string $type): void

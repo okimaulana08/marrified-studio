@@ -47,6 +47,7 @@ final class Invitation extends Model
         'theme_slug',
         'music_track_id',
         'customizations',
+        'wa_broadcast_template',
     ];
 
     protected function casts(): array

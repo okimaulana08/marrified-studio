@@ -10,7 +10,8 @@
             const baseSrc = iframe.dataset.baseSrc;
             iframe.src = baseSrc + '?v=' + Date.now();
         }
-     ">
+     "
+     x-on:jump-to-tab.window="tab = $event.detail">
 
     {{-- Header --}}
     <div class="flex items-end justify-between mb-6">
@@ -38,7 +39,10 @@
             @endif
         </div>
 
-        <div class="flex items-center gap-2 flex-shrink-0">
+        <div class="flex items-center gap-3 flex-shrink-0">
+            @unless ($isNew)
+                @include('livewire.invitations.partials.completion-gauge')
+            @endunless
             @if (!$isNew)
                 <a href="{{ route('invitations.preview', $slug) }}" target="_blank"
                    class="btn-ghost flex items-center gap-1.5 text-xs">
@@ -65,8 +69,9 @@
 
     <div class="flex gap-5 h-[calc(100vh-180px)]">
 
-        {{-- Left: form panel --}}
-        <div class="w-full {{ !$isNew ? 'lg:w-[480px] xl:w-[540px] flex-shrink-0' : '' }} flex flex-col gap-4">
+        {{-- Left: form panel — 2/3 of available width when editing existing invitation,
+             so users get more breathing room for inputs while keeping a usable preview pane. --}}
+        <div class="w-full {{ !$isNew ? 'lg:basis-2/3 lg:flex-grow lg:max-w-none' : '' }} flex flex-col gap-4 min-w-0">
 
             {{-- Tab nav --}}
             <div class="glass rounded-2xl p-1.5 flex gap-0.5 overflow-x-auto">
@@ -83,6 +88,7 @@
                     'music'     => ['label' => 'Music',    'enabled' => ! $isNew],
                     'thanks'    => ['label' => 'Penutup',  'enabled' => ! $isNew],
                     'guests'    => ['label' => 'Tamu',     'enabled' => ! $isNew],
+                    'analytics' => ['label' => 'Analytics','enabled' => ! $isNew],
                 ] as $key => $meta)
                     <button type="button"
                             x-on:click="tab = '{{ $key }}'"
@@ -155,6 +161,12 @@
                             :is-admin="$isAdmin"
                             :key="'guests-tab-'.$invitationId" />
                     </div>
+                    <div x-show="tab === 'analytics'" x-cloak class="fade-up">
+                        <livewire:invitations.analytics-tab
+                            :invitation-id="$invitationId"
+                            :is-admin="$isAdmin"
+                            :key="'analytics-tab-'.$invitationId" />
+                    </div>
                 @endunless
             </div>
 
@@ -183,7 +195,7 @@
 
         {{-- Right: live preview iframe (only when editing existing) --}}
         @if (!$isNew)
-            <div class="hidden lg:flex flex-col flex-1 min-w-0">
+            <div class="hidden lg:flex flex-col lg:basis-1/3 lg:flex-grow-0 min-w-0">
                 <div class="glass rounded-2xl px-4 py-2.5 mb-3 flex items-center gap-3">
                     <div class="flex items-center gap-1.5">
                         <span class="relative flex w-1.5 h-1.5">

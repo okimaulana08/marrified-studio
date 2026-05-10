@@ -64,8 +64,8 @@
          while the form pane scrolls internally via overflow-y-auto. --}}
     <div class="flex gap-5 h-[calc(100vh-180px)]">
 
-        {{-- Left: form panel --}}
-        <div class="w-full {{ !$isNew ? 'lg:w-[480px] xl:w-[540px] flex-shrink-0' : '' }} flex flex-col gap-4">
+        {{-- Left: form panel — 50/50 split with preview when editing existing theme. --}}
+        <div class="w-full {{ !$isNew ? 'lg:basis-1/2 lg:flex-grow lg:max-w-none' : '' }} flex flex-col gap-4 min-w-0">
 
             {{-- Tab nav --}}
             <div class="glass rounded-2xl p-1.5 flex gap-0.5 overflow-x-auto">
@@ -168,7 +168,7 @@
 
         {{-- Right: live preview iframe (only when editing) --}}
         @if (!$isNew)
-            <div class="hidden lg:flex flex-col flex-1 min-w-0">
+            <div class="hidden lg:flex flex-col lg:basis-1/2 lg:flex-grow-0 min-w-0">
 
                 {{-- Preview toolbar --}}
                 <div class="glass rounded-2xl px-4 py-2.5 mb-3 flex items-center gap-3">

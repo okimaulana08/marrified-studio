@@ -8,12 +8,77 @@
     $sections = $invitation->sections->where('enabled', true)->sortBy('sort_order')->values();
     $couple = $invitation->couple;
 @endphp
+@php
+    /* ──────────── Open Graph + Twitter Card meta resolution ────────────
+     * When the invitation URL is shared on WhatsApp/Twitter/Facebook, the
+     * platform fetches these tags to build a preview card. Static for now
+     * (no dynamic composite image) — fallback chain:
+     *   1. bride photo (most personal) → 2. groom photo → 3. theme preview.
+     * All URLs are absolute (URL::to + Storage::disk()->url returns relative
+     * path so we prefix with config('app.url') just in case).
+     */
+    $brideName = $couple?->bride_nickname ?: ($couple?->bride_name ?? 'Bride');
+    $groomName = $couple?->groom_nickname ?: ($couple?->groom_name ?? 'Groom');
+    $pageTitle = "{$brideName} & {$groomName} — Undangan Pernikahan";
+
+    $firstEvent = $invitation->events->sortBy('sort_order')->first();
+    $eventDate = $firstEvent?->date?->translatedFormat('l, d F Y') ?? '';
+    $venue = $firstEvent?->venue_name ?? '';
+    $pageDescription = trim($eventDate.($venue !== '' ? ' · '.$venue : ''));
+    if ($pageDescription === '') {
+        $pageDescription = 'Kami mengundang Anda ke pernikahan kami.';
+    }
+
+    $ogImage = null;
+    foreach ([
+        $couple?->bride_photo_path,
+        $couple?->groom_photo_path,
+    ] as $path) {
+        if ($path !== null && \Illuminate\Support\Facades\Storage::disk('invitation_media')->exists($path)) {
+            $ogImage = \Illuminate\Support\Facades\Storage::disk('invitation_media')->url($path);
+            break;
+        }
+    }
+    if ($ogImage === null) {
+        $previewFile = \App\Support\ThemeAsset::findPreview($theme->slug);
+        if ($previewFile !== null) {
+            $ogImage = \App\Support\ThemeAsset::url($theme->slug, $previewFile);
+        }
+    }
+    // Ensure absolute URL — wa.me / Facebook crawlers won't follow relative.
+    if ($ogImage !== null && ! str_starts_with($ogImage, 'http')) {
+        $ogImage = url($ogImage);
+    }
+    $pageUrl = url()->current();
+@endphp
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>{{ $couple?->bride_nickname ?? $couple?->bride_name ?? 'Bride' }} &amp; {{ $couple?->groom_nickname ?? $couple?->groom_name ?? 'Groom' }} — Undangan Pernikahan</title>
+    <title>{{ $pageTitle }}</title>
+    <meta name="description" content="{{ $pageDescription }}">
+
+    {{-- Open Graph (Facebook, WhatsApp, LinkedIn) --}}
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Marrified Studio">
+    <meta property="og:title" content="{{ $pageTitle }}">
+    <meta property="og:description" content="{{ $pageDescription }}">
+    <meta property="og:url" content="{{ $pageUrl }}">
+    @if ($ogImage)
+        <meta property="og:image" content="{{ $ogImage }}">
+        <meta property="og:image:width" content="1200">
+        <meta property="og:image:height" content="630">
+        <meta property="og:image:alt" content="{{ $pageTitle }}">
+    @endif
+
+    {{-- Twitter Card --}}
+    <meta name="twitter:card" content="{{ $ogImage ? 'summary_large_image' : 'summary' }}">
+    <meta name="twitter:title" content="{{ $pageTitle }}">
+    <meta name="twitter:description" content="{{ $pageDescription }}">
+    @if ($ogImage)
+        <meta name="twitter:image" content="{{ $ogImage }}">
+    @endif
 
     <link rel="preconnect" href="https://fonts.bunny.net">
     @php $bunnyFontsUrl = \App\Support\BunnyFonts::url($fonts); @endphp
