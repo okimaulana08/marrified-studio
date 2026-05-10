@@ -149,4 +149,34 @@ $fontGroupMap = $fontGroups;
             </p>
         </div>
     </div>
+
+    {{-- ============== SIZE SCALE PRESET ============== --}}
+    <div class="border-t border-white/8 pt-5">
+        <div class="flex items-center justify-between mb-3">
+            <div>
+                <h3 class="text-xs font-semibold text-white/80 uppercase tracking-widest">Ukuran Tipografi</h3>
+                <p class="text-[11px] text-white/40 mt-0.5">Skala global yang mengalikan semua font-size di section.</p>
+            </div>
+            <span class="text-[10px] font-mono text-emerald-400/80 px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-400/20">
+                {{ $fonts->sizeScale }}
+            </span>
+        </div>
+
+        <div class="grid grid-cols-4 gap-1.5">
+            @foreach (\App\Livewire\Admin\Forms\FontsForm::scalePresets() as $preset => $multiplier)
+                @php $isActive = $fonts->sizeScale === $preset; @endphp
+                <button type="button"
+                        wire:click="$set('fonts.sizeScale', '{{ $preset }}')"
+                        @class([
+                            'px-2 py-3 rounded-xl border text-center transition-all',
+                            'bg-emerald-500/20 text-emerald-100 border-emerald-400/40 shadow-inner' => $isActive,
+                            'glass-sm text-white/55 hover:text-white border-transparent hover:border-white/15' => ! $isActive,
+                        ])>
+                    <p class="text-xs font-semibold capitalize">{{ $preset }}</p>
+                    <p class="text-[10px] font-mono mt-0.5 opacity-60">×{{ number_format($multiplier, 2) }}</p>
+                </button>
+            @endforeach
+        </div>
+        @error('fonts.sizeScale') <p class="text-xs text-red-400 mt-1.5">{{ $message }}</p> @enderror
+    </div>
 </div>

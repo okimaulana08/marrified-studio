@@ -14,7 +14,8 @@
     "default_fonts": {
         "display": "Playfair Display",
         "body": "Lato",
-        "script": "Dancing Script"
+        "script": "Dancing Script",
+        "size_scale": "normal"
     },
     "default_section_variants": {
         "cover": "minimal",
@@ -59,6 +60,6 @@
                 "size": "full"
             }
         },
-        "pages": {}
+        "pages": []
     }
 }

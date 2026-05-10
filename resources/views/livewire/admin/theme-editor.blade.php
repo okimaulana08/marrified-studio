@@ -181,7 +181,7 @@
                     {{-- Viewport buttons --}}
                     <div class="flex gap-0.5 bg-white/5 rounded-xl p-0.5 border border-white/8">
                         @foreach ([
-                            'mobile'  => ['label' => 'Phone',  'width' => '390', 'icon' => 'M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z'],
+                            'mobile'  => ['label' => 'Phone',  'width' => '420', 'icon' => 'M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z'],
                             'tablet'  => ['label' => 'Tablet', 'width' => '768', 'icon' => 'M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z'],
                             'desktop' => ['label' => 'Web',    'width' => '100%', 'icon' => 'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'],
                         ] as $vpKey => $vpMeta)
@@ -197,7 +197,7 @@
                     </div>
 
                     <div class="ml-auto flex items-center gap-2">
-                        <span x-text="viewport === 'mobile' ? '390 × ' : viewport === 'tablet' ? '768 × ' : '100% × '"
+                        <span x-text="viewport === 'mobile' ? '420 × ' : viewport === 'tablet' ? '768 × ' : '100% × '"
                               class="text-xs text-white/30 font-mono"></span>
                         <span class="text-xs text-white/30 font-mono">auto</span>
                         <button type="button"
@@ -221,8 +221,9 @@
                              background-size: 24px 24px;
                              mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);"></div>
 
-                    <div x-bind:style="viewport === 'mobile' ? 'width:390px' : viewport === 'tablet' ? 'width:768px' : 'width:100%'"
-                         class="h-full transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] mx-auto relative z-10"
+                    <div x-bind:style="viewport === 'mobile' ? 'height:min(100%, 747px);aspect-ratio:9 / 16' : viewport === 'tablet' ? 'height:min(100%, 1024px);aspect-ratio:3 / 4' : 'width:100%'"
+                         x-bind:class="viewport === 'desktop' ? 'h-full' : ''"
+                         class="transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] mx-auto relative z-10"
                          x-data="{ baseSrc: @js(route('admin.themes.preview', $slug)) }"
                          x-init="
                             window.addEventListener('refresh-preview-manual', () => {

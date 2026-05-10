@@ -20,6 +20,10 @@
         <link href="{{ $bunnyFontsUrl }}" rel="stylesheet">
     @endif
 
+    @php
+        $scaleMap = ['compact' => 0.9, 'normal' => 1.0, 'spacious' => 1.1, 'showcase' => 1.2];
+        $sizeScale = $scaleMap[$fonts['size_scale'] ?? 'normal'] ?? 1.0;
+    @endphp
     <style>
         :root {
             --p:  {{ $palette['primary'] ?? '#5d8068' }};
@@ -31,7 +35,10 @@
             --fd: "{{ $fonts['display'] ?? 'Playfair Display' }}", Georgia, serif;
             --fb: "{{ $fonts['body'] ?? 'Lato' }}", system-ui, sans-serif;
             --fs: "{{ $fonts['script'] ?? 'Petit Formal Script' }}", cursive;
+            --fs-scale: {{ $sizeScale }};
         }
+        /* Scale rem-based font-sizes via root font-size. */
+        html { font-size: calc(100% * var(--fs-scale, 1)); }
     </style>
 
     @vite(['resources/css/app.css', 'resources/css/render.css', 'resources/css/theme-anims.css'])

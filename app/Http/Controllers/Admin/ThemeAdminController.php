@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Couple;
 use App\Models\Event;
+use App\Models\GiftAccount;
 use App\Models\Invitation;
 use App\Models\Section;
 use App\Services\Themes\ThemeCloner;
@@ -110,16 +111,46 @@ final class ThemeAdminController extends Controller
 
         $invitation->setRelation('events', $events);
 
+        $storyEntries = [
+            ['year' => '2019', 'title' => 'Pertama Bertemu', 'description' => 'Berkenalan di acara kampus.', 'photo_path' => null],
+            ['year' => '2022', 'title' => 'Mulai Berpacaran', 'description' => 'Resmi menjadi pasangan setelah lulus.', 'photo_path' => null],
+            ['year' => '2025', 'title' => 'Lamaran', 'description' => 'Lamaran sederhana di rumah keluarga.', 'photo_path' => null],
+        ];
+
+        $thanksContent = [
+            'title' => 'Terima Kasih',
+            'message' => 'Atas kehadiran dan doa restu yang telah diberikan, kami mengucapkan terima kasih yang sebesar-besarnya.',
+            'signature' => 'Kami yang berbahagia,',
+            'photo_path' => null,
+        ];
+
+        $countdownContent = [
+            'title' => 'Hitung Mundur',
+            'message' => 'Menanti hari bahagia bersama kalian.',
+        ];
+
         $sections = collect([
-            new Section(['type' => 'cover',     'variant' => null, 'sort_order' => 1, 'enabled' => true, 'content' => []]),
-            new Section(['type' => 'quotes',    'variant' => null, 'sort_order' => 2, 'enabled' => true, 'content' => ['arabic' => 'وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم', 'translation' => 'Dan di antara tanda-tanda kekuasaan-Nya', 'source' => 'QS. Ar-Rum: 21']]),
-            new Section(['type' => 'couple',    'variant' => null, 'sort_order' => 3, 'enabled' => true, 'content' => []]),
-            new Section(['type' => 'event',     'variant' => null, 'sort_order' => 4, 'enabled' => true, 'content' => []]),
-            new Section(['type' => 'guestbook', 'variant' => null, 'sort_order' => 5, 'enabled' => true, 'content' => []]),
+            new Section(['type' => 'cover',     'variant' => null, 'sort_order' => 1,  'enabled' => true, 'content' => []]),
+            new Section(['type' => 'quotes',    'variant' => null, 'sort_order' => 2,  'enabled' => true, 'content' => ['arabic' => 'وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم', 'translation' => 'Dan di antara tanda-tanda kekuasaan-Nya', 'source' => 'QS. Ar-Rum: 21']]),
+            new Section(['type' => 'couple',    'variant' => null, 'sort_order' => 3,  'enabled' => true, 'content' => []]),
+            new Section(['type' => 'story',     'variant' => null, 'sort_order' => 4,  'enabled' => true, 'content' => ['entries' => $storyEntries]]),
+            new Section(['type' => 'event',     'variant' => null, 'sort_order' => 5,  'enabled' => true, 'content' => []]),
+            new Section(['type' => 'countdown', 'variant' => null, 'sort_order' => 6,  'enabled' => true, 'content' => $countdownContent]),
+            new Section(['type' => 'gallery',   'variant' => null, 'sort_order' => 7,  'enabled' => true, 'content' => ['images' => []]]),
+            new Section(['type' => 'gift',      'variant' => null, 'sort_order' => 8,  'enabled' => true, 'content' => []]),
+            new Section(['type' => 'rsvp',      'variant' => null, 'sort_order' => 9,  'enabled' => true, 'content' => []]),
+            new Section(['type' => 'guestbook', 'variant' => null, 'sort_order' => 10, 'enabled' => true, 'content' => []]),
+            new Section(['type' => 'thanks',    'variant' => null, 'sort_order' => 11, 'enabled' => true, 'content' => $thanksContent]),
+        ]);
+
+        $giftAccounts = collect([
+            new GiftAccount(['type' => 'bank', 'bank_name' => 'BCA', 'account_number' => '1234567890', 'account_name' => 'Anindya Rahayu', 'sort_order' => 1]),
+            new GiftAccount(['type' => 'ewallet', 'bank_name' => 'GoPay', 'account_number' => '0812-3456-7890', 'account_name' => 'Farhan Pratama', 'sort_order' => 2]),
         ]);
 
         $invitation->setRelation('sections', $sections);
-        $invitation->setRelation('giftAccounts', collect());
+        $invitation->setRelation('giftAccounts', $giftAccounts);
+        $invitation->setRelation('guestbookMessages', collect());
 
         return $invitation;
     }

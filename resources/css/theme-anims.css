@@ -193,6 +193,133 @@
     .is-entered [data-anim-loop] { animation: none !important; }
 }
 
+/* =====================================================================
+ * SECTION CONTENT ENTRY ANIMATIONS — applied via `.is-entered` parent so
+ * they only run when the slide is actually viewed. Uses `backwards` fill
+ * so the element only appears hidden during the animation's delay window
+ * — without `.is-entered`, the rule doesn't apply and elements are at
+ * their natural opacity:1. This avoids "stuck hidden" failure modes if
+ * a slide is never visited.
+ *
+ * Stagger via :nth-child for repeater elements (gift cards, story
+ * entries, countdown cells, etc.) — base step --anim-step:80ms.
+ * ===================================================================== */
+.is-entered .section,
+.is-entered .section-title,
+.is-entered .section-lede,
+.is-entered .cover-title,
+.is-entered .cover-eyebrow,
+.is-entered .cover-open-btn,
+.is-entered .guest-greeting,
+.is-entered .rsvp-card-wrapper,
+.is-entered .gift-card,
+.is-entered .story-entry,
+.is-entered .gallery-grid > *,
+.is-entered .gallery-staggered > *,
+.is-entered .countdown-cell,
+.is-entered .countdown-line,
+.is-entered .guestbook-note,
+.is-entered .event-card,
+.is-entered .thanks-photo,
+.is-entered .thanks-message,
+.is-entered .thanks-couple {
+    animation-fill-mode: backwards;
+}
+
+/* --- Cover --- */
+.is-entered .section--cover .cover-eyebrow      { animation: lay-fade-in   0.7s 0.10s ease-out backwards; }
+.is-entered .section--cover .cover-title        { animation: lay-fade-up   0.9s 0.20s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+.is-entered .section--cover .guest-greeting     { animation: lay-fade-up   0.8s 0.40s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+.is-entered .section--cover .cover-open-btn     { animation: lay-fade-up   0.8s 0.55s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+
+/* --- Section header (title + lede) for all non-cover sections --- */
+.is-entered .section:not(.section--cover) > .section-inner > .section-title,
+.is-entered .section:not(.section--cover) .section-inner > .section-title {
+    animation: lay-fade-up 0.75s 0.05s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+.is-entered .section:not(.section--cover) > .section-inner > .section-lede,
+.is-entered .section:not(.section--cover) .section-inner > .section-lede {
+    animation: lay-fade-up 0.75s 0.18s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+/* --- Repeater stagger (gift cards, story entries, countdown cells, etc.) --- */
+.is-entered .gift-card,
+.is-entered .story-entry,
+.is-entered .countdown-cell,
+.is-entered .event-card,
+.is-entered .guestbook-note,
+.is-entered .gallery-grid > *,
+.is-entered .gallery-staggered > * {
+    animation: lay-fade-up 0.65s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+    animation-delay: calc(0.18s + 0.06s * var(--idx, 0));
+}
+.is-entered .gift-card:nth-child(1),
+.is-entered .story-entry:nth-child(1),
+.is-entered .countdown-cell:nth-child(1),
+.is-entered .event-card:nth-child(1),
+.is-entered .guestbook-note:nth-child(1),
+.is-entered .gallery-grid > *:nth-child(1),
+.is-entered .gallery-staggered > *:nth-child(1)   { animation-delay: 0.20s; }
+.is-entered .gift-card:nth-child(2),
+.is-entered .story-entry:nth-child(2),
+.is-entered .countdown-cell:nth-child(2),
+.is-entered .event-card:nth-child(2),
+.is-entered .guestbook-note:nth-child(2),
+.is-entered .gallery-grid > *:nth-child(2),
+.is-entered .gallery-staggered > *:nth-child(2)   { animation-delay: 0.28s; }
+.is-entered .gift-card:nth-child(3),
+.is-entered .story-entry:nth-child(3),
+.is-entered .countdown-cell:nth-child(3),
+.is-entered .event-card:nth-child(3),
+.is-entered .guestbook-note:nth-child(3),
+.is-entered .gallery-grid > *:nth-child(3),
+.is-entered .gallery-staggered > *:nth-child(3)   { animation-delay: 0.36s; }
+.is-entered .gift-card:nth-child(4),
+.is-entered .story-entry:nth-child(4),
+.is-entered .countdown-cell:nth-child(4),
+.is-entered .event-card:nth-child(4),
+.is-entered .guestbook-note:nth-child(4),
+.is-entered .gallery-grid > *:nth-child(4),
+.is-entered .gallery-staggered > *:nth-child(4)   { animation-delay: 0.44s; }
+.is-entered .gift-card:nth-child(n+5),
+.is-entered .story-entry:nth-child(n+5),
+.is-entered .countdown-cell:nth-child(n+5),
+.is-entered .event-card:nth-child(n+5),
+.is-entered .guestbook-note:nth-child(n+5),
+.is-entered .gallery-grid > *:nth-child(n+5),
+.is-entered .gallery-staggered > *:nth-child(n+5) { animation-delay: 0.52s; }
+
+/* --- RSVP card --- */
+.is-entered .section--rsvp-card .rsvp-card-wrapper {
+    animation: lay-scale-in 0.7s 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+
+/* --- Thanks --- */
+.is-entered .section--thanks .thanks-photo      { animation: lay-scale-in 0.8s 0.10s cubic-bezier(0.34, 1.56, 0.64, 1) backwards; }
+.is-entered .section--thanks .thanks-message    { animation: lay-fade-up  0.7s 0.30s ease-out backwards; }
+.is-entered .section--thanks .thanks-couple     { animation: lay-fade-up  0.7s 0.45s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+
+/* Reduced motion: disable all content entry animations */
+@media (prefers-reduced-motion: reduce) {
+    .is-entered .section-title,
+    .is-entered .section-lede,
+    .is-entered .cover-title,
+    .is-entered .cover-eyebrow,
+    .is-entered .cover-open-btn,
+    .is-entered .guest-greeting,
+    .is-entered .rsvp-card-wrapper,
+    .is-entered .gift-card,
+    .is-entered .story-entry,
+    .is-entered .gallery-grid > *,
+    .is-entered .gallery-staggered > *,
+    .is-entered .countdown-cell,
+    .is-entered .guestbook-note,
+    .is-entered .event-card,
+    .is-entered .thanks-photo,
+    .is-entered .thanks-message,
+    .is-entered .thanks-couple { animation: none !important; }
+}
+
 /* --------------------- Keyframes --------------------- */
 @keyframes lay-fade-in    { from { opacity: 0; }                                              to { opacity: 1; } }
 @keyframes lay-fade-down  { from { opacity: 0; transform: translateY(-30px); }                to { opacity: 1; transform: translateY(0); } }

@@ -194,15 +194,18 @@
                     </div>
                 </div>
                 <div class="flex-1 flex justify-center items-start overflow-auto glass rounded-2xl p-4 relative">
-                    <iframe x-ref="previewFrame"
-                        wire:ignore
-                        data-base-src="{{ route('invitations.preview', $slug) }}"
-                        src="{{ route('invitations.preview', $slug) }}?v={{ $previewKey }}"
-                        class="w-full max-w-[420px] h-full rounded-2xl bg-white shadow-2xl"
-                        style="box-shadow: 0 24px 60px -12px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.1);"
-                        loading="lazy"
-                        title="Preview: {{ $slug }}">
-                    </iframe>
+                    <div class="mx-auto relative z-10"
+                         style="height: min(100%, 747px); aspect-ratio: 9 / 16;">
+                        <iframe x-ref="previewFrame"
+                            wire:ignore
+                            data-base-src="{{ route('invitations.preview', $slug) }}"
+                            src="{{ route('invitations.preview', $slug) }}?v={{ $previewKey }}"
+                            class="w-full h-full rounded-2xl bg-white shadow-2xl"
+                            style="box-shadow: 0 24px 60px -12px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.1);"
+                            loading="lazy"
+                            title="Preview: {{ $slug }}">
+                        </iframe>
+                    </div>
                 </div>
             </div>
         @endif
