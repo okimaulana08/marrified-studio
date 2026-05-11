@@ -16,9 +16,20 @@ window.galleryLightbox = (urls) => ({
     urls: Array.isArray(urls) ? urls : [],
     index: 0,
     active: false,
+    // Swipe state
+    _touchStartX: null,
+    _touchStartY: null,
+    _touchStartT: 0,
+    // Toast (used as fallback when navigator.share unavailable)
+    toast: false,
+    toastText: '',
+    _toastId: null,
+
     get total() { return this.urls.length; },
     get canPrev() { return this.index > 0; },
     get canNext() { return this.index < this.urls.length - 1; },
+    get canShare() { return typeof navigator !== 'undefined' && typeof navigator.share === 'function'; },
+
     open(i) {
         if (i < 0 || i >= this.urls.length) return;
         this.index = i;
@@ -31,6 +42,76 @@ window.galleryLightbox = (urls) => ({
     },
     prev() { if (this.canPrev) this.index--; },
     next() { if (this.canNext) this.index++; },
+
+    /** Detect horizontal swipe → navigate to prev/next slide. */
+    onTouchStart(e) {
+        const t = e.touches?.[0];
+        if (!t || e.touches.length > 1) {
+            // Multi-touch = pinch zoom, let the browser handle it.
+            this._touchStartX = null;
+            return;
+        }
+        this._touchStartX = t.clientX;
+        this._touchStartY = t.clientY;
+        this._touchStartT = Date.now();
+    },
+    onTouchEnd(e) {
+        if (this._touchStartX === null) return;
+        const t = e.changedTouches?.[0];
+        if (!t) return;
+        const dx = t.clientX - this._touchStartX;
+        const dy = t.clientY - this._touchStartY;
+        const dt = Date.now() - this._touchStartT;
+        this._touchStartX = null;
+        // Horizontal-dominant, fast, and far enough.
+        if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5 && dt < 600) {
+            if (dx < 0) this.next(); else this.prev();
+        }
+    },
+
+    /** Trigger browser download of the current photo. Uses anchor[download]. */
+    downloadCurrent() {
+        const url = this.urls[this.index];
+        if (!url) return;
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `foto-${this.index + 1}.jpg`;
+        // Open in new tab as a fallback for cross-origin URLs that block direct download.
+        a.target = '_blank';
+        a.rel = 'noopener';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    },
+
+    /** Native Web Share if available, otherwise copy URL to clipboard + toast. */
+    async shareCurrent() {
+        const url = this.urls[this.index];
+        if (!url) return;
+        const absoluteUrl = new URL(url, window.location.href).toString();
+        if (this.canShare) {
+            try {
+                await navigator.share({ url: absoluteUrl, title: 'Foto Undangan' });
+                return;
+            } catch (e) {
+                if (e?.name === 'AbortError') return;
+                // fall through to clipboard fallback
+            }
+        }
+        try {
+            await navigator.clipboard.writeText(absoluteUrl);
+            this._showToast('Link foto disalin');
+        } catch (e) {
+            this._showToast('Tidak bisa share/copy');
+        }
+    },
+
+    _showToast(text) {
+        this.toastText = text;
+        this.toast = true;
+        clearTimeout(this._toastId);
+        this._toastId = setTimeout(() => { this.toast = false; }, 1800);
+    },
 });
 
 document.addEventListener('DOMContentLoaded', () => {

@@ -23,6 +23,7 @@
         "@codemirror/view": "^6.28.0",
         "apexcharts": "^3.54.0",
         "lottie-web": "^5.13.0",
+        "sortablejs": "^1.15.3",
         "swiper": "^12.1.4"
     }
 }

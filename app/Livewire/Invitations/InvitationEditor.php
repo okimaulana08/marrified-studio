@@ -300,6 +300,25 @@ final class InvitationEditor extends Component
         $this->sections->moveDown($index);
     }
 
+    /**
+     * Reorder sections from a drag-and-drop event in the UI. The new ID
+     * sequence is passed from the front-end; we persist immediately so the
+     * user doesn't have to click "Save" after dragging.
+     *
+     * @param  list<int|string>  $orderedIds
+     */
+    public function reorderSections(array $orderedIds): void
+    {
+        try {
+            $invitation = $this->resolveInvitation();
+            $this->sections->reorderTo($orderedIds);
+            $this->sections->persist($invitation);
+            $this->flashSaved();
+        } catch (RuntimeException $e) {
+            $this->flash($e->getMessage(), 'error');
+        }
+    }
+
     public function saveSections(): void
     {
         try {

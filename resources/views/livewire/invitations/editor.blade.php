@@ -67,50 +67,92 @@
         </div>
     @endif
 
+    @php
+        // Tabs grouped by workflow phase. Sidebar renders one section per group.
+        $tabGroups = [
+            'Foundation' => [
+                'basic'     => ['label' => 'Info',      'icon' => 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z', 'enabled' => true],
+                'sections'  => ['label' => 'Section',   'icon' => 'M4 6h16M4 12h16M4 18h7', 'enabled' => ! $isNew],
+                'music'     => ['label' => 'Music',     'icon' => 'M9 19V6l12-3v13M9 19c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3zm12-3c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3z', 'enabled' => ! $isNew],
+            ],
+            'Konten' => [
+                'couple'    => ['label' => 'Couple',    'icon' => 'M4.318 6.318a4.5 4.5 0 010 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z', 'enabled' => ! $isNew],
+                'religious' => ['label' => 'Religi',    'icon' => 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253', 'enabled' => ! $isNew],
+                'stories'   => ['label' => 'Cerita',    'icon' => 'M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z', 'enabled' => ! $isNew],
+                'events'    => ['label' => 'Events',    'icon' => 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', 'enabled' => ! $isNew],
+                'countdown' => ['label' => 'Countdown', 'icon' => 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z', 'enabled' => ! $isNew],
+                'gallery'   => ['label' => 'Gallery',   'icon' => 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z', 'enabled' => ! $isNew],
+                'gift'      => ['label' => 'Gift',      'icon' => 'M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7', 'enabled' => ! $isNew],
+                'thanks'    => ['label' => 'Penutup',   'icon' => 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', 'enabled' => ! $isNew],
+            ],
+            'Distribusi' => [
+                'guests'      => ['label' => 'Tamu',       'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z', 'enabled' => ! $isNew],
+                'guestbook'   => ['label' => 'Buku Tamu',  'icon' => 'M3 5a2 2 0 012-2h4.586a1 1 0 01.707.293l1.414 1.414A1 1 0 0012.414 5H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V5z', 'enabled' => ! $isNew],
+                'analytics'   => ['label' => 'Analytics',  'icon' => 'M9 19V6l12-3v13M9 19c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3zm12-3c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3z', 'enabled' => ! $isNew],
+            ],
+        ];
+    @endphp
+
     <div class="flex gap-5 h-[calc(100vh-180px)]">
 
         {{-- Left: form panel — 2/3 of available width when editing existing invitation,
              so users get more breathing room for inputs while keeping a usable preview pane. --}}
         <div class="w-full {{ !$isNew ? 'lg:basis-2/3 lg:flex-grow lg:max-w-none' : '' }} flex flex-col gap-4 min-w-0">
 
-            {{-- Tab nav --}}
-            <div class="glass rounded-2xl p-1.5 flex gap-0.5 overflow-x-auto">
-                @foreach ([
-                    // Foundation / global settings
-                    'basic'     => ['label' => 'Info',      'enabled' => true],
-                    'sections'  => ['label' => 'Section',   'enabled' => ! $isNew],
-                    'music'     => ['label' => 'Music',     'enabled' => ! $isNew],
-                    // Konten utama (mirror urutan render publik)
-                    'couple'    => ['label' => 'Couple',    'enabled' => ! $isNew],
-                    'religious' => ['label' => 'Religi',    'enabled' => ! $isNew],
-                    'stories'   => ['label' => 'Cerita',    'enabled' => ! $isNew],
-                    'events'    => ['label' => 'Events',    'enabled' => ! $isNew],
-                    'countdown' => ['label' => 'Countdown', 'enabled' => ! $isNew],
-                    'gallery'   => ['label' => 'Gallery',   'enabled' => ! $isNew],
-                    'gift'      => ['label' => 'Gift',      'enabled' => ! $isNew],
-                    'thanks'    => ['label' => 'Penutup',   'enabled' => ! $isNew],
-                    // Distribusi & monitoring
-                    'guests'    => ['label' => 'Tamu',      'enabled' => ! $isNew],
-                    'analytics' => ['label' => 'Analytics', 'enabled' => ! $isNew],
-                ] as $key => $meta)
-                    <button type="button"
-                            x-on:click="tab = '{{ $key }}'"
-                            :class="tab === '{{ $key }}' ? 'text-white shadow-inner' : 'text-white/40 hover:text-white/70'"
-                            x-bind:style="tab === '{{ $key }}'
-                                ? 'background: linear-gradient(135deg, rgba(232,62,140,0.25) 0%, rgba(255,122,133,0.18) 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 0 16px -4px rgba(232,62,140,0.4); border: 1px solid rgba(232,62,140,0.4);'
-                                : 'background: transparent; border: 1px solid transparent;'"
-                            @disabled(! $meta['enabled'])
-                            class="relative flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl transition-all {{ $meta['enabled'] ? '' : 'opacity-30 cursor-not-allowed' }}">
-                        {{ $meta['label'] }}
-                        @if (! $meta['enabled'])
-                            <span class="text-[8px] px-1 py-px rounded bg-white/10 text-white/40 uppercase tracking-wider font-mono">soon</span>
-                        @endif
-                    </button>
+          {{-- Sub-row: vertical sidebar (lg+) | horizontal nav (mobile) + content. Flex-1 so it fills available height; footer below stays at the bottom. --}}
+          <div class="flex flex-col lg:flex-row gap-4 flex-1 min-h-0">
+
+            {{-- ───────── Vertical sidebar nav (lg+) ───────── --}}
+            <aside class="hidden lg:flex flex-col w-44 xl:w-48 flex-shrink-0 glass rounded-2xl p-2 overflow-y-auto">
+                @foreach ($tabGroups as $groupLabel => $items)
+                    <p class="px-2.5 pt-2 pb-1.5 text-[10px] uppercase tracking-widest text-white/35 font-bold">{{ $groupLabel }}</p>
+                    <div class="space-y-0.5 mb-2">
+                        @foreach ($items as $key => $meta)
+                            <button type="button"
+                                    x-on:click="tab = '{{ $key }}'"
+                                    :class="tab === '{{ $key }}' ? 'text-white' : 'text-white/55 hover:text-white/85'"
+                                    x-bind:style="tab === '{{ $key }}'
+                                        ? 'background: linear-gradient(135deg, rgba(232,62,140,0.20) 0%, rgba(255,122,133,0.12) 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.08); border-color: rgba(232,62,140,0.40);'
+                                        : 'background: transparent; border-color: transparent;'"
+                                    @disabled(! $meta['enabled'])
+                                    class="relative w-full flex items-center gap-2 px-2.5 py-1.5 text-xs font-medium rounded-lg transition-all border {{ $meta['enabled'] ? '' : 'opacity-35 cursor-not-allowed' }}">
+                                {{-- Active bar (left edge) --}}
+                                <span x-show="tab === '{{ $key }}'" x-cloak
+                                      class="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-r"
+                                      style="background: linear-gradient(180deg, #e83e8c, #ff7a85);"></span>
+                                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="{{ $meta['icon'] }}"/>
+                                </svg>
+                                <span class="truncate flex-1 text-left">{{ $meta['label'] }}</span>
+                                @if (! $meta['enabled'])
+                                    <span class="text-[8px] px-1 py-px rounded bg-white/10 text-white/40 uppercase tracking-wider font-mono">soon</span>
+                                @endif
+                            </button>
+                        @endforeach
+                    </div>
+                @endforeach
+            </aside>
+
+            {{-- ───────── Horizontal scrollable nav (mobile/tablet only) ───────── --}}
+            <div class="lg:hidden glass rounded-2xl p-1.5 flex gap-0.5 overflow-x-auto flex-shrink-0">
+                @foreach ($tabGroups as $groupLabel => $items)
+                    @foreach ($items as $key => $meta)
+                        <button type="button"
+                                x-on:click="tab = '{{ $key }}'"
+                                :class="tab === '{{ $key }}' ? 'text-white shadow-inner' : 'text-white/40 hover:text-white/70'"
+                                x-bind:style="tab === '{{ $key }}'
+                                    ? 'background: linear-gradient(135deg, rgba(232,62,140,0.25) 0%, rgba(255,122,133,0.18) 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 0 16px -4px rgba(232,62,140,0.4); border: 1px solid rgba(232,62,140,0.4);'
+                                    : 'background: transparent; border: 1px solid transparent;'"
+                                @disabled(! $meta['enabled'])
+                                class="relative flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl transition-all {{ $meta['enabled'] ? '' : 'opacity-30 cursor-not-allowed' }}">
+                            {{ $meta['label'] }}
+                        </button>
+                    @endforeach
                 @endforeach
             </div>
 
-            {{-- Tab panels --}}
-            <div class="flex-1 glass rounded-2xl p-6 overflow-y-auto relative">
+            {{-- Tab panels — flex-1 di sebelah kanan sidebar --}}
+            <div class="flex-1 glass rounded-2xl p-6 overflow-y-auto relative min-w-0">
                 <div x-show="tab === 'basic'" x-cloak class="fade-up">
                     @include('livewire.invitations.partials.tab-basic')
 
@@ -164,6 +206,12 @@
                             :is-admin="$isAdmin"
                             :key="'guests-tab-'.$invitationId" />
                     </div>
+                    <div x-show="tab === 'guestbook'" x-cloak class="fade-up">
+                        <livewire:invitations.guestbook-moderation
+                            :invitation-id="$invitationId"
+                            :is-admin="$isAdmin"
+                            :key="'guestbook-moderation-'.$invitationId" />
+                    </div>
                     <div x-show="tab === 'analytics'" x-cloak class="fade-up">
                         <livewire:invitations.analytics-tab
                             :invitation-id="$invitationId"
@@ -172,6 +220,8 @@
                     </div>
                 @endunless
             </div>
+
+          </div> {{-- /sub-row (sidebar + content) --}}
 
             {{-- Footer for create-mode (sticky save) --}}
             @if ($isNew)

@@ -80,6 +80,36 @@ final class SectionsForm extends Form
         [$this->rows[$index], $this->rows[$index + 1]] = [$this->rows[$index + 1], $this->rows[$index]];
     }
 
+    /**
+     * Re-sort `$rows` to match the given ID sequence (e.g. from a drag-and-drop UI).
+     * IDs not in the current row set are ignored; any current rows missing from
+     * the input list are appended at the end so we never lose a row.
+     *
+     * @param  list<int|string>  $orderedIds
+     */
+    public function reorderTo(array $orderedIds): void
+    {
+        $byId = [];
+        foreach ($this->rows as $row) {
+            $byId[(int) $row['id']] = $row;
+        }
+
+        $reordered = [];
+        foreach ($orderedIds as $id) {
+            $intId = (int) $id;
+            if (isset($byId[$intId])) {
+                $reordered[] = $byId[$intId];
+                unset($byId[$intId]);
+            }
+        }
+        // Append any rows that weren't in the input list (defensive).
+        foreach ($byId as $row) {
+            $reordered[] = $row;
+        }
+
+        $this->rows = $reordered;
+    }
+
     public function persist(Invitation $invitation): void
     {
         DB::transaction(function () use ($invitation) {
