@@ -39,12 +39,22 @@ final class SectionsForm extends Form
 
     public function fillFromModel(Invitation $invitation): void
     {
-        $this->rows = $invitation->sections->map(fn (Section $s) => [
-            'id' => $s->id,
-            'type' => $s->type,
-            'variant' => $s->variant,
-            'enabled' => (bool) $s->enabled,
-        ])->values()->all();
+        $this->rows = $invitation->sections->map(function (Section $s) {
+            $bg = (array) ($s->content['bg_override'] ?? []);
+
+            return [
+                'id' => $s->id,
+                'type' => $s->type,
+                'variant' => $s->variant,
+                'enabled' => (bool) $s->enabled,
+                'bg_source' => (string) ($bg['source'] ?? ''),
+                'bg_gallery_index' => (int) ($bg['gallery_index'] ?? 0),
+                'bg_path' => (string) ($bg['path'] ?? ''),
+                'bg_opacity' => (float) ($bg['opacity'] ?? 1.0),
+                'bg_darken' => (float) ($bg['darken'] ?? 0.0),
+                'bg_fit' => (string) ($bg['fit'] ?? 'cover'),
+            ];
+        })->values()->all();
     }
 
     /**
@@ -114,14 +124,42 @@ final class SectionsForm extends Form
     {
         DB::transaction(function () use ($invitation) {
             foreach ($this->rows as $i => $row) {
-                Section::query()
+                $section = Section::query()
                     ->where('id', $row['id'])
                     ->where('invitation_id', $invitation->id)
-                    ->update([
-                        'variant' => $row['variant'],
-                        'enabled' => (bool) $row['enabled'],
-                        'sort_order' => $i,
-                    ]);
+                    ->first();
+                if ($section === null) {
+                    continue;
+                }
+
+                // Merge bg_override into existing content JSON without nuking
+                // other content keys (gallery images, story entries, etc).
+                $content = (array) ($section->content ?? []);
+                $source = (string) ($row['bg_source'] ?? '');
+                if ($source === '' || $source === 'default') {
+                    unset($content['bg_override']);
+                } else {
+                    $bg = [
+                        'source' => $source,
+                        'opacity' => max(0.0, min(1.0, (float) ($row['bg_opacity'] ?? 1.0))),
+                        'darken' => max(0.0, min(1.0, (float) ($row['bg_darken'] ?? 0.0))),
+                        'fit' => in_array($row['bg_fit'] ?? 'cover', ['cover', 'contain'], true) ? $row['bg_fit'] : 'cover',
+                    ];
+                    if ($source === 'gallery') {
+                        $bg['gallery_index'] = max(0, (int) ($row['bg_gallery_index'] ?? 0));
+                    }
+                    if ($source === 'upload' && ! empty($row['bg_path'])) {
+                        $bg['path'] = (string) $row['bg_path'];
+                    }
+                    $content['bg_override'] = $bg;
+                }
+
+                $section->update([
+                    'variant' => $row['variant'],
+                    'enabled' => (bool) $row['enabled'],
+                    'sort_order' => $i,
+                    'content' => $content,
+                ]);
             }
         });
     }

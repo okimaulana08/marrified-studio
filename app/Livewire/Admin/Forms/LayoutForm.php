@@ -80,7 +80,7 @@ final class LayoutForm extends Form
     {
         $map = [];
         foreach (ThemeRegistry::SLOT_KEYS as $key) {
-            $map[$key] = ['file' => '', 'anim_in' => '', 'anim_loop' => '', 'duration_ms' => 0, 'delay_ms' => 0];
+            $map[$key] = ['file' => '', 'anim_in' => '', 'anim_loop' => '', 'duration_ms' => 0, 'delay_ms' => 0, 'scale' => 1.0, 'offset_x' => 0, 'offset_y' => 0, 'rotate' => 0];
         }
 
         return $map;
@@ -136,6 +136,10 @@ final class LayoutForm extends Form
                 'anim_loop' => (string) ($entry['anim_loop'] ?? ''),
                 'duration_ms' => (int) ($entry['duration_ms'] ?? 0),
                 'delay_ms' => (int) ($entry['delay_ms'] ?? 0),
+                'scale' => (float) ($entry['scale'] ?? 1.0),
+                'offset_x' => (int) ($entry['offset_x'] ?? 0),
+                'offset_y' => (int) ($entry['offset_y'] ?? 0),
+                'rotate' => (int) ($entry['rotate'] ?? 0),
             ];
         }
     }
@@ -218,6 +222,27 @@ final class LayoutForm extends Form
             $delay = (int) ($entry['delay_ms'] ?? 0);
             if ($delay > 0) {
                 $slotEntry['delay_ms'] = $delay;
+            }
+
+            // Visual transforms — only persist when non-default so manifests stay clean.
+            $scale = (float) ($entry['scale'] ?? 1.0);
+            if (abs($scale - 1.0) > 0.001) {
+                $slotEntry['scale'] = round($scale, 2);
+            }
+
+            $offsetX = (int) ($entry['offset_x'] ?? 0);
+            if ($offsetX !== 0) {
+                $slotEntry['offset_x'] = $offsetX;
+            }
+
+            $offsetY = (int) ($entry['offset_y'] ?? 0);
+            if ($offsetY !== 0) {
+                $slotEntry['offset_y'] = $offsetY;
+            }
+
+            $rotate = (int) ($entry['rotate'] ?? 0);
+            if ($rotate !== 0) {
+                $slotEntry['rotate'] = $rotate;
             }
 
             $kept[$name] = $slotEntry;

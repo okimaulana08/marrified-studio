@@ -1,15 +1,22 @@
 <div x-data="{
     tab: sessionStorage.getItem('invitationEditorTab') || 'basic',
     hasDirty: false,
+    _refreshId: null,
 }"
      x-init="$watch('tab', v => sessionStorage.setItem('invitationEditorTab', v))"
      x-on:invitation-saved.window="
         hasDirty = false;
-        const iframe = $refs.previewFrame;
-        if (iframe) {
-            const baseSrc = iframe.dataset.baseSrc;
-            iframe.src = baseSrc + '?v=' + Date.now();
-        }
+        // Debounce iframe reload so rapid saves (mis. galeri photo upload x10,
+        // sections reorder beberapa kali, dst) only trigger one preview reload
+        // at the end. Avoids the browser hammering /storage/* asset URLs.
+        clearTimeout(_refreshId);
+        _refreshId = setTimeout(() => {
+            const iframe = $refs.previewFrame;
+            if (iframe) {
+                const baseSrc = iframe.dataset.baseSrc;
+                iframe.src = baseSrc + '?v=' + Date.now();
+            }
+        }, 350);
      "
      x-on:jump-to-tab.window="tab = $event.detail">
 
@@ -273,8 +280,10 @@
                     </div>
                 </div>
                 <div class="flex-1 flex justify-center items-start overflow-auto glass rounded-2xl p-4 relative">
+                    {{-- Phone aspect 9:15 — slightly wider/shorter than typical phones,
+                         matches the cover layout proportions best for this app's content. --}}
                     <div class="mx-auto relative z-10"
-                         style="height: min(100%, 747px); aspect-ratio: 9 / 16;">
+                         style="height: min(100%, 700px); aspect-ratio: 9 / 15;">
                         <iframe x-ref="previewFrame"
                             wire:ignore
                             data-base-src="{{ route('invitations.preview', $slug) }}"

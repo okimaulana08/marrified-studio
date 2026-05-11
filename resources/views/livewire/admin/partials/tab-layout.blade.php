@@ -14,6 +14,14 @@
             this.$nextTick(() => {
                 const el = document.querySelector('[data-slot-row=' + slot + ']');
                 if (el) {
+                    // Auto-expand the focused row so the user lands directly in the
+                    // editor without an extra click on the chevron.
+                    if (window.Alpine) {
+                        const alpineData = window.Alpine.$data(el);
+                        if (alpineData && typeof alpineData.open === 'boolean') {
+                            alpineData.open = true;
+                        }
+                    }
                     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     el.classList.add('is-flash');
                     setTimeout(() => el.classList.remove('is-flash'), 1700);
@@ -238,18 +246,25 @@
                         @endif
                     </div>
 
-                    <div class="p-3 space-y-3">
+                    <div class="p-3 space-y-2">
                         @foreach ($slotKeys as $slotKey)
                             @php
                                 $hasFile = ($currentSlots[$slotKey]['file'] ?? '') !== '';
                                 $currentAnim = $currentSlots[$slotKey]['anim_in'] ?? '';
+                                $currentLoop = $currentSlots[$slotKey]['anim_loop'] ?? '';
+                                $currentScale = (float) ($currentSlots[$slotKey]['scale'] ?? 1.0);
+                                $currentOffsetX = (int) ($currentSlots[$slotKey]['offset_x'] ?? 0);
+                                $currentOffsetY = (int) ($currentSlots[$slotKey]['offset_y'] ?? 0);
+                                $currentRotate = (int) ($currentSlots[$slotKey]['rotate'] ?? 0);
+                                $hasTransform = abs($currentScale - 1.0) > 0.001 || $currentOffsetX !== 0 || $currentOffsetY !== 0 || $currentRotate !== 0;
                                 $defaultFile = $isPageMode ? ($layout->slots[$slotKey]['file'] ?? '') : '';
                                 $isInheriting = $isPageMode && ! $hasFile && $defaultFile !== '';
                                 $isOverriding = $isPageMode && $hasFile;
                             @endphp
                             <div data-slot-row="{{ $slotKey }}"
+                                 x-data="{ open: false }"
                                  class="slot-row rounded-lg transition-colors px-2 py-2 -mx-2">
-                                {{-- Header row: state dot + label + file picker --}}
+                                {{-- Header row: state dot + label + file picker + expand chevron --}}
                                 <div class="grid grid-cols-12 gap-2 items-center">
                                     <div class="col-span-1 flex justify-center">
                                         @if ($hasFile)
@@ -274,7 +289,7 @@
                                             <p class="text-[10px] text-amber-300/60 truncate font-mono">← {{ $defaultFile }}</p>
                                         @endif
                                     </div>
-                                    <div class="col-span-7">
+                                    <div class="col-span-6">
                                         <div class="relative">
                                             <select wire:model.live="{{ $modelPrefix }}.slots.{{ $slotKey }}.file"
                                                     class="admin-select w-full px-2 py-1.5 pr-6 text-xs">
@@ -288,7 +303,7 @@
                                             </svg>
                                         </div>
                                     </div>
-                                    <div class="col-span-1 flex justify-end">
+                                    <div class="col-span-1 flex justify-center">
                                         @if ($hasFile)
                                             @php
                                                 $sFile = $currentSlots[$slotKey]['file'];
@@ -305,11 +320,52 @@
                                             @endif
                                         @endif
                                     </div>
+                                    <div class="col-span-1 flex justify-end">
+                                        @if ($hasFile)
+                                            <button type="button" x-on:click="open = !open"
+                                                    :title="open ? 'Tutup pengaturan' : 'Buka pengaturan animasi & posisi'"
+                                                    class="w-7 h-7 flex items-center justify-center rounded-md text-white/45 hover:text-white hover:bg-white/[0.06] transition-colors">
+                                                <svg class="w-3.5 h-3.5 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                                                </svg>
+                                            </button>
+                                        @endif
+                                    </div>
                                 </div>
 
-                                {{-- Anim preview picker --}}
+                                {{-- Summary badges (visible when collapsed) — at-a-glance status --}}
                                 @if ($hasFile)
-                                    <div class="mt-2.5 pl-[8.33%]">
+                                    <div class="mt-1 pl-[8.33%] flex flex-wrap items-center gap-1.5" x-show="!open">
+                                        @if ($currentAnim)
+                                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-400/20 text-emerald-300/85 font-mono">
+                                                anim: {{ $currentAnim }}
+                                            </span>
+                                        @endif
+                                        @if ($currentLoop)
+                                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-cyan-500/10 border border-cyan-400/20 text-cyan-300/85 font-mono">
+                                                loop: {{ $currentLoop }}
+                                            </span>
+                                        @endif
+                                        @if ($hasTransform)
+                                            @php
+                                                $transformSummary = round($currentScale, 2).'× · '.$currentOffsetX.','.$currentOffsetY.'px';
+                                                if ($currentRotate !== 0) {
+                                                    $transformSummary .= ' · '.$currentRotate.'°';
+                                                }
+                                            @endphp
+                                            <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-400/20 text-amber-300/85 font-mono">
+                                                ⤢ {{ $transformSummary }}
+                                            </span>
+                                        @endif
+                                        @if (! $currentAnim && ! $currentLoop && ! $hasTransform)
+                                            <span class="text-[10px] text-white/30 italic">tanpa pengaturan tambahan</span>
+                                        @endif
+                                    </div>
+                                @endif
+
+                                {{-- Anim preview picker (only when expanded) --}}
+                                @if ($hasFile)
+                                    <div class="mt-2.5 pl-[8.33%]" x-show="open" x-collapse>
                                         <p class="text-[10px] text-white/35 mb-1.5 uppercase tracking-wider flex items-center gap-1.5">
                                             Anim Masuk
                                             @if ($currentAnim)
@@ -408,6 +464,82 @@
                                                 </div>
                                             </div>
                                         @endif
+
+                                        {{-- Scale + Offset position controls --}}
+                                        <div class="mt-3 pt-3 border-t border-white/8">
+                                            <div class="flex items-center justify-between mb-1.5">
+                                                <p class="text-[10px] uppercase tracking-wider text-white/35 flex items-center gap-1.5">
+                                                    Posisi &amp; Ukuran
+                                                    @if ($hasTransform)
+                                                        <span class="font-mono text-amber-300/85 normal-case tracking-normal">
+                                                            {{ $transformSummary ?? (round($currentScale, 2).'× · '.$currentOffsetX.', '.$currentOffsetY.'px'.($currentRotate !== 0 ? ' · '.$currentRotate.'°' : '')) }}
+                                                        </span>
+                                                    @else
+                                                        <span class="text-white/25 normal-case">default</span>
+                                                    @endif
+                                                </p>
+                                                @if ($hasTransform)
+                                                    <button type="button"
+                                                            wire:click="$set('{{ $modelPrefix }}.slots.{{ $slotKey }}.scale', 1)"
+                                                            x-on:click="$wire.set('{{ $modelPrefix }}.slots.{{ $slotKey }}.offset_x', 0); $wire.set('{{ $modelPrefix }}.slots.{{ $slotKey }}.offset_y', 0); $wire.set('{{ $modelPrefix }}.slots.{{ $slotKey }}.rotate', 0)"
+                                                            class="text-[10px] text-white/40 hover:text-white/70 underline-offset-2 hover:underline">Reset</button>
+                                                @endif
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-x-3 gap-y-2.5">
+                                                <div>
+                                                    <label class="text-[10px] text-white/40 mb-1 block">Scale</label>
+                                                    <div class="flex items-center gap-1.5">
+                                                        <input type="range"
+                                                               wire:model.live.debounce.150ms="{{ $modelPrefix }}.slots.{{ $slotKey }}.scale"
+                                                               min="0.3" max="2.5" step="0.05" class="flex-1 min-w-0">
+                                                        <input type="number"
+                                                               wire:model.live.debounce.500ms="{{ $modelPrefix }}.slots.{{ $slotKey }}.scale"
+                                                               min="0.1" max="5" step="0.05"
+                                                               class="admin-input w-14 px-1.5 py-1 text-[11px] font-mono text-center"
+                                                               title="Skala (×)">
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <label class="text-[10px] text-white/40 mb-1 block">Rotate (°)</label>
+                                                    <div class="flex items-center gap-1.5">
+                                                        <input type="range"
+                                                               wire:model.live.debounce.150ms="{{ $modelPrefix }}.slots.{{ $slotKey }}.rotate"
+                                                               min="-180" max="180" step="1" class="flex-1 min-w-0">
+                                                        <input type="number"
+                                                               wire:model.live.debounce.500ms="{{ $modelPrefix }}.slots.{{ $slotKey }}.rotate"
+                                                               step="1"
+                                                               class="admin-input w-14 px-1.5 py-1 text-[11px] font-mono text-center"
+                                                               title="Putar — minus = berlawanan jarum jam, plus = searah">
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <label class="text-[10px] text-white/40 mb-1 block">Offset X (px)</label>
+                                                    <div class="flex items-center gap-1.5">
+                                                        <input type="range"
+                                                               wire:model.live.debounce.150ms="{{ $modelPrefix }}.slots.{{ $slotKey }}.offset_x"
+                                                               min="-200" max="200" step="1" class="flex-1 min-w-0">
+                                                        <input type="number"
+                                                               wire:model.live.debounce.500ms="{{ $modelPrefix }}.slots.{{ $slotKey }}.offset_x"
+                                                               step="1"
+                                                               class="admin-input w-14 px-1.5 py-1 text-[11px] font-mono text-center"
+                                                               title="Geser horizontal — minus = kiri, plus = kanan">
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <label class="text-[10px] text-white/40 mb-1 block">Offset Y (px)</label>
+                                                    <div class="flex items-center gap-1.5">
+                                                        <input type="range"
+                                                               wire:model.live.debounce.150ms="{{ $modelPrefix }}.slots.{{ $slotKey }}.offset_y"
+                                                               min="-200" max="200" step="1" class="flex-1 min-w-0">
+                                                        <input type="number"
+                                                               wire:model.live.debounce.500ms="{{ $modelPrefix }}.slots.{{ $slotKey }}.offset_y"
+                                                               step="1"
+                                                               class="admin-input w-14 px-1.5 py-1 text-[11px] font-mono text-center"
+                                                               title="Geser vertikal — minus = atas, plus = bawah">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 @endif
                             </div>

@@ -197,6 +197,13 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                                 </svg>
                             </button>
+                            <button wire:click="openDeleteModal('{{ $theme->slug }}')"
+                                    class="flex items-center justify-center w-9 h-9 glass-sm text-white/40 hover:text-red-300 hover:bg-red-500/10 rounded-xl transition-all"
+                                    title="Hapus tema">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/>
+                                </svg>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -242,6 +249,71 @@
                         <span wire:loading.remove wire:target="confirmClone">Duplicate Sekarang</span>
                         <span wire:loading wire:target="confirmClone">Menduplikasi...</span>
                     </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Delete Modal — admin harus ketik ulang slug untuk konfirmasi --}}
+    @if ($showDeleteModal)
+        <div class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4 fade-up"
+             style="animation-duration: 0.25s"
+             x-data x-on:keydown.escape.window="$wire.closeDeleteModal()">
+            <div class="glass-strong rounded-2xl w-full max-w-md p-7 shadow-2xl border border-red-400/20">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-xl bg-red-500/15 border border-red-400/30 flex items-center justify-center">
+                        <svg class="w-5 h-5 text-red-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="font-display text-xl font-semibold text-white tracking-display">Hapus Tema Permanen</h2>
+                        <p class="text-xs text-white/45">Aksi ini tidak bisa dibatalkan.</p>
+                    </div>
+                </div>
+
+                <div class="my-4 px-3 py-2.5 glass-subtle rounded-lg">
+                    <p class="text-xs text-white/40">Tema yang akan dihapus</p>
+                    <p class="text-sm text-white/85 font-semibold mt-0.5">{{ $deleteTargetName }}</p>
+                    <p class="font-mono text-xs text-red-300/70 mt-0.5">{{ $deleteTargetSlug }}</p>
+                </div>
+
+                @if ($deleteTargetUsage > 0)
+                    <div class="my-4 p-3 rounded-lg bg-amber-500/10 border border-amber-400/25 text-xs text-amber-200 leading-relaxed">
+                        <strong>Tidak bisa hapus.</strong>
+                        Ada <span class="font-mono">{{ $deleteTargetUsage }}</span> invitation yang masih pakai tema ini.
+                        Pindahkan dulu invitation-nya ke tema lain sebelum hapus.
+                    </div>
+                @else
+                    <div class="my-4 p-3 rounded-lg bg-red-500/8 border border-red-400/20 text-xs text-red-200/85 leading-relaxed">
+                        Folder <code class="font-mono">resources/themes/{{ $deleteTargetSlug }}/</code>
+                        dan <code class="font-mono">public/themes/{{ $deleteTargetSlug }}/</code>
+                        akan dihapus dari disk. Manifest, palette, custom CSS, dan asset upload — <strong>semua hilang permanen</strong>.
+                    </div>
+
+                    <label class="block text-xs font-medium text-white/65 mb-1.5">
+                        Ketik <code class="font-mono text-red-300">{{ $deleteTargetSlug }}</code> untuk konfirmasi:
+                    </label>
+                    <input wire:model.live="deleteConfirmInput" type="text"
+                           class="admin-input w-full px-3 py-2.5 text-sm font-mono
+                                  @error('deleteConfirmInput') border-red-400/50 @enderror"
+                           placeholder="{{ $deleteTargetSlug }}" autofocus>
+                    @error('deleteConfirmInput')
+                        <p class="text-xs text-red-400 mt-1.5">{{ $message }}</p>
+                    @enderror
+                @endif
+
+                <div class="flex gap-2 mt-6 justify-end">
+                    <button wire:click="closeDeleteModal" class="btn-ghost">Batal</button>
+                    @if ($deleteTargetUsage === 0)
+                        <button wire:click="confirmDelete"
+                                @disabled($deleteConfirmInput !== $deleteTargetSlug)
+                                class="btn-primary {{ $deleteConfirmInput !== $deleteTargetSlug ? 'opacity-40 cursor-not-allowed' : '' }}"
+                                style="background: linear-gradient(135deg, #ef4444, #b91c1c);">
+                            <span wire:loading.remove wire:target="confirmDelete">Hapus Permanen</span>
+                            <span wire:loading wire:target="confirmDelete">Menghapus…</span>
+                        </button>
+                    @endif
                 </div>
             </div>
         </div>

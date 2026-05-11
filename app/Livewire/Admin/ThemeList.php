@@ -8,6 +8,7 @@ use App\Models\Invitation;
 use App\Services\Themes\AssetUsageAnalyzer;
 use App\Services\Themes\ThemeCloner;
 use App\Services\Themes\ThemeRegistry;
+use App\Services\Themes\ThemeWriter;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
@@ -31,9 +32,81 @@ final class ThemeList extends Component
     #[Validate('required|regex:/^[a-z0-9][a-z0-9\-]{1,48}[a-z0-9]$/')]
     public string $cloneTargetSlug = '';
 
+    // Delete modal state — admin must type the slug exactly to confirm.
+    public bool $showDeleteModal = false;
+
+    public string $deleteTargetSlug = '';
+
+    public string $deleteTargetName = '';
+
+    public int $deleteTargetUsage = 0;
+
+    public string $deleteConfirmInput = '';
+
     public ?string $flashMessage = null;
 
     public ?string $flashType = null;
+
+    public function openDeleteModal(string $slug): void
+    {
+        $theme = app(ThemeRegistry::class)->find($slug);
+        if ($theme === null) {
+            $this->flashMessage = "Tema '{$slug}' tidak ditemukan.";
+            $this->flashType = 'error';
+
+            return;
+        }
+
+        $this->deleteTargetSlug = $slug;
+        $this->deleteTargetName = $theme->name;
+        $this->deleteTargetUsage = Invitation::query()->where('theme_slug', $slug)->count();
+        $this->deleteConfirmInput = '';
+        $this->showDeleteModal = true;
+    }
+
+    public function closeDeleteModal(): void
+    {
+        $this->showDeleteModal = false;
+        $this->deleteTargetSlug = '';
+        $this->deleteTargetName = '';
+        $this->deleteTargetUsage = 0;
+        $this->deleteConfirmInput = '';
+    }
+
+    public function confirmDelete(): void
+    {
+        if ($this->deleteTargetSlug === '') {
+            return;
+        }
+
+        if ($this->deleteTargetUsage > 0) {
+            $this->flashMessage = "Tidak bisa hapus: {$this->deleteTargetUsage} invitation masih pakai tema ini.";
+            $this->flashType = 'error';
+
+            return;
+        }
+
+        if ($this->deleteConfirmInput !== $this->deleteTargetSlug) {
+            $this->addError('deleteConfirmInput', 'Slug tidak cocok. Ketik ulang persis.');
+
+            return;
+        }
+
+        try {
+            app(ThemeWriter::class)->deleteTheme($this->deleteTargetSlug);
+        } catch (RuntimeException $e) {
+            $this->flashMessage = $e->getMessage();
+            $this->flashType = 'error';
+
+            return;
+        }
+
+        $deletedSlug = $this->deleteTargetSlug;
+        $this->closeDeleteModal();
+
+        $this->flashMessage = "Tema '{$deletedSlug}' dihapus permanen.";
+        $this->flashType = 'success';
+    }
 
     public function openCloneModal(string $slug): void
     {
@@ -62,11 +135,16 @@ final class ThemeList extends Component
             return;
         }
 
+        // Snapshot the slugs BEFORE resetting the modal state — otherwise
+        // closeCloneModal() blanks $cloneTargetSlug and route() throws.
+        $newSlug = $this->cloneTargetSlug;
+        $sourceSlug = $this->cloneSourceSlug;
+
         $this->closeCloneModal();
-        $this->flashMessage = "Tema '{$this->cloneSourceSlug}' berhasil diduplikasi.";
+        $this->flashMessage = "Tema '{$sourceSlug}' berhasil diduplikasi.";
         $this->flashType = 'success';
 
-        $this->redirect(route('admin.themes.edit', $this->cloneTargetSlug));
+        $this->redirect(route('admin.themes.edit', $newSlug));
     }
 
     public function render(): View

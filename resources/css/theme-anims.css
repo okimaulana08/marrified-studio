@@ -33,9 +33,27 @@
 .layout-bg--fill     { background-size: 100% 100%; }
 .layout-bg--tile     { background-size: auto; background-repeat: repeat; background-position: 0 0; }
 
+/* Dim overlay — pure black layer on top of the background image with
+   user-controlled opacity. Separate element so it doesn't fight with the
+   image's own opacity setting. */
+.layout-bg-dim {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 1);
+    pointer-events: none;
+    z-index: 0;
+}
+
 /* --------------------- Slot positioning --------------------- */
 .layout-slot {
     position: absolute;
+    line-height: 0;
+}
+/* Inner static-transform layer — admin-tunable scale + offset. Doesn't fight
+   the outer .layout-slot anim_in or inner img anim_loop transforms because
+   each lives on its own DOM node. */
+.layout-slot-transform {
+    transform-origin: center center;
     line-height: 0;
 }
 .layout-slot img {
@@ -154,11 +172,10 @@
 
 .is-entered .layout-slot--middle[data-anim]     { animation-delay: 0.55s; }
 
-/* Background gets a subtle reveal — start at 0.6 (not 0) so the slide
-   never looks fully blanked-out during transition. Reads as a soft brightening
-   instead of a "dim flash". */
-.is-entered .layout-bg { animation: lay-bg-reveal 0.45s ease-out backwards; }
-@keyframes lay-bg-reveal { from { opacity: 0.6; } to { opacity: 1; } }
+/* Slide-enter for background layers: no brightness/opacity flash on enter.
+   The previous brightness(0.6 → 1) ramp caused a visible dim on every page
+   transition. Background stays at user-set opacity from frame 0; slot and
+   content animations carry the perceived motion of the transition. */
 
 /* =====================================================================
  * LOOPING IDLE ANIMATIONS — applied to the inner <img> of a slot so they
@@ -166,10 +183,22 @@
  * loop only ticks while the parent slide has .is-entered, saving CPU
  * on offscreen slides. Picked via manifest: `"anim_loop": "sway"`.
  * ===================================================================== */
-.is-entered [data-anim-loop="sway"]    { animation: lay-loop-sway    6s ease-in-out infinite; transform-origin: center top; }
-.is-entered [data-anim-loop="float"]   { animation: lay-loop-float   5s ease-in-out infinite; }
-.is-entered [data-anim-loop="pulse"]   { animation: lay-loop-pulse   4s ease-in-out infinite; }
-.is-entered [data-anim-loop="drift"]   { animation: lay-loop-drift   8s ease-in-out infinite; }
+/* Loop only on the CURRENTLY VISIBLE slide via `.swiper-slide-active`. Without
+   this, 11 slides × 2 decorations = 22 infinite animations run forever even
+   on offscreen slides, pegging CPU + GPU. Using transform-only keyframes so
+   the browser can composite on the GPU without triggering full repaints. */
+.swiper-slide-active [data-anim-loop="sway"]      { animation: lay-loop-sway      6s ease-in-out infinite; transform-origin: center top; will-change: transform; }
+.swiper-slide-active [data-anim-loop="float"]     { animation: lay-loop-float     5s ease-in-out infinite; will-change: transform; }
+.swiper-slide-active [data-anim-loop="pulse"]     { animation: lay-loop-pulse     4s ease-in-out infinite; will-change: transform; }
+.swiper-slide-active [data-anim-loop="drift"]     { animation: lay-loop-drift     8s ease-in-out infinite; will-change: transform; }
+.swiper-slide-active [data-anim-loop="spin"]      { animation: lay-loop-spin     12s linear infinite;       will-change: transform; }
+.swiper-slide-active [data-anim-loop="spin-slow"] { animation: lay-loop-spin     30s linear infinite;       will-change: transform; }
+.swiper-slide-active [data-anim-loop="bob"]       { animation: lay-loop-bob       3s cubic-bezier(0.45, 0, 0.55, 1) infinite; will-change: transform; }
+.swiper-slide-active [data-anim-loop="tilt"]      { animation: lay-loop-tilt      7s ease-in-out infinite; transform-origin: center center; will-change: transform; }
+.swiper-slide-active [data-anim-loop="shimmer"]   { animation: lay-loop-shimmer   5s ease-in-out infinite; will-change: transform; }
+.swiper-slide-active [data-anim-loop="wiggle"]    { animation: lay-loop-wiggle    2.5s ease-in-out infinite; transform-origin: center center; will-change: transform; }
+.swiper-slide-active [data-anim-loop="breathe"]   { animation: lay-loop-breathe   6s ease-in-out infinite; will-change: transform, opacity; }
+.swiper-slide-active [data-anim-loop="orbit"]     { animation: lay-loop-orbit    10s linear infinite;       will-change: transform; }
 
 @keyframes lay-loop-sway {
     0%, 100% { transform: rotate(-1.4deg); }
@@ -180,17 +209,50 @@
     50%      { transform: translateY(-6px); }
 }
 @keyframes lay-loop-pulse {
-    0%, 100% { transform: scale(1);    opacity: 1;   }
-    50%      { transform: scale(1.04); opacity: 0.92;}
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.04); }
 }
 @keyframes lay-loop-drift {
     0%, 100% { transform: translate(0, 0) rotate(0deg); }
     50%      { transform: translate(3px, -4px) rotate(0.8deg); }
 }
+@keyframes lay-loop-spin {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+@keyframes lay-loop-bob {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-10px); }
+}
+@keyframes lay-loop-tilt {
+    0%, 100% { transform: rotate(-3deg); }
+    50%      { transform: rotate(3deg); }
+}
+@keyframes lay-loop-shimmer {
+    0%, 100% { transform: scale(1) translateY(0); }
+    50%      { transform: scale(1.02) translateY(-2px); }
+}
+@keyframes lay-loop-wiggle {
+    0%, 100% { transform: rotate(0deg); }
+    25%      { transform: rotate(-2deg); }
+    50%      { transform: rotate(2deg); }
+    75%      { transform: rotate(-1deg); }
+}
+@keyframes lay-loop-breathe {
+    0%, 100% { transform: scale(1);    opacity: 0.85; }
+    50%      { transform: scale(1.03); opacity: 1;    }
+}
+@keyframes lay-loop-orbit {
+    0%   { transform: translate(0, 0); }
+    25%  { transform: translate(4px, -3px); }
+    50%  { transform: translate(0, -6px); }
+    75%  { transform: translate(-4px, -3px); }
+    100% { transform: translate(0, 0); }
+}
 
 /* Pause loops when reduced-motion is requested. */
 @media (prefers-reduced-motion: reduce) {
-    .is-entered [data-anim-loop] { animation: none !important; }
+    .swiper-slide-active [data-anim-loop] { animation: none !important; }
 }
 
 /* =====================================================================

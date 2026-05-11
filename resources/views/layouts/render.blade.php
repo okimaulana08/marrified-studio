@@ -124,7 +124,7 @@
         <div class="swiper-wrapper">
             @foreach ($sections as $section)
                 <article class="swiper-slide page page--{{ $section->type }}" data-page-type="{{ $section->type }}" data-page-index="{{ $loop->index }}">
-                    <x-theme.layout-slots :theme="$theme" :page="$section->type" />
+                    <x-theme.layout-slots :theme="$theme" :page="$section->type" :section="$section" :invitation="$invitation" />
                     <div class="page-content">
                         <x-render-section :section="$section" :theme="$theme" :invitation="$invitation" :guest="$guest" />
                     </div>

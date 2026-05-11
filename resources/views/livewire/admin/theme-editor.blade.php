@@ -225,13 +225,23 @@
                              background-size: 24px 24px;
                              mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);"></div>
 
-                    <div x-bind:style="viewport === 'mobile' ? 'height:min(100%, 747px);aspect-ratio:9 / 16' : viewport === 'tablet' ? 'height:min(100%, 1024px);aspect-ratio:3 / 4' : 'width:100%'"
+                    {{-- Phone aspect 9:15 — slightly wider/shorter than typical phones,
+                         matches the cover layout proportions best for this app's content.
+                         Height-driven (capped at 700 = 420 × 15/9) so width auto-derives. --}}
+                    <div x-bind:style="viewport === 'mobile' ? 'height:min(100%, 700px);aspect-ratio:9 / 15' : viewport === 'tablet' ? 'height:min(100%, 1024px);aspect-ratio:3 / 4' : 'width:100%'"
                          x-bind:class="viewport === 'desktop' ? 'h-full' : ''"
                          class="transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] mx-auto relative z-10"
-                         x-data="{ baseSrc: @js(route('admin.themes.preview', $slug)) }"
+                         x-data="{ baseSrc: @js(route('admin.themes.preview', $slug)), _refreshId: null }"
                          x-init="
                             window.addEventListener('refresh-preview-manual', () => {
-                                $refs.preview.src = baseSrc + '?v=' + Date.now();
+                                // Debounce so rapid saves (mis. several asset uploads in
+                                // quick succession) only trigger one iframe reload at the
+                                // end. Prevents the browser from hammering /themes/{slug}
+                                // asset URLs over and over.
+                                clearTimeout(_refreshId);
+                                _refreshId = setTimeout(() => {
+                                    $refs.preview.src = baseSrc + '?v=' + Date.now();
+                                }, 350);
                             });
                          ">
                         <iframe

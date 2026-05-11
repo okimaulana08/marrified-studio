@@ -98,7 +98,19 @@
                             <td class="px-4 py-3 text-right text-white/60 font-mono text-xs">{{ $inv->guests_count }}</td>
                             <td class="px-4 py-3 text-right whitespace-nowrap">
                                 <div class="inline-flex items-center gap-1.5">
-                                    <a href="{{ route('invitations.edit', $inv->slug) }}" class="btn-ghost text-xs">Edit</a>
+                                    <a href="{{ route('invitations.edit', $inv->slug) }}"
+                                       class="btn-ghost text-xs inline-flex items-center gap-1.5
+                                              !bg-gradient-to-br !from-emerald-500 !to-emerald-600 !text-white
+                                              !border-emerald-400/40
+                                              shadow-[0_4px_12px_-2px_rgba(16,185,129,0.45)]
+                                              hover:!from-emerald-400 hover:!to-emerald-500
+                                              hover:shadow-[0_6px_16px_-2px_rgba(16,185,129,0.6)]"
+                                       title="Edit invitation">
+                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897L16.862 4.487zm0 0L19.5 7.125"/>
+                                        </svg>
+                                        <span>Edit</span>
+                                    </a>
                                     <a href="{{ route('admin.invitations.credentials', $inv->slug) }}"
                                        class="btn-ghost text-xs {{ $inv->user_id === null ? 'text-amber-300/80 hover:text-amber-300' : '' }}"
                                        title="{{ $inv->user_id === null ? 'Generate kredensial couple' : 'Manage kredensial' }}">

@@ -1,0 +1,82 @@
+{
+    "slug": "autumn-red",
+    "name": "Autumn Red",
+    "description": "Tema floral red ala musim semi",
+    "is_premium": true,
+    "default_palette": {
+        "primary": "#b76e79",
+        "accent": "#d4a853",
+        "accent2": "#8c4a56",
+        "bg": "#fdf8f4",
+        "ink": "#3d1f27",
+        "muted": "#a08060"
+    },
+    "default_fonts": {
+        "display": "Playfair Display",
+        "body": "Lato",
+        "script": "Petit Formal Script",
+        "size_scale": "normal"
+    },
+    "default_section_variants": {
+        "cover": "arch",
+        "quotes": "default",
+        "couple": "side-by-side",
+        "event": "card",
+        "gallery": "grid",
+        "gift": "cashless-modal",
+        "rsvp": "default",
+        "guestbook": "default"
+    },
+    "layout": {
+        "default": {
+            "background": {
+                "file": "bg2.webp",
+                "opacity": 0.8,
+                "fit": "cover"
+            },
+            "slots": {
+                "corner-tl": {
+                    "file": "tl.webp",
+                    "anim_loop": "sway",
+                    "scale": 1.15,
+                    "offset_x": -20,
+                    "offset_y": -10
+                },
+                "corner-tr": {
+                    "file": "tr.webp",
+                    "anim_loop": "sway",
+                    "scale": 1.15,
+                    "offset_x": 20,
+                    "offset_y": -10
+                },
+                "corner-bl": {
+                    "file": "bl.webp",
+                    "anim_loop": "orbit",
+                    "offset_x": -20,
+                    "offset_y": 20
+                },
+                "corner-br": {
+                    "file": "br.webp",
+                    "anim_loop": "drift",
+                    "offset_x": 20,
+                    "offset_y": 20,
+                    "rotate": -13
+                },
+                "edge-bottom": {
+                    "file": "bm.webp",
+                    "anim_loop": "breathe",
+                    "scale": 0.65,
+                    "offset_y": 20
+                }
+            },
+            "lottie": {
+                "file": "shine.json",
+                "placement": "top",
+                "loop": true,
+                "size": "medium"
+            }
+        },
+        "pages": {}
+    },
+    "custom_css": null
+}

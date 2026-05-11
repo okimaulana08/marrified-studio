@@ -332,6 +332,83 @@ final class InvitationEditor extends Component
         }
     }
 
+    /** Per-row Livewire-bound temp upload for section background photos. */
+    #[Validate('nullable|image|max:5120')]
+    public array $sectionBgUpload = [];
+
+    /**
+     * Persist a per-section background photo upload. Stores at
+     * `{invitation_id}/sections/{section_id}-bg.{ext}` on the
+     * invitation_media disk and writes the path into the form row so the
+     * next saveSections() flushes it into Section.content.bg_override.path.
+     */
+    public function uploadSectionBg(int $index): void
+    {
+        try {
+            $invitation = $this->resolveInvitation();
+            $file = $this->sectionBgUpload[$index] ?? null;
+            if (! ($file instanceof TemporaryUploadedFile)) {
+                return;
+            }
+            $this->validate(["sectionBgUpload.{$index}" => 'image|max:5120']);
+
+            $row = $this->sections->rows[$index] ?? null;
+            if ($row === null) {
+                return;
+            }
+
+            $sectionId = (int) $row['id'];
+            $ext = strtolower($file->getClientOriginalExtension() ?: 'jpg');
+            $dir = "{$invitation->id}/sections";
+            $filename = "{$sectionId}-bg.{$ext}";
+            $path = "{$dir}/{$filename}";
+
+            // Remove any prior bg with a different extension before storing.
+            foreach (['jpg', 'jpeg', 'png', 'webp'] as $oldExt) {
+                $oldPath = "{$dir}/{$sectionId}-bg.{$oldExt}";
+                if ($oldPath !== $path && Storage::disk('invitation_media')->exists($oldPath)) {
+                    Storage::disk('invitation_media')->delete($oldPath);
+                }
+            }
+
+            $file->storeAs($dir, $filename, 'invitation_media');
+
+            $this->sections->rows[$index]['bg_path'] = $path;
+            $this->sections->rows[$index]['bg_source'] = 'upload';
+            $this->sectionBgUpload[$index] = null;
+
+            $this->sections->persist($invitation);
+            $this->flashSaved();
+        } catch (RuntimeException $e) {
+            $this->flash($e->getMessage(), 'error');
+        }
+    }
+
+    public function removeSectionBg(int $index): void
+    {
+        try {
+            $invitation = $this->resolveInvitation();
+            $row = $this->sections->rows[$index] ?? null;
+            if ($row === null) {
+                return;
+            }
+
+            $existingPath = (string) ($row['bg_path'] ?? '');
+            if ($existingPath !== '' && Storage::disk('invitation_media')->exists($existingPath)) {
+                Storage::disk('invitation_media')->delete($existingPath);
+            }
+
+            $this->sections->rows[$index]['bg_path'] = '';
+            $this->sections->rows[$index]['bg_source'] = '';
+            $this->sectionBgUpload[$index] = null;
+
+            $this->sections->persist($invitation);
+            $this->flashSaved();
+        } catch (RuntimeException $e) {
+            $this->flash($e->getMessage(), 'error');
+        }
+    }
+
     public function addGiftRow(): void
     {
         $this->gift->addRow();
@@ -678,6 +755,11 @@ final class InvitationEditor extends Component
             'religiousFieldKeys' => $religion?->fieldKeys() ?? [],
             'religionLabel' => $religion?->label() ?? '—',
             'variantOptions' => $variantOptions,
+            'galleryImages' => $this->isNew ? [] : ($this->gallery->images ?? []),
+            'hasCouplePhoto' => [
+                'bride' => ! $this->isNew && ! empty($this->couple->bridePhotoPath),
+                'groom' => ! $this->isNew && ! empty($this->couple->groomPhotoPath),
+            ],
         ]);
     }
 }

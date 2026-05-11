@@ -16,8 +16,10 @@ export function mount(container, { handle = '[data-drag-handle]', onEnd } = {}) 
         ghostClass: 'is-dragging-ghost',
         chosenClass: 'is-dragging-chosen',
         dragClass: 'is-dragging-active',
-        forceFallback: true,
-        fallbackTolerance: 4,
+        // Native HTML5 drag (forceFallback: false) works better when each
+        // row hosts its own Alpine x-data state — the JS-fallback clone
+        // would otherwise re-mount Alpine and confuse the placeholder.
+        forceFallback: false,
         onEnd: () => {
             const ids = Array.from(container.children)
                 .map((el) => el.getAttribute('data-id'))

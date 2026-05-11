@@ -26,7 +26,10 @@ final class ThemeRegistry
     ];
 
     /** Idle loop animations applied to slot inner img while slide is active. */
-    public const ANIM_LOOP_PRESETS = ['sway', 'float', 'pulse', 'drift'];
+    public const ANIM_LOOP_PRESETS = [
+        'sway', 'float', 'pulse', 'drift',
+        'spin', 'spin-slow', 'bob', 'tilt', 'shimmer', 'wiggle', 'breathe', 'orbit',
+    ];
 
     public const BG_FITS = ['cover', 'contain', 'fill', 'tile'];
 

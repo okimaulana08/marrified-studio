@@ -77,6 +77,33 @@ final class ThemeWriter
     }
 
     /**
+     * Permanently delete a theme: source dir + published asset dir + registry
+     * cache flush. Caller is responsible for verifying no invitations still
+     * reference this slug (FK to text column, no DB cascade).
+     */
+    public function deleteTheme(string $slug): void
+    {
+        if (! preg_match(self::SLUG_REGEX, $slug)) {
+            throw new RuntimeException("Invalid slug format: '{$slug}'.");
+        }
+
+        $themeDir = $this->themesPath.DIRECTORY_SEPARATOR.$slug;
+        $publicDir = public_path("themes/{$slug}");
+
+        if (! File::isDirectory($themeDir)) {
+            throw new RuntimeException("Theme '{$slug}' tidak ditemukan.");
+        }
+
+        File::deleteDirectory($themeDir);
+
+        if (File::isDirectory($publicDir)) {
+            File::deleteDirectory($publicDir);
+        }
+
+        $this->registry->flush();
+    }
+
+    /**
      * Merge $patch into the existing manifest and write atomically.
      * Strips empty layout entries (file === '') before writing.
      */

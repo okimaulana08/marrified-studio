@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Services\Themes\ThemeCloner;
 use App\Services\Themes\ThemeRegistry;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 
 beforeEach(function () {
@@ -33,10 +32,6 @@ afterEach(function () {
 });
 
 it('copies manifest and assets to new slug', function () {
-    Artisan::shouldReceive('call')
-        ->once()
-        ->with('themes:publish-assets', ['slug' => 'target-theme']);
-
     $this->cloner->clone('source-theme', 'target-theme');
 
     $targetDir = $this->tmp.'/target-theme';
@@ -47,14 +42,22 @@ it('copies manifest and assets to new slug', function () {
 });
 
 it('updates slug and name in cloned manifest', function () {
-    Artisan::shouldReceive('call')->once();
-
     $this->cloner->clone('source-theme', 'my-copy');
 
     $manifest = json_decode(File::get($this->tmp.'/my-copy/manifest.json'), true);
 
     expect($manifest['slug'])->toBe('my-copy')
         ->and($manifest['name'])->toContain('(Copy)');
+});
+
+it('publishes cloned assets to public/themes inline', function () {
+    $this->cloner->clone('source-theme', 'published-copy');
+
+    $publicPath = public_path('themes/published-copy/flower.webp');
+    expect(File::exists($publicPath))->toBeTrue();
+
+    // Cleanup so the next test run isn't polluted
+    File::deleteDirectory(public_path('themes/published-copy'));
 });
 
 it('rejects clone to existing slug', function () {

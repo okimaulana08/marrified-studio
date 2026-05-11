@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services\Themes;
 
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use RuntimeException;
 
@@ -46,9 +45,32 @@ final class ThemeCloner
         $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
         File::put($manifestPath, $json);
 
-        // Publish assets for the new theme
-        Artisan::call('themes:publish-assets', ['slug' => $targetSlug]);
+        // Publish assets inline (faster + no container/registry-cache gymnastics
+        // compared to Artisan::call('themes:publish-assets')). Mirror the same
+        // logic as the CLI command — skip .blade.php files, mirror sub-tree.
+        $this->publishAssets($targetDir, $targetSlug);
 
         $this->registry->flush();
+    }
+
+    private function publishAssets(string $themeDir, string $slug): void
+    {
+        $source = $themeDir.DIRECTORY_SEPARATOR.'assets';
+        if (! File::isDirectory($source)) {
+            return;
+        }
+
+        $target = public_path("themes/{$slug}");
+        File::ensureDirectoryExists($target);
+
+        foreach (File::allFiles($source) as $file) {
+            $rel = $file->getRelativePathname();
+            if (str_ends_with($rel, '.blade.php')) {
+                continue;
+            }
+            $dest = $target.DIRECTORY_SEPARATOR.$rel;
+            File::ensureDirectoryExists(dirname($dest));
+            File::copy($file->getPathname(), $dest);
+        }
     }
 }
