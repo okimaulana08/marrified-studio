@@ -32,6 +32,25 @@
             URL final: <span class="font-mono text-emerald-400/70">{{ url('/') }}/{{ $basic->slug ?: '...' }}/&lt;token&gt;</span>.
             @if (! $isNew) <span class="text-white/40">Tidak bisa diubah setelah dibuat.</span> @endif
         </p>
+
+        @unless ($isNew)
+            @php $mainQrUrl = route('invitations.qr', $basic->slug); @endphp
+            <div class="mt-3 flex items-center gap-2.5 glass-sm rounded-xl px-3 py-2.5">
+                <div class="w-12 h-12 bg-white rounded-lg flex-shrink-0 p-0.5">
+                    <img src="{{ $mainQrUrl }}" alt="QR Invitation" class="w-full h-full object-contain">
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs font-semibold text-white/85">QR Invitation Utama</p>
+                    <p class="text-[10px] text-white/40">Scan untuk buka undangan tanpa token (tanpa nama tamu).</p>
+                </div>
+                <button type="button"
+                        x-data
+                        x-on:click="$dispatch('show-qr', { name: @js('Undangan utama'), url: @js($mainQrUrl) })"
+                        class="btn-ghost text-xs px-2 py-1 flex-shrink-0">Lihat</button>
+                <a href="{{ $mainQrUrl }}" target="_blank" rel="noopener"
+                   class="btn-primary text-xs px-2 py-1 flex-shrink-0">Buka</a>
+            </div>
+        @endunless
     </div>
 
     {{-- Theme picker --}}

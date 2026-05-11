@@ -30,6 +30,7 @@ final class Guest extends Model
         'invitation_id',
         'name',
         'relation',
+        'group',
         'phone',
         'token',
         'opens_count',

@@ -276,4 +276,30 @@
         @endif
 
     </div>
+
+    {{-- Editor-wide QR preview modal. Any "show-qr" event from any tab opens this. --}}
+    <div x-data="{ open: false, name: '', url: '' }"
+         x-on:show-qr.window="open = true; name = $event.detail.name; url = $event.detail.url"
+         x-on:keydown.escape.window="open = false">
+        <div x-show="open" x-cloak x-transition.opacity
+             class="fixed inset-0 z-50 flex items-center justify-center p-4"
+             x-on:click.self="open = false">
+            <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm"></div>
+            <div x-show="open" x-transition
+                 class="relative z-10 w-full max-w-sm glass-strong rounded-2xl border border-white/10 shadow-2xl p-6 text-center"
+                 style="background: rgba(15, 17, 23, 0.95);">
+                <p class="text-[10px] uppercase tracking-widest text-emerald-300/70 font-bold mb-1">QR Code</p>
+                <h3 class="font-display text-lg font-semibold text-white mb-3 truncate" x-text="name"></h3>
+                <div class="bg-white rounded-xl p-3 mx-auto inline-block">
+                    <img :src="url" alt="QR Code" class="block w-56 h-56" loading="eager">
+                </div>
+                <p class="text-[11px] text-white/45 mt-3">Scan dengan kamera HP → langsung buka undangan</p>
+                <div class="flex justify-center gap-2 mt-4">
+                    <a :href="url" target="_blank" :download="'qr-' + name + '.png'"
+                       class="btn-primary text-xs">Download PNG</a>
+                    <button x-on:click="open = false" class="btn-ghost text-xs">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

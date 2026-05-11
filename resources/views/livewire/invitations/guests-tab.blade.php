@@ -66,13 +66,21 @@
     <div class="glass-sm rounded-xl p-4 space-y-3">
         <p class="text-[10px] uppercase tracking-widest text-emerald-400/70 font-bold">Tambah Tamu</p>
         <div class="grid grid-cols-12 gap-2">
-            <div class="col-span-5">
+            <div class="col-span-4">
                 <input wire:model="form.name" type="text" placeholder="Nama lengkap *"
                        class="admin-input w-full px-2 py-1.5 text-xs @error('form.name') border-red-400/50 @enderror">
             </div>
-            <div class="col-span-3">
+            <div class="col-span-2">
                 <input wire:model="form.relation" type="text" placeholder="Relasi (Bapak/Ibu/...)"
                        class="admin-input w-full px-2 py-1.5 text-xs">
+            </div>
+            <div class="col-span-2">
+                <select wire:model="form.group" class="admin-select w-full px-2 py-1.5 text-xs">
+                    <option value="">— Grup —</option>
+                    @foreach (\App\Enums\GuestGroup::options() as $opt)
+                        <option value="{{ $opt['value'] }}">{{ $opt['label'] }}</option>
+                    @endforeach
+                </select>
             </div>
             <div class="col-span-3">
                 <input wire:model="form.phone" type="tel" placeholder="Phone (opsional)"
@@ -84,6 +92,39 @@
             </div>
         </div>
         @error('form.name') <p class="text-xs text-red-400">{{ $message }}</p> @enderror
+    </div>
+
+    {{-- Group filter chips --}}
+    <div class="flex flex-wrap items-center gap-1.5">
+        <button type="button" wire:click="$set('groupFilter', '')"
+                @class([
+                    'px-2.5 py-1 text-[11px] font-semibold rounded-lg border transition-all',
+                    'bg-emerald-500/20 text-emerald-100 border-emerald-400/40' => $groupFilter === '',
+                    'glass-sm text-white/55 hover:text-white border-transparent' => $groupFilter !== '',
+                ])>
+            Semua <span class="ml-1 font-mono text-[10px] opacity-65">{{ $groupCounts['all'] ?? 0 }}</span>
+        </button>
+        @foreach (\App\Enums\GuestGroup::options() as $opt)
+            @php $cnt = $groupCounts[$opt['value']] ?? 0; @endphp
+            <button type="button" wire:click="$set('groupFilter', '{{ $opt['value'] }}')"
+                    @class([
+                        'px-2.5 py-1 text-[11px] font-semibold rounded-lg border transition-all',
+                        'bg-emerald-500/20 text-emerald-100 border-emerald-400/40' => $groupFilter === $opt['value'],
+                        'glass-sm text-white/55 hover:text-white border-transparent' => $groupFilter !== $opt['value'],
+                    ])>
+                {{ $opt['label'] }} <span class="ml-1 font-mono text-[10px] opacity-65">{{ $cnt }}</span>
+            </button>
+        @endforeach
+        @if (($groupCounts['none'] ?? 0) > 0)
+            <button type="button" wire:click="$set('groupFilter', 'none')"
+                    @class([
+                        'px-2.5 py-1 text-[11px] font-semibold rounded-lg border transition-all italic',
+                        'bg-emerald-500/20 text-emerald-100 border-emerald-400/40' => $groupFilter === 'none',
+                        'glass-sm text-white/55 hover:text-white border-transparent' => $groupFilter !== 'none',
+                    ])>
+                Tanpa grup <span class="ml-1 font-mono text-[10px] opacity-65 not-italic">{{ $groupCounts['none'] }}</span>
+            </button>
+        @endif
     </div>
 
     {{-- Toolbar: search + CSV --}}
@@ -130,6 +171,7 @@
                     <tr class="text-left text-[10px] uppercase tracking-widest text-white/50">
                         <th class="px-3 py-2 font-semibold">Nama</th>
                         <th class="px-3 py-2 font-semibold">Relasi</th>
+                        <th class="px-3 py-2 font-semibold">Grup</th>
                         <th class="px-3 py-2 font-semibold">Phone</th>
                         <th class="px-3 py-2 font-semibold">Token URL</th>
                         <th class="px-3 py-2 font-semibold text-right">Open</th>
@@ -146,6 +188,13 @@
                         <tr wire:key="guest-{{ $g->id }}" class="border-t border-white/5 hover:bg-white/[0.02]">
                             <td class="px-3 py-2 text-white/85">{{ $g->name }}</td>
                             <td class="px-3 py-2 text-white/60">{{ $g->relation ?: '—' }}</td>
+                            <td class="px-3 py-2 text-white/60">
+                                @if ($g->group)
+                                    <span class="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/10 border border-emerald-400/20 text-emerald-300">{{ \App\Enums\GuestGroup::labelFor($g->group) }}</span>
+                                @else
+                                    <span class="text-white/30 italic">—</span>
+                                @endif
+                            </td>
                             <td class="px-3 py-2 text-white/60 font-mono">{{ $g->phone ?: '—' }}</td>
                             <td class="px-3 py-2"
                                 x-data="{ copied: false }"
@@ -172,6 +221,17 @@
                                         WA
                                     </a>
                                 @endif
+                                @php $qrUrl = route('invitations.guests.qr', ['slug' => $invitationSlug, 'guest' => $g->id]); @endphp
+                                <button type="button"
+                                        x-data
+                                        x-on:click="$dispatch('show-qr', { name: @js($g->name), url: @js($qrUrl) })"
+                                        title="QR per-tamu untuk dicetak / di-share"
+                                        class="btn-ghost text-xs px-2 py-0.5 inline-flex items-center gap-1 text-white/55 hover:text-white">
+                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6zm10 6v-3m0 0v-3m0 3h3m3 0v3m-3-3v-3m3 0h3m-3 0v-3"/>
+                                    </svg>
+                                    QR
+                                </button>
                                 <button type="button"
                                         title="Salin pesan ke clipboard"
                                         x-data="{ ok: false }"
@@ -207,6 +267,15 @@
                     <div>
                         <label class="block text-[11px] text-white/50 mb-1">Relasi</label>
                         <input wire:model="form.relation" type="text" class="admin-input w-full px-3 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-white/50 mb-1">Grup</label>
+                        <select wire:model="form.group" class="admin-select w-full px-3 py-2 text-sm">
+                            <option value="">— Tanpa grup —</option>
+                            @foreach (\App\Enums\GuestGroup::options() as $opt)
+                                <option value="{{ $opt['value'] }}">{{ $opt['label'] }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div>
                         <label class="block text-[11px] text-white/50 mb-1">Phone</label>
@@ -330,4 +399,5 @@
             </div>
         </div>
     @endif
+
 </div>

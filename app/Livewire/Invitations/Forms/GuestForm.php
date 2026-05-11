@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Invitations\Forms;
 
+use App\Enums\GuestGroup;
 use App\Models\Guest;
 use Livewire\Attributes\Validate;
 use Livewire\Form;
@@ -21,6 +22,9 @@ final class GuestForm extends Form
     #[Validate('nullable|string|max:60')]
     public string $relation = '';
 
+    #[Validate('nullable|string|max:40|in:family,friend,coworker,vendor,other')]
+    public string $group = '';
+
     #[Validate('nullable|string|max:30')]
     public string $phone = '';
 
@@ -28,11 +32,12 @@ final class GuestForm extends Form
     {
         $this->name = $guest->name;
         $this->relation = (string) $guest->relation;
+        $this->group = (string) ($guest->group ?? '');
         $this->phone = (string) $guest->phone;
     }
 
     /**
-     * @return array{name: string, relation: string, phone: ?string}
+     * @return array{name: string, relation: string, group: ?string, phone: ?string}
      */
     public function toAttributes(): array
     {
@@ -41,6 +46,7 @@ final class GuestForm extends Form
             // Default 'Tamu' when blank to satisfy NOT NULL constraint AND match
             // the CSV importer's behavior so the two paths stay consistent.
             'relation' => $this->relation !== '' ? trim($this->relation) : 'Tamu',
+            'group' => $this->group !== '' ? $this->group : null,
             'phone' => $this->phone !== '' ? trim($this->phone) : null,
         ];
     }
@@ -49,6 +55,7 @@ final class GuestForm extends Form
     {
         $this->name = '';
         $this->relation = '';
+        $this->group = '';
         $this->phone = '';
         $this->resetErrorBag();
     }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Invitations;
 
+use App\Enums\GuestGroup;
 use App\Models\Guest;
 use App\Models\Invitation;
 use App\Support\GuestToken;
@@ -19,12 +20,14 @@ use RuntimeException;
  */
 final class GuestCsvImporter
 {
-    private const EXPECTED_HEADER = ['name', 'relation', 'phone'];
+    private const MIN_HEADER = ['name', 'relation', 'phone'];
+
+    private const OPTIONAL_HEADER = ['name', 'relation', 'group', 'phone'];
 
     public const MAX_ROWS = 500;
 
     /**
-     * @return list<array{name: string, relation: string, phone: string, errors: list<string>}>
+     * @return list<array{name: string, relation: string, group: string, phone: string, errors: list<string>}>
      */
     public function parse(UploadedFile $file): array
     {
@@ -40,13 +43,15 @@ final class GuestCsvImporter
             }
 
             $headerNorm = array_map(fn ($h) => strtolower(trim((string) $h)), $header);
-            if ($headerNorm !== self::EXPECTED_HEADER) {
-                throw new RuntimeException('Header CSV harus persis: name,relation,phone');
+            $hasGroup = $headerNorm === self::OPTIONAL_HEADER;
+            if (! $hasGroup && $headerNorm !== self::MIN_HEADER) {
+                throw new RuntimeException('Header CSV harus: name,relation,phone (atau name,relation,group,phone)');
             }
 
             $rows = [];
             $seenPhones = [];
             $rowNumber = 1;
+            $validGroups = array_map(fn ($c) => $c->value, GuestGroup::cases());
 
             while (($data = fgetcsv($handle)) !== false) {
                 $rowNumber++;
@@ -56,7 +61,13 @@ final class GuestCsvImporter
 
                 $name = trim((string) ($data[0] ?? ''));
                 $relation = trim((string) ($data[1] ?? ''));
-                $phone = trim((string) ($data[2] ?? ''));
+                if ($hasGroup) {
+                    $group = strtolower(trim((string) ($data[2] ?? '')));
+                    $phone = trim((string) ($data[3] ?? ''));
+                } else {
+                    $group = '';
+                    $phone = trim((string) ($data[2] ?? ''));
+                }
 
                 $errors = [];
                 if ($name === '') {
@@ -67,6 +78,9 @@ final class GuestCsvImporter
                 }
                 if (mb_strlen($relation) > 60) {
                     $errors[] = 'Relasi melebihi 60 karakter';
+                }
+                if ($group !== '' && ! in_array($group, $validGroups, true)) {
+                    $errors[] = "Grup '{$group}' tidak valid (boleh: ".implode(',', $validGroups).')';
                 }
                 if ($phone !== '' && mb_strlen($phone) > 30) {
                     $errors[] = 'Phone melebihi 30 karakter';
@@ -80,6 +94,7 @@ final class GuestCsvImporter
                 $rows[] = [
                     'name' => $name,
                     'relation' => $relation,
+                    'group' => $group,
                     'phone' => $phone,
                     'errors' => $errors,
                 ];
@@ -109,6 +124,7 @@ final class GuestCsvImporter
                     'invitation_id' => $invitation->id,
                     'name' => $row['name'],
                     'relation' => $row['relation'] !== '' ? $row['relation'] : 'Tamu',
+                    'group' => ($row['group'] ?? '') !== '' ? $row['group'] : null,
                     'phone' => $row['phone'] !== '' ? $row['phone'] : null,
                     'token' => GuestToken::ensureUnique(),
                 ]);

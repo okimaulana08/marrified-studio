@@ -37,7 +37,7 @@ it('parses a valid CSV with header and rows', function () {
 it('rejects CSV with wrong header', function () {
     $csv = "nama,relasi,phone\nBudi,Bapak,0812";
     expect(fn () => $this->importer->parse(fakeCsv($csv)))
-        ->toThrow(RuntimeException::class, 'Header CSV harus persis: name,relation,phone');
+        ->toThrow(RuntimeException::class, 'Header CSV harus: name,relation,phone');
 });
 
 it('rejects empty file', function () {

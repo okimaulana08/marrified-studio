@@ -53,6 +53,8 @@ final class GuestsTab extends Component
 
     public string $search = '';
 
+    public string $groupFilter = '';
+
     /** @var TemporaryUploadedFile|null */
     #[Validate('nullable|file|max:512|mimes:csv,txt')]
     public $csvFile = null;
@@ -99,6 +101,11 @@ final class GuestsTab extends Component
     }
 
     public function updatingSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingGroupFilter(): void
     {
         $this->resetPage();
     }
@@ -319,6 +326,9 @@ final class GuestsTab extends Component
         $term = trim($this->search);
         $query = Guest::query()
             ->where('invitation_id', $this->invitationId)
+            ->when($this->groupFilter === 'none', fn ($q) => $q->whereNull('group'))
+            ->when($this->groupFilter !== '' && $this->groupFilter !== 'none',
+                fn ($q) => $q->where('group', $this->groupFilter))
             ->when($term !== '', function ($q) use ($term) {
                 $like = '%'.strtolower($term).'%';
                 $q->where(function ($q) use ($like) {
@@ -347,10 +357,22 @@ final class GuestsTab extends Component
             }
         }
 
+        // Group counts (used by filter chips). Aggregate in PHP to avoid
+        // grammar-specific quoting of the reserved word "group".
+        $groupCounts = Guest::query()
+            ->where('invitation_id', $this->invitationId)
+            ->get(['group'])
+            ->groupBy(fn ($g) => $g->group ?? 'none')
+            ->map->count()
+            ->all();
+        $totalGuests = array_sum($groupCounts);
+        $groupCounts['all'] = $totalGuests;
+
         return view('livewire.invitations.guests-tab', [
             'guests' => $paginated,
             'invitationSlug' => $invitationSlug,
             'guestActions' => $guestActions,
+            'groupCounts' => $groupCounts,
         ]);
     }
 }

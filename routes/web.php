@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\InvitationEditorController;
 use App\Http\Controllers\InvitationPreviewController;
 use App\Http\Controllers\PublishedInvitationController;
+use App\Http\Controllers\QrCodeController;
 use Illuminate\Support\Facades\Route;
 
 require __DIR__.'/auth.php';
@@ -22,6 +23,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/invitations/{slug}/preview', [InvitationPreviewController::class, 'show'])
         ->where('slug', '[a-z0-9][a-z0-9\-]{1,48}[a-z0-9]')
         ->name('invitations.preview');
+
+    Route::get('/invitations/{slug}/qr.png', [QrCodeController::class, 'invitation'])
+        ->where('slug', '[a-z0-9][a-z0-9\-]{1,48}[a-z0-9]')
+        ->name('invitations.qr');
+
+    Route::get('/invitations/{slug}/guests/{guest}/qr.png', [QrCodeController::class, 'guest'])
+        ->where('slug', '[a-z0-9][a-z0-9\-]{1,48}[a-z0-9]')
+        ->name('invitations.guests.qr');
 });
 
 Route::get('/{slug}/{token?}', PublishedInvitationController::class)
