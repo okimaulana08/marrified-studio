@@ -29,7 +29,7 @@
                 </p>
             @else
                 <p class="text-xs uppercase tracking-[0.25em] text-emerald-400/70 font-semibold mb-2 flex items-center gap-2">
-                    <span class="inline-block w-6 h-px bg-emerald-400/50"></span>
+                    <span class="inline-block w-6 h-px bg-white"></span>
                     Editing Invitation {{ $isAdmin ? '· admin' : '' }}
                 </p>
                 <h1 class="font-display text-4xl font-bold tracking-display text-gradient leading-tight truncate">
@@ -76,19 +76,22 @@
             {{-- Tab nav --}}
             <div class="glass rounded-2xl p-1.5 flex gap-0.5 overflow-x-auto">
                 @foreach ([
-                    'basic'     => ['label' => 'Info',     'enabled' => true],
-                    'couple'    => ['label' => 'Couple',   'enabled' => ! $isNew],
-                    'stories'   => ['label' => 'Cerita',   'enabled' => ! $isNew],
-                    'events'    => ['label' => 'Events',   'enabled' => ! $isNew],
-                    'countdown' => ['label' => 'Countdown','enabled' => ! $isNew],
-                    'religious' => ['label' => 'Religi',   'enabled' => ! $isNew],
-                    'sections'  => ['label' => 'Section',  'enabled' => ! $isNew],
-                    'gallery'   => ['label' => 'Gallery',  'enabled' => ! $isNew],
-                    'gift'      => ['label' => 'Gift',     'enabled' => ! $isNew],
-                    'music'     => ['label' => 'Music',    'enabled' => ! $isNew],
-                    'thanks'    => ['label' => 'Penutup',  'enabled' => ! $isNew],
-                    'guests'    => ['label' => 'Tamu',     'enabled' => ! $isNew],
-                    'analytics' => ['label' => 'Analytics','enabled' => ! $isNew],
+                    // Foundation / global settings
+                    'basic'     => ['label' => 'Info',      'enabled' => true],
+                    'sections'  => ['label' => 'Section',   'enabled' => ! $isNew],
+                    'music'     => ['label' => 'Music',     'enabled' => ! $isNew],
+                    // Konten utama (mirror urutan render publik)
+                    'couple'    => ['label' => 'Couple',    'enabled' => ! $isNew],
+                    'religious' => ['label' => 'Religi',    'enabled' => ! $isNew],
+                    'stories'   => ['label' => 'Cerita',    'enabled' => ! $isNew],
+                    'events'    => ['label' => 'Events',    'enabled' => ! $isNew],
+                    'countdown' => ['label' => 'Countdown', 'enabled' => ! $isNew],
+                    'gallery'   => ['label' => 'Gallery',   'enabled' => ! $isNew],
+                    'gift'      => ['label' => 'Gift',      'enabled' => ! $isNew],
+                    'thanks'    => ['label' => 'Penutup',   'enabled' => ! $isNew],
+                    // Distribusi & monitoring
+                    'guests'    => ['label' => 'Tamu',      'enabled' => ! $isNew],
+                    'analytics' => ['label' => 'Analytics', 'enabled' => ! $isNew],
                 ] as $key => $meta)
                     <button type="button"
                             x-on:click="tab = '{{ $key }}'"
