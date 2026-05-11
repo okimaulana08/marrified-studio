@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
  * @property int $id
@@ -38,6 +40,23 @@ final class Invitation extends Model
 {
     /** @use HasFactory<InvitationFactory> */
     use HasFactory;
+
+    use LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['slug', 'theme_slug', 'religion_type', 'music_track_id'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('invitation')
+            ->setDescriptionForEvent(fn (string $event) => match ($event) {
+                'created' => 'Membuat undangan',
+                'updated' => 'Mengubah detail undangan',
+                'deleted' => 'Menghapus undangan',
+                default => $event,
+            });
+    }
 
     protected $fillable = [
         'user_id',

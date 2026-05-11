@@ -101,6 +101,13 @@
                 'analytics'   => ['label' => 'Analytics',  'icon' => 'M9 19V6l12-3v13M9 19c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3zm12-3c0 1.657-1.343 3-3 3s-3-1.343-3-3 1.343-3 3-3 3 1.343 3 3z', 'enabled' => ! $isNew],
             ],
         ];
+
+        // Admin-only audit log tab (couple users never see this group).
+        if ($isAdmin && ! $isNew) {
+            $tabGroups['Admin'] = [
+                'activity' => ['label' => 'Riwayat', 'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4', 'enabled' => true],
+            ];
+        }
     @endphp
 
     <div class="flex gap-5 h-[calc(100vh-180px)]">
@@ -228,6 +235,13 @@
                             :is-admin="$isAdmin"
                             :key="'analytics-tab-'.$invitationId" />
                     </div>
+                    @if ($isAdmin)
+                        <div x-show="tab === 'activity'" x-cloak class="fade-up">
+                            <livewire:invitations.activity-tab
+                                :invitation-id="$invitationId"
+                                :key="'activity-tab-'.$invitationId" />
+                        </div>
+                    @endif
                 @endunless
             </div>
 

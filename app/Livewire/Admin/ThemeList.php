@@ -17,6 +17,12 @@ final class ThemeList extends Component
 {
     public string $search = '';
 
+    /** all | free | premium */
+    public string $tier = 'all';
+
+    /** name | recent | popular */
+    public string $sort = 'name';
+
     // Clone modal state
     public bool $showCloneModal = false;
 
@@ -68,25 +74,50 @@ final class ThemeList extends Component
         $registry = app(ThemeRegistry::class);
         $analyzer = app(AssetUsageAnalyzer::class);
 
+        // Counts of invitations per theme (drives "popular" sort + per-card stat).
+        $invitationCounts = Invitation::query()
+            ->selectRaw('theme_slug, COUNT(*) as cnt')
+            ->groupBy('theme_slug')
+            ->pluck('cnt', 'theme_slug')
+            ->all();
+
         $themes = collect($registry->all())
             ->when($this->search !== '', fn ($c) => $c->filter(
                 fn ($t) => str_contains(strtolower($t->name), strtolower($this->search))
                     || str_contains(strtolower($t->slug), strtolower($this->search))
             ))
-            ->map(function ($theme) use ($analyzer) {
+            ->when($this->tier === 'free', fn ($c) => $c->filter(fn ($t) => ! $t->isPremium))
+            ->when($this->tier === 'premium', fn ($c) => $c->filter(fn ($t) => $t->isPremium))
+            ->map(function ($theme) use ($analyzer, $invitationCounts) {
                 $assetCount = count($analyzer->listAssets($theme->slug));
                 $previewInvitation = Invitation::query()->where('theme_slug', $theme->slug)->first();
+                $manifestPath = resource_path("themes/{$theme->slug}/manifest.json");
+                $updatedAt = file_exists($manifestPath) ? filemtime($manifestPath) : 0;
 
                 return [
                     'theme' => $theme,
                     'assetCount' => $assetCount,
+                    'invitationCount' => (int) ($invitationCounts[$theme->slug] ?? 0),
+                    'updatedAt' => $updatedAt,
                     'previewUrl' => $previewInvitation
                         ? route('public.invitation', $previewInvitation->slug)
                         : route('admin.themes.preview', $theme->slug),
                 ];
             })
+            ->sortBy(match ($this->sort) {
+                'recent' => fn ($r) => -$r['updatedAt'],
+                'popular' => fn ($r) => -$r['invitationCount'],
+                default => fn ($r) => strtolower($r['theme']->name),
+            })
             ->values();
 
-        return view('livewire.admin.theme-list', ['themes' => $themes]);
+        $totalAll = count($registry->all());
+        $totalPremium = collect($registry->all())->filter(fn ($t) => $t->isPremium)->count();
+        $totalFree = $totalAll - $totalPremium;
+
+        return view('livewire.admin.theme-list', [
+            'themes' => $themes,
+            'tierCounts' => ['all' => $totalAll, 'free' => $totalFree, 'premium' => $totalPremium],
+        ]);
     }
 }
