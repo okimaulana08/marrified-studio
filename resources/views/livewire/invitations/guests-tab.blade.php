@@ -165,8 +165,8 @@
             @endif
         </div>
     @else
-        <div class="glass-sm rounded-xl overflow-hidden">
-            <table class="w-full text-xs">
+        <div class="glass-sm rounded-xl overflow-x-auto">
+            <table class="w-full text-xs min-w-[820px]">
                 <thead class="bg-white/5 border-b border-white/8">
                     <tr class="text-left text-[10px] uppercase tracking-widest text-white/50">
                         <th class="px-3 py-2 font-semibold">Nama</th>
@@ -211,37 +211,54 @@
                             </td>
                             <td class="px-3 py-2 text-right text-white/60 font-mono">{{ $g->opens_count }}</td>
                             <td class="px-3 py-2 text-right whitespace-nowrap">
-                                @if ($waLink)
-                                    <a href="{{ $waLink }}" target="_blank" rel="noopener"
-                                       title="Buka WhatsApp dengan pesan terisi"
-                                       class="btn-ghost text-xs px-2 py-0.5 inline-flex items-center gap-1 text-emerald-300/80 hover:text-emerald-300">
-                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/>
+                                <div class="inline-flex items-center gap-0.5">
+                                    @php $qrUrl = route('invitations.guests.qr', ['slug' => $invitationSlug, 'guest' => $g->id]); @endphp
+                                    @if ($waLink)
+                                        <a href="{{ $waLink }}" target="_blank" rel="noopener"
+                                           title="Kirim via WhatsApp"
+                                           class="row-action-btn text-emerald-300/80 hover:text-emerald-300 hover:bg-emerald-500/10">
+                                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/>
+                                            </svg>
+                                        </a>
+                                    @endif
+                                    <button type="button"
+                                            x-data
+                                            x-on:click="$dispatch('show-qr', { name: @js($g->name), url: @js($qrUrl) })"
+                                            title="Tampilkan QR per-tamu"
+                                            class="row-action-btn text-white/55 hover:text-white hover:bg-white/[0.08]">
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6zm10 6v-3m0 0v-3m0 3h3m3 0v3m-3-3v-3m3 0h3m-3 0v-3"/>
                                         </svg>
-                                        WA
-                                    </a>
-                                @endif
-                                @php $qrUrl = route('invitations.guests.qr', ['slug' => $invitationSlug, 'guest' => $g->id]); @endphp
-                                <button type="button"
-                                        x-data
-                                        x-on:click="$dispatch('show-qr', { name: @js($g->name), url: @js($qrUrl) })"
-                                        title="QR per-tamu untuk dicetak / di-share"
-                                        class="btn-ghost text-xs px-2 py-0.5 inline-flex items-center gap-1 text-white/55 hover:text-white">
-                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6zm10 6v-3m0 0v-3m0 3h3m3 0v3m-3-3v-3m3 0h3m-3 0v-3"/>
-                                    </svg>
-                                    QR
-                                </button>
-                                <button type="button"
-                                        title="Salin pesan ke clipboard"
-                                        x-data="{ ok: false }"
-                                        x-on:click="navigator.clipboard.writeText(@js($waMessage)); ok = true; setTimeout(() => ok = false, 1500)"
-                                        class="btn-ghost text-xs px-2 py-0.5 inline-flex items-center gap-1">
-                                    <span x-show="!ok">Copy</span>
-                                    <span x-show="ok" x-cloak class="text-emerald-300">✓</span>
-                                </button>
-                                <button wire:click="startEdit({{ $g->id }})" class="btn-ghost text-xs px-2 py-0.5">Edit</button>
-                                <button wire:click="confirmDelete({{ $g->id }})" class="btn-ghost text-xs px-2 py-0.5 text-red-300/80 hover:text-red-300">Hapus</button>
+                                    </button>
+                                    <button type="button"
+                                            x-data="{ ok: false }"
+                                            x-on:click="navigator.clipboard.writeText(@js($waMessage)); ok = true; setTimeout(() => ok = false, 1500)"
+                                            :title="ok ? 'Tersalin!' : 'Salin pesan ke clipboard'"
+                                            class="row-action-btn text-white/55 hover:text-white hover:bg-white/[0.08]"
+                                            :class="ok && 'text-emerald-300'">
+                                        <svg x-show="!ok" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+                                        </svg>
+                                        <svg x-show="ok" x-cloak class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                    </button>
+                                    <button wire:click="startEdit({{ $g->id }})"
+                                            title="Edit data tamu"
+                                            class="row-action-btn text-white/55 hover:text-white hover:bg-white/[0.08]">
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                        </svg>
+                                    </button>
+                                    <button wire:click="confirmDelete({{ $g->id }})"
+                                            title="Hapus tamu"
+                                            class="row-action-btn text-white/55 hover:text-red-300 hover:bg-red-500/10">
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/>
+                                        </svg>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     @endforeach

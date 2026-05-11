@@ -209,6 +209,28 @@
             color: white;
         }
 
+        /* ==================== ROW ACTION ICON-BUTTON ====================
+         * Compact square icon button used in table action columns. Hover
+         * subtly highlights without expanding the layout — kept the same
+         * size across rows so the column stays narrow. Pair with `title`
+         * for tooltips. */
+        .row-action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 0.5rem;
+            border: 1px solid transparent;
+            background: transparent;
+            transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .row-action-btn:hover {
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+
         /* ==================== FILE PICKER BUTTON ====================
          * Generic styled <label> that wraps a hidden <input type="file">.
          * Looks like a button, shows selected filename once chosen. Pair
@@ -732,15 +754,6 @@
             </span>
             <span class="text-[10px] uppercase tracking-widest font-semibold" style="color: rgba(52,211,153,0.85) !important;">Live</span>
         </div>
-
-        <a href="{{ route('public.invitation', 'raka-dewi') }}" target="_blank"
-           class="flex items-center gap-1.5 px-3 py-1.5 text-xs text-white/40 hover:text-white/70 glass-sm rounded-lg transition-all">
-            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-            </svg>
-            Demo
-        </a>
 
         @auth
             <span class="hidden md:inline text-xs text-white/30 font-mono px-2">{{ auth()->user()->email }}</span>
