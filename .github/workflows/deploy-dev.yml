@@ -129,19 +129,42 @@ jobs:
             set -e
             cd ${{ secrets.DEV_DEPLOY_PATH }}
 
+            # Hostinger shared hosting ships multiple PHP CLI binaries with
+            # different extension sets. The default `php` is often a minimal
+            # build missing dom/pdo. Find one that has the extensions Laravel
+            # needs and use that explicitly for all artisan commands.
+            PHP_BIN=""
+            for candidate in /usr/bin/php8.3 /opt/alt/php83/usr/bin/php /usr/local/bin/php8.3 php8.3 php83 php; do
+              if command -v "$candidate" > /dev/null 2>&1; then
+                if "$candidate" -r 'exit((extension_loaded("dom") && extension_loaded("pdo") && extension_loaded("pdo_mysql")) ? 0 : 1);' > /dev/null 2>&1; then
+                  PHP_BIN="$candidate"
+                  break
+                fi
+              fi
+            done
+
+            if [ -z "$PHP_BIN" ]; then
+              echo "❌ No PHP binary with dom + pdo + pdo_mysql extensions found on server"
+              echo "Searched: php8.3, php83, php (and common Hostinger paths)"
+              exit 1
+            fi
+
+            echo "✅ Using PHP binary: $PHP_BIN"
+            "$PHP_BIN" -v
+
             chmod -R 775 storage bootstrap/cache
-            mkdir -p storage/framework/{sessions,cache,views} storage/app/public
-            php artisan storage:link --force 2>/dev/null || true
+            mkdir -p storage/framework/sessions storage/framework/cache storage/framework/views storage/app/public
+            "$PHP_BIN" artisan storage:link --force 2>/dev/null || true
 
-            php artisan migrate --force --no-interaction
+            "$PHP_BIN" artisan migrate --force --no-interaction
 
-            php artisan config:clear
-            php artisan route:clear
-            php artisan view:clear
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
+            "$PHP_BIN" artisan config:clear
+            "$PHP_BIN" artisan route:clear
+            "$PHP_BIN" artisan view:clear
+            "$PHP_BIN" artisan config:cache
+            "$PHP_BIN" artisan route:cache
+            "$PHP_BIN" artisan view:cache
 
-            php artisan queue:restart 2>/dev/null || true
+            "$PHP_BIN" artisan queue:restart 2>/dev/null || true
 
             echo "✅ Deploy DEV selesai — $(date '+%Y-%m-%d %H:%M:%S WIB')"
