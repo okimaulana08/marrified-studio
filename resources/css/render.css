@@ -50,6 +50,7 @@ html, body { height: 100%; }
     width: 100%;
     height: 100%;
     overflow: hidden;
+    position: relative;
 }
 
 /* Page = swiper-slide; layout-slots sits behind, page-content scrolls internally.
@@ -66,6 +67,67 @@ html, body { height: 100%; }
     -ms-overflow-style: none;    /* IE / old Edge */
 }
 .page-content::-webkit-scrollbar { display: none; }  /* Chromium / Safari */
+
+/* Scroll-more affordance: a soft fade + bouncing chevron at the bottom of any
+   slide that overflows. Visible whenever the slide overflows so user always
+   has an affordance to either fast-scroll-to-bottom or advance to next. The
+   icon flips when at-bottom to communicate "tap to advance". */
+.invitation-deck .swiper-slide.is-overflowing::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 56px;
+    z-index: 5;
+    pointer-events: none;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.18), transparent);
+}
+.invitation-deck .swiper-slide.is-overflowing .page-scroll-hint {
+    opacity: 1;
+    transform: translate(-50%, 0);
+    pointer-events: auto;
+}
+.invitation-deck .swiper-slide.is-overflowing.at-bottom .page-scroll-hint svg {
+    transform: rotate(180deg);
+}
+.page-scroll-hint {
+    position: absolute;
+    left: 50%;
+    bottom: 0.85rem;
+    z-index: 6;
+    transform: translate(-50%, 6px);
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.95);
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    transition: opacity 0.25s ease, transform 0.25s ease, background 0.2s ease;
+    pointer-events: none;
+    animation: page-scroll-hint-bob 1.6s ease-in-out infinite;
+}
+.page-scroll-hint svg {
+    transition: transform 0.25s ease;
+}
+.page-scroll-hint:hover,
+.page-scroll-hint:focus-visible {
+    background: rgba(0, 0, 0, 0.65);
+    outline: none;
+}
+.page-scroll-hint svg { width: 14px; height: 14px; display: block; }
+@keyframes page-scroll-hint-bob {
+    0%, 100% { transform: translate(-50%, 0); }
+    50%      { transform: translate(-50%, 4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .page-scroll-hint { animation: none; }
+}
 
 /* Generic section — fills the slide; no decorative background here, that's the theme's job */
 .section {

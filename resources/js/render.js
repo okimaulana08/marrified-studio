@@ -308,6 +308,117 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     document.body.classList.add('deck-at-cover');
 
+    // ============================================================
+    // Scroll-then-swipe gate. When a slide's `.page-content` overflows
+    // the viewport, the user must scroll within the page before swipe
+    // advances the deck. Behavior:
+    //   - at TOP edge  → allowSlidePrev = true,  next stays locked until bottom
+    //   - at BOTTOM    → allowSlideNext = true,  prev stays locked until top
+    //   - mid-scroll   → both directions blocked, native scroll handles it
+    //   - non-overflow → both allowed (no double-step)
+    // The cover slide keeps its existing user-gesture lock on next; we
+    // only run the gate once the deck is unlocked AND the slide index > 0.
+    // ============================================================
+    const EDGE_TOLERANCE = 2; // px — covers sub-pixel rounding
+    let activeScrollEl = null;
+    let activeScrollHandler = null;
+
+    const isCoverActive = () => swiper.activeIndex === 0;
+
+    const computeEdgeState = (el) => {
+        const overflow = el.scrollHeight - el.clientHeight > EDGE_TOLERANCE;
+        if (!overflow) {
+            return { overflow: false, atTop: true, atBottom: true };
+        }
+        const atTop = el.scrollTop <= EDGE_TOLERANCE;
+        const atBottom = el.scrollHeight - el.clientHeight - el.scrollTop <= EDGE_TOLERANCE;
+        return { overflow: true, atTop, atBottom };
+    };
+
+    const applyGate = () => {
+        const slideEl = deckEl.querySelector('.swiper-slide-active');
+        if (!slideEl) return;
+        const scrollEl = slideEl.querySelector('.page-content');
+        if (!scrollEl) return;
+
+        const { overflow, atTop, atBottom } = computeEdgeState(scrollEl);
+
+        slideEl.classList.toggle('is-overflowing', overflow);
+        slideEl.classList.toggle('at-top', atTop);
+        slideEl.classList.toggle('at-bottom', atBottom);
+
+        // Cover slide: leave touch/next-lock to the existing cover-open gesture.
+        if (isCoverActive()) return;
+
+        // For overflowing slides: tag .page-content with the noSwipingClass
+        // ("no-swipe", configured on Swiper instance). Swiper walks up the
+        // DOM at touchStart; finding this class releases the gesture entirely
+        // to native scroll. Also disable the Mousewheel module so wheel
+        // events feed the inner overflow-y scroll instead of being consumed
+        // by Swiper. Advance/prev is done via nav arrows or chevron tap.
+        scrollEl.classList.toggle('no-swipe', overflow);
+
+        if (overflow) {
+            swiper.mousewheel?.disable?.();
+        } else {
+            swiper.mousewheel?.enable?.();
+        }
+
+        // For non-overflow slides, restore default behavior. Swiper's
+        // allowSlideNext/Prev stay open so nav arrows and pagination
+        // always work programmatically.
+        swiper.allowTouchMove = true;
+        swiper.allowSlideNext = true;
+        swiper.allowSlidePrev = true;
+    };
+
+    const bindActiveScrollListener = () => {
+        // Detach previous listener (slide changed).
+        if (activeScrollEl && activeScrollHandler) {
+            activeScrollEl.removeEventListener('scroll', activeScrollHandler);
+        }
+        const slideEl = deckEl.querySelector('.swiper-slide-active');
+        const scrollEl = slideEl?.querySelector('.page-content');
+        if (!scrollEl) {
+            activeScrollEl = null;
+            activeScrollHandler = null;
+            return;
+        }
+        activeScrollEl = scrollEl;
+        activeScrollHandler = () => applyGate();
+        activeScrollEl.addEventListener('scroll', activeScrollHandler, { passive: true });
+        applyGate();
+    };
+
+    swiper.on('slideChangeTransitionEnd', bindActiveScrollListener);
+    window.addEventListener('resize', () => applyGate(), { passive: true });
+    bindActiveScrollListener();
+
+    // Chevron hint at the bottom of overflowing slides is tappable: when
+    // user is still mid-scroll, tapping it scrolls to the bottom; once at
+    // the bottom, tapping advances to the next slide. This gives a 1-tap
+    // alternative to the 2-step "scroll then swipe" gesture on mobile.
+    deckEl.addEventListener('click', (e) => {
+        const hint = e.target.closest('.page-scroll-hint');
+        if (!hint) return;
+        const slideEl = hint.closest('.swiper-slide');
+        if (!slideEl) return;
+        const scrollEl = slideEl.querySelector('.page-content');
+        if (!scrollEl) return;
+        const { atBottom } = computeEdgeState(scrollEl);
+        if (atBottom) {
+            // At bottom edge → next slide.
+            const next = swiper.activeIndex + 1;
+            if (next < swiper.slides.length) {
+                swiper.allowSlideNext = true;
+                swiper.slideTo(next, 700);
+            }
+        } else {
+            // Mid-scroll → smooth-scroll to bottom so user sees the rest.
+            scrollEl.scrollTo({ top: scrollEl.scrollHeight, behavior: 'smooth' });
+        }
+    });
+
     // Pause lotties when tab is backgrounded; resume when foreground.
     document.addEventListener('visibilitychange', () => {
         document.querySelectorAll('.layout-lottie[data-lottie]').forEach((el) => {

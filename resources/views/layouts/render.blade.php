@@ -128,6 +128,11 @@
                     <div class="page-content">
                         <x-render-section :section="$section" :theme="$theme" :invitation="$invitation" :guest="$guest" />
                     </div>
+                    <button type="button" class="page-scroll-hint" aria-label="Lihat selengkapnya">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M6 9l6 6 6-6"/>
+                        </svg>
+                    </button>
                 </article>
             @endforeach
         </div>
