@@ -129,61 +129,59 @@ jobs:
             set -e
             cd ${{ secrets.DEV_DEPLOY_PATH }}
 
-            # Hostinger shared hosting ships multiple PHP CLI binaries with
-            # different extension sets. The default `php` is often a minimal
-            # build missing dom/pdo. Find one that has the extensions Laravel
-            # needs and use that explicitly for all artisan commands.
-            PHP_BIN=""
-            CANDIDATES="
-              /usr/bin/php8.5 /opt/alt/php85/usr/bin/php /usr/local/bin/php8.5 php8.5 php85
-              /usr/bin/php8.4 /opt/alt/php84/usr/bin/php /usr/local/bin/php8.4 php8.4 php84
-              /usr/bin/php8.3 /opt/alt/php83/usr/bin/php /usr/local/bin/php8.3 php8.3 php83
-              php
-            "
-            for candidate in $CANDIDATES; do
-              if command -v "$candidate" > /dev/null 2>&1; then
-                if "$candidate" -r 'exit((extension_loaded("dom") && extension_loaded("pdo") && extension_loaded("pdo_mysql")) ? 0 : 1);' > /dev/null 2>&1; then
-                  PHP_BIN="$candidate"
-                  break
-                fi
+            # Hostinger shared CLI runs OUTSIDE CageFS, so user-selected
+            # extensions don't auto-load — even ones that work in FPM.
+            # Workaround: invoke Alt-PHP binary directly and load each
+            # required `.so` via `-dextension=...` flags. The .so files
+            # exist at /opt/alt/php84/usr/lib64/php/modules/.
+            PHP_BIN=/opt/alt/php84/usr/bin/php
+            EXT_DIR=/opt/alt/php84/usr/lib64/php/modules
+
+            # Sanity: ensure binary + critical .so files exist
+            if [ ! -x "$PHP_BIN" ]; then
+              echo "❌ PHP binary not found at $PHP_BIN"
+              exit 1
+            fi
+            for ext in dom pdo pdo_mysql mbstring bcmath intl zip fileinfo phar mysqli gd xmlreader xmlwriter; do
+              if [ ! -f "$EXT_DIR/$ext.so" ]; then
+                echo "❌ Missing extension file: $EXT_DIR/$ext.so"
+                exit 1
               fi
             done
 
-            if [ -z "$PHP_BIN" ]; then
-              echo "❌ No PHP binary with dom + pdo + pdo_mysql extensions found on server"
-              echo "--- Diagnostic ---"
-              echo "PATH: $PATH"
-              echo "Candidates probed:"
-              for candidate in $CANDIDATES; do
-                if command -v "$candidate" > /dev/null 2>&1; then
-                  binpath=$(command -v "$candidate")
-                  ver=$("$candidate" -r 'echo PHP_VERSION;' 2>/dev/null || echo "?")
-                  exts=$("$candidate" -r 'echo "dom=".(int)extension_loaded("dom")." pdo=".(int)extension_loaded("pdo")." pdo_mysql=".(int)extension_loaded("pdo_mysql");' 2>/dev/null || echo "boot failed")
-                  echo "  $candidate → $binpath (PHP $ver) [$exts]"
-                fi
-              done
-              echo "--- Also try checking these manually via SSH: ---"
-              echo "  ls /opt/cpanel/ea-php*/root/usr/bin/php 2>/dev/null"
-              echo "  ls /usr/local/php*/bin/php 2>/dev/null"
-              exit 1
-            fi
+            # Flag string passed to every PHP invocation
+            PHP_EXT_FLAGS="-dextension=$EXT_DIR/dom.so \
+              -dextension=$EXT_DIR/pdo.so \
+              -dextension=$EXT_DIR/pdo_mysql.so \
+              -dextension=$EXT_DIR/mbstring.so \
+              -dextension=$EXT_DIR/bcmath.so \
+              -dextension=$EXT_DIR/intl.so \
+              -dextension=$EXT_DIR/zip.so \
+              -dextension=$EXT_DIR/fileinfo.so \
+              -dextension=$EXT_DIR/phar.so \
+              -dextension=$EXT_DIR/mysqli.so \
+              -dextension=$EXT_DIR/gd.so \
+              -dextension=$EXT_DIR/xmlreader.so \
+              -dextension=$EXT_DIR/xmlwriter.so"
 
-            echo "✅ Using PHP binary: $PHP_BIN"
-            "$PHP_BIN" -v
+            echo "✅ Using PHP: $PHP_BIN"
+            "$PHP_BIN" $PHP_EXT_FLAGS -v
+            echo "Extensions verified:"
+            "$PHP_BIN" $PHP_EXT_FLAGS -r 'foreach (["dom","pdo","pdo_mysql","mbstring","bcmath","intl","zip","fileinfo","phar","mysqli","gd"] as $e) echo "  $e=".(int)extension_loaded($e).PHP_EOL;'
 
             chmod -R 775 storage bootstrap/cache
             mkdir -p storage/framework/sessions storage/framework/cache storage/framework/views storage/app/public
-            "$PHP_BIN" artisan storage:link --force 2>/dev/null || true
+            "$PHP_BIN" $PHP_EXT_FLAGS artisan storage:link --force 2>/dev/null || true
 
-            "$PHP_BIN" artisan migrate --force --no-interaction
+            "$PHP_BIN" $PHP_EXT_FLAGS artisan migrate --force --no-interaction
 
-            "$PHP_BIN" artisan config:clear
-            "$PHP_BIN" artisan route:clear
-            "$PHP_BIN" artisan view:clear
-            "$PHP_BIN" artisan config:cache
-            "$PHP_BIN" artisan route:cache
-            "$PHP_BIN" artisan view:cache
+            "$PHP_BIN" $PHP_EXT_FLAGS artisan config:clear
+            "$PHP_BIN" $PHP_EXT_FLAGS artisan route:clear
+            "$PHP_BIN" $PHP_EXT_FLAGS artisan view:clear
+            "$PHP_BIN" $PHP_EXT_FLAGS artisan config:cache
+            "$PHP_BIN" $PHP_EXT_FLAGS artisan route:cache
+            "$PHP_BIN" $PHP_EXT_FLAGS artisan view:cache
 
-            "$PHP_BIN" artisan queue:restart 2>/dev/null || true
+            "$PHP_BIN" $PHP_EXT_FLAGS artisan queue:restart 2>/dev/null || true
 
             echo "✅ Deploy DEV selesai — $(date '+%Y-%m-%d %H:%M:%S WIB')"
