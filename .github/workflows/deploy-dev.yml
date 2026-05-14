@@ -1,0 +1,165 @@
+name: Deploy to Dev (Hostinger)
+
+on:
+  push:
+    branches: [development]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    name: Build & Deploy → development
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Notify deploy started
+        if: ${{ secrets.TELEGRAM_BOT_TOKEN != '' }}
+        uses: appleboy/telegram-action@v1.0.0
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          format: markdown
+          message: |
+            🚧 *Deploy DEV dimulai*
+            Repo: `${{ github.repository }}`
+            Branch: `${{ github.ref_name }}`
+            Commit: `${{ github.sha }}`
+            Oleh: ${{ github.actor }}
+            [Lihat workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, bcmath, pdo, pdo_mysql, sqlite3, pdo_sqlite, zip, intl, gd
+          coverage: none
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install NPM dependencies
+        run: npm ci
+
+      - name: Build Vite assets
+        run: npm run build
+
+      - name: Publish theme assets (per-theme public copy)
+        run: |
+          for dir in resources/themes/*/; do
+            slug=$(basename "$dir")
+            php artisan themes:publish-assets "$slug" || true
+          done
+
+      - name: Add server to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Setup SSH key
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+      # DEV_DEPLOY_PATH = /home/u778058510/domains/codie.my.id/public_html/marrivitation
+      # (parent folder of Laravel's public/ — document root is .../marrivitation/public)
+      - name: Sync files to dev server via rsync
+        run: |
+          rsync -az --checksum --delete \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='.env' \
+            --exclude='node_modules' \
+            --exclude='tests' \
+            --exclude='storage/logs/*.log' \
+            --exclude='storage/framework/sessions/*' \
+            --exclude='storage/framework/cache/*' \
+            --exclude='storage/framework/views/*' \
+            --exclude='storage/app/public/*' \
+            --exclude='public/storage' \
+            --exclude='.claude' \
+            --exclude='boost.json' \
+            --exclude='.mcp.json' \
+            --exclude='database/*.sqlite' \
+            --exclude='phpunit.xml' \
+            --exclude='playwright.config.*' \
+            --exclude='test-results' \
+            -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} -o StrictHostKeyChecking=no" \
+            ./ ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ secrets.DEV_DEPLOY_PATH }}/
+
+      - name: Run post-deploy commands on dev
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -e
+            cd ${{ secrets.DEV_DEPLOY_PATH }}
+
+            chmod -R 775 storage bootstrap/cache
+            mkdir -p storage/framework/{sessions,cache,views} storage/app/public
+            php artisan storage:link --force 2>/dev/null || true
+
+            php artisan migrate --force --no-interaction
+
+            php artisan config:clear
+            php artisan route:clear
+            php artisan view:clear
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+
+            php artisan queue:restart 2>/dev/null || true
+
+            echo "✅ Deploy DEV selesai — $(date '+%Y-%m-%d %H:%M:%S WIB')"
+
+      - name: Notify success
+        if: success() && secrets.TELEGRAM_BOT_TOKEN != ''
+        uses: appleboy/telegram-action@v1.0.0
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          format: markdown
+          message: |
+            ✅ *Deploy DEV berhasil!*
+            Repo: `${{ github.repository }}`
+            Branch: `${{ github.ref_name }}`
+            Commit: [`${{ github.sha }}`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})
+            URL: https://codie.my.id/marrivitation
+            Oleh: ${{ github.actor }}
+
+      - name: Notify failure
+        if: failure() && secrets.TELEGRAM_BOT_TOKEN != ''
+        uses: appleboy/telegram-action@v1.0.0
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          format: markdown
+          message: |
+            ❌ *Deploy DEV GAGAL!*
+            Repo: `${{ github.repository }}`
+            Branch: `${{ github.ref_name }}`
+            Commit: [`${{ github.sha }}`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})
+            Oleh: ${{ github.actor }}
+            [Lihat workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
