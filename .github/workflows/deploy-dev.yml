@@ -9,9 +9,6 @@ concurrency:
   group: deploy-dev
   cancel-in-progress: false
 
-env:
-  HAS_TELEGRAM: ${{ secrets.TELEGRAM_BOT_TOKEN != '' }}
-
 jobs:
   build-and-deploy:
     name: Build & Deploy → development
@@ -19,21 +16,6 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - name: Notify deploy started
-        if: env.HAS_TELEGRAM == 'true'
-        uses: appleboy/telegram-action@v1.0.0
-        with:
-          to: ${{ secrets.TELEGRAM_CHAT_ID }}
-          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          format: markdown
-          message: |
-            🚧 *Deploy DEV dimulai*
-            Repo: `${{ github.repository }}`
-            Branch: `${{ github.ref_name }}`
-            Commit: `${{ github.sha }}`
-            Oleh: ${{ github.actor }}
-            [Lihat workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -41,7 +23,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-          extensions: mbstring, bcmath, pdo, pdo_mysql, sqlite3, pdo_sqlite, zip, intl, gd
+          extensions: mbstring, bcmath, pdo, pdo_mysql, zip, intl, gd
           coverage: none
 
       - name: Cache Composer packages
@@ -144,33 +126,3 @@ jobs:
             php artisan queue:restart 2>/dev/null || true
 
             echo "✅ Deploy DEV selesai — $(date '+%Y-%m-%d %H:%M:%S WIB')"
-
-      - name: Notify success
-        if: success() && env.HAS_TELEGRAM == 'true'
-        uses: appleboy/telegram-action@v1.0.0
-        with:
-          to: ${{ secrets.TELEGRAM_CHAT_ID }}
-          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          format: markdown
-          message: |
-            ✅ *Deploy DEV berhasil!*
-            Repo: `${{ github.repository }}`
-            Branch: `${{ github.ref_name }}`
-            Commit: [`${{ github.sha }}`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})
-            URL: https://codie.my.id/marrivitation
-            Oleh: ${{ github.actor }}
-
-      - name: Notify failure
-        if: failure() && env.HAS_TELEGRAM == 'true'
-        uses: appleboy/telegram-action@v1.0.0
-        with:
-          to: ${{ secrets.TELEGRAM_CHAT_ID }}
-          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          format: markdown
-          message: |
-            ❌ *Deploy DEV GAGAL!*
-            Repo: `${{ github.repository }}`
-            Branch: `${{ github.ref_name }}`
-            Commit: [`${{ github.sha }}`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})
-            Oleh: ${{ github.actor }}
-            [Lihat workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})

@@ -31,7 +31,7 @@
 | Livewire | 4.3 | wizard / forms |
 | CSS | Tailwind | v4 (Vite plugin) |
 | Bundler | Vite | 8 |
-| DB | SQLite (PoC) / MySQL (later) | |
+| DB | MySQL 8 via Laravel Herd (local + dev/prod) — tests use SQLite `:memory:` | |
 | Tests | Pest | 4 |
 | Static | Larastan / PHPStan | level 8 |
 | Format | Laravel Pint | strict_types preset |

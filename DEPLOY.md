@@ -45,29 +45,30 @@ SSH ke server, lakukan sekali per environment sebelum deploy pertama:
 mkdir -p /home/u778058510/domains/codie.my.id/public_html/marrivitation
 cd /home/u778058510/domains/codie.my.id/public_html/marrivitation
 
-# 2. Buat .env (copy dari .env.example lokal, sesuaikan)
+# 2. Buat MySQL database via Hostinger hPanel
+#    → Databases → MySQL Databases → New Database
+#    Catat: nama DB, username, password yang digenerate
+
+# 3. Buat .env (copy dari .env.example lokal, sesuaikan)
 nano .env
 # Set:
 #   APP_ENV=staging              # atau production untuk prod
 #   APP_DEBUG=false
 #   APP_URL=https://codie.my.id/marrivitation
 #   APP_KEY=...                  # generate via: php artisan key:generate --show
-#   DB_CONNECTION=mysql          # atau sqlite — sesuaikan
-#   DB_DATABASE=...
-#   DB_USERNAME=...
+#   DB_CONNECTION=mysql
+#   DB_HOST=127.0.0.1            # atau host MySQL dari hPanel (biasanya localhost)
+#   DB_PORT=3306
+#   DB_DATABASE=u778058510_marrified
+#   DB_USERNAME=u778058510_admin
 #   DB_PASSWORD=...
 
-# 3. Set PHP version → 8.3 via hPanel → Websites → Advanced → PHP Configuration
+# 4. Set PHP version → 8.3 via hPanel → Websites → Advanced → PHP Configuration
 #    Pilih PHP 8.3 untuk subdomain/folder marrivitation
 
-# 4. Permissions
+# 5. Permissions
 chmod -R 775 storage bootstrap/cache
 chown -R u778058510:u778058510 .
-
-# 5. (jika SQLite) buat file kosong + permission
-mkdir -p database
-touch database/database.sqlite
-chmod 664 database/database.sqlite
 
 # 6. .htaccess di public/ — Laravel default sudah ada setelah rsync,
 #    tapi pastikan AllowOverride All di-enable Hostinger (default ya).
