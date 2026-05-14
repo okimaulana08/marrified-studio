@@ -134,7 +134,13 @@ jobs:
             # build missing dom/pdo. Find one that has the extensions Laravel
             # needs and use that explicitly for all artisan commands.
             PHP_BIN=""
-            for candidate in /usr/bin/php8.3 /opt/alt/php83/usr/bin/php /usr/local/bin/php8.3 php8.3 php83 php; do
+            CANDIDATES="
+              /usr/bin/php8.5 /opt/alt/php85/usr/bin/php /usr/local/bin/php8.5 php8.5 php85
+              /usr/bin/php8.4 /opt/alt/php84/usr/bin/php /usr/local/bin/php8.4 php8.4 php84
+              /usr/bin/php8.3 /opt/alt/php83/usr/bin/php /usr/local/bin/php8.3 php8.3 php83
+              php
+            "
+            for candidate in $CANDIDATES; do
               if command -v "$candidate" > /dev/null 2>&1; then
                 if "$candidate" -r 'exit((extension_loaded("dom") && extension_loaded("pdo") && extension_loaded("pdo_mysql")) ? 0 : 1);' > /dev/null 2>&1; then
                   PHP_BIN="$candidate"
@@ -145,7 +151,20 @@ jobs:
 
             if [ -z "$PHP_BIN" ]; then
               echo "❌ No PHP binary with dom + pdo + pdo_mysql extensions found on server"
-              echo "Searched: php8.3, php83, php (and common Hostinger paths)"
+              echo "--- Diagnostic ---"
+              echo "PATH: $PATH"
+              echo "Candidates probed:"
+              for candidate in $CANDIDATES; do
+                if command -v "$candidate" > /dev/null 2>&1; then
+                  binpath=$(command -v "$candidate")
+                  ver=$("$candidate" -r 'echo PHP_VERSION;' 2>/dev/null || echo "?")
+                  exts=$("$candidate" -r 'echo "dom=".(int)extension_loaded("dom")." pdo=".(int)extension_loaded("pdo")." pdo_mysql=".(int)extension_loaded("pdo_mysql");' 2>/dev/null || echo "boot failed")
+                  echo "  $candidate → $binpath (PHP $ver) [$exts]"
+                fi
+              done
+              echo "--- Also try checking these manually via SSH: ---"
+              echo "  ls /opt/cpanel/ea-php*/root/usr/bin/php 2>/dev/null"
+              echo "  ls /usr/local/php*/bin/php 2>/dev/null"
               exit 1
             fi
 
