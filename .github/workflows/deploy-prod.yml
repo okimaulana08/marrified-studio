@@ -9,6 +9,9 @@ concurrency:
   group: deploy-prod
   cancel-in-progress: false
 
+env:
+  HAS_TELEGRAM: ${{ secrets.TELEGRAM_BOT_TOKEN != '' }}
+
 jobs:
   build-and-deploy:
     name: Build & Deploy → production
@@ -17,7 +20,7 @@ jobs:
 
     steps:
       - name: Notify deploy started
-        if: ${{ secrets.TELEGRAM_BOT_TOKEN != '' }}
+        if: env.HAS_TELEGRAM == 'true'
         uses: appleboy/telegram-action@v1.0.0
         with:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -63,12 +66,20 @@ jobs:
       - name: Build Vite assets
         run: npm run build
 
+      - name: Create temporary .env for artisan boot
+        run: |
+          cp .env.example .env
+          php artisan key:generate --no-interaction
+
       - name: Publish theme assets (per-theme public copy)
         run: |
           for dir in resources/themes/*/; do
             slug=$(basename "$dir")
             php artisan themes:publish-assets "$slug" || true
           done
+
+      - name: Remove temporary .env before deploy
+        run: rm -f .env
 
       - name: Add server to known_hosts
         run: |
@@ -135,7 +146,7 @@ jobs:
             echo "✅ Deploy PROD selesai — $(date '+%Y-%m-%d %H:%M:%S WIB')"
 
       - name: Notify success
-        if: success() && secrets.TELEGRAM_BOT_TOKEN != ''
+        if: success() && env.HAS_TELEGRAM == 'true'
         uses: appleboy/telegram-action@v1.0.0
         with:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -149,7 +160,7 @@ jobs:
             Oleh: ${{ github.actor }}
 
       - name: Notify failure
-        if: failure() && secrets.TELEGRAM_BOT_TOKEN != ''
+        if: failure() && env.HAS_TELEGRAM == 'true'
         uses: appleboy/telegram-action@v1.0.0
         with:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
