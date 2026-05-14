@@ -70,8 +70,27 @@ jobs:
 
       - name: Setup SSH key
         run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          # Use printf (not echo) — printf preserves the trailing newline
+          # that OpenSSH requires at end-of-file, and won't interpret backslashes.
+          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
+
+      - name: Verify SSH key is valid (derives public key — safe to log)
+        run: |
+          echo "Key file line count: $(wc -l < ~/.ssh/deploy_key)"
+          echo "First line: $(head -n1 ~/.ssh/deploy_key)"
+          echo "Last line:  $(tail -n1 ~/.ssh/deploy_key)"
+          echo "--- Derived public key (must match what's on Hostinger): ---"
+          ssh-keygen -y -f ~/.ssh/deploy_key || (echo "❌ Private key is malformed — re-paste with newlines intact"; exit 1)
+
+      - name: Test SSH connection (verbose)
+        run: |
+          ssh -i ~/.ssh/deploy_key -p ${{ secrets.SSH_PORT }} \
+              -o StrictHostKeyChecking=no \
+              -o BatchMode=yes \
+              -o ConnectTimeout=10 \
+              -v \
+              ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "echo OK from $(hostname)" 2>&1 | tail -30
 
       # DEV_DEPLOY_PATH = /home/u778058510/domains/codie.my.id/public_html/marrivitation
       # (parent folder of Laravel's public/ — document root is .../marrivitation/public)
